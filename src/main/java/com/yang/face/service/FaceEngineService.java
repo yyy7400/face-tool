@@ -14,6 +14,7 @@ public interface FaceEngineService {
 
     /**
      * 人脸检测
+     *
      * @param imageInfo
      * @return
      */
@@ -21,6 +22,7 @@ public interface FaceEngineService {
 
     /**
      * 提取性别和年龄
+     *
      * @param imageInfo
      * @return
      */
@@ -28,6 +30,7 @@ public interface FaceEngineService {
 
     /**
      * 人脸特征
+     *
      * @param imageInfo
      * @return
      */
@@ -35,6 +38,7 @@ public interface FaceEngineService {
 
     /**
      * 人脸比对
+     *
      * @param userInfos
      * @param faceFeature
      * @return

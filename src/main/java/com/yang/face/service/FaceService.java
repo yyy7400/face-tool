@@ -18,6 +18,7 @@ public interface FaceService {
 
     /**
      * 人脸识别
+     *
      * @param type
      * @param photo
      * @param userIds
@@ -27,6 +28,7 @@ public interface FaceService {
 
     /**
      * 清理人脸库特征
+     *
      * @param userId
      * @return
      */
@@ -34,6 +36,7 @@ public interface FaceService {
 
     /**
      * 批量导入人脸库，并更新
+     *
      * @param list
      * @return
      */
@@ -41,6 +44,7 @@ public interface FaceService {
 
     /**
      * 更新人脸库特征
+     *
      * @return
      */
     public MessageVO updateFeatures();

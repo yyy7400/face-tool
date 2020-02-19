@@ -1,5 +1,6 @@
 package com.yang.face;
 
+import com.yang.face.service.impl.FaceEngineServiceImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import tk.mybatis.spring.annotation.MapperScan;
@@ -13,6 +14,8 @@ public class App {
 
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
+
+        System.out.println(new FaceEngineServiceImpl());
     }
 
 }

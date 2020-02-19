@@ -51,9 +51,9 @@ public class Response {
         return response;
     }
 
-    public static Response show(Object o,Boolean canBeNull){
+    public static Response show(Object o, Boolean canBeNull) {
         Response response = new Response();
-        response.msg="";
+        response.msg = "";
         if (o == null) {
             if (Boolean.TRUE.equals(canBeNull)) {
                 response.status = StatusType.NO_DATA.getKey();
@@ -70,7 +70,7 @@ public class Response {
         return response;
     }
 
-    public static Response show(int i){
+    public static Response show(int i) {
         Response response = new Response();
         response.msg = "";
         if (i <= 0) {

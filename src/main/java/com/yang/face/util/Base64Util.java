@@ -13,12 +13,12 @@ public class Base64Util {
 
 
     /**
+     * @param imgStr base64编码字符串
+     * @param path   图片路径-具体到文件
+     * @return
      * @Description: 将base64编码字符串转换为图片
      * @Author:
      * @CreateTime:
-     * @param imgStr base64编码字符串
-     * @param path 图片路径-具体到文件
-     * @return
      */
     public static boolean base64ToImage(String imgStr, String path) {
 
@@ -29,7 +29,7 @@ public class Base64Util {
         try {
             Base64.Decoder decoder = Base64.getDecoder();
             String base64Header = "data:image/jpeg;base64,";
-            if(imgStr.startsWith(base64Header))
+            if (imgStr.startsWith(base64Header))
                 imgStr = imgStr.substring(base64Header.length());
 
             byte[] b = decoder.decode(imgStr);
@@ -52,10 +52,10 @@ public class Base64Util {
     }
 
     /**
+     * @return
      * @Description: 根据图片地址转换为base64编码字符串
      * @Author:
      * @CreateTime:
-     * @return
      */
     public static String ImageToBase64(String imgFile) {
         InputStream inputStream = null;
@@ -76,8 +76,7 @@ public class Base64Util {
     /**
      * BASE64Encoder 加密
      *
-     * @param data
-     *            要加密的数据
+     * @param data 要加密的数据
      * @return 加密后的字符串
      */
     public static String encryptBASE64(byte[] data) {
@@ -86,11 +85,11 @@ public class Base64Util {
         String encode = encoder.encodeToString(data);
         return encode;
     }
+
     /**
      * BASE64Decoder 解密
      *
-     * @param data
-     *            要解密的字符串
+     * @param data 要解密的字符串
      * @return 解密后的byte[]
      * @throws Exception
      */

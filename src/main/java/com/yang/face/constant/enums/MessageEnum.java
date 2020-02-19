@@ -12,8 +12,8 @@ public enum MessageEnum {
     /**
      * 操作成功
      */
-    SUCCESS(200,"操作成功"),
-    FAIL(400,"操作失败"),
+    SUCCESS(200, "操作成功"),
+    FAIL(400, "操作失败"),
     ;
 
     MessageEnum(Integer status, String message) {

@@ -23,7 +23,7 @@ public enum StatusType {
 
     StatusType(int _key, String _name) {
         key = _key;
-        name= _name;
+        name = _name;
     }
 
     int key;
@@ -38,8 +38,8 @@ public enum StatusType {
     }
 
     public static String getName(int key) {
-        for(StatusType e : StatusType.values()) {
-            if(e.getKey() == key) {
+        for (StatusType e : StatusType.values()) {
+            if (e.getKey() == key) {
                 return e.getName();
             }
         }

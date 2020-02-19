@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * @author yangyuyang
  */
+@RestController
 public class FaceController {
 
     //近距离人脸识别（电子班牌）
@@ -36,7 +38,7 @@ public class FaceController {
     //清理特征库
     @RequestMapping(value = "/face/cleanFeature", method = RequestMethod.GET)
     public Response cleanFeature() {
-        return  Response.show("");
+        return Response.show("");
 
         //return new UnifiedShow(new FaceServiceImpl().cleanFeature());
     }
@@ -44,7 +46,7 @@ public class FaceController {
     //单张图片导入特征库（无更新特征库操作）
     @RequestMapping(value = "/face/importFeatures", method = RequestMethod.POST)
     public Response importFeatures(@RequestBody List<ImportFeaturePost> list) {
-        return  Response.show("");
+        return Response.show("");
 
         //return new UnifiedShow(new FaceServiceImpl().importFeatures(list));
     }
@@ -53,7 +55,7 @@ public class FaceController {
     @Deprecated
     @RequestMapping(value = "/face/importFeaturesNoUpdate", method = RequestMethod.POST)
     public Response importFeaturesNoUpdate(@RequestBody List<ImportFeaturePost> list) {
-        return  Response.show("");
+        return Response.show("");
 
         //return new UnifiedShow(new FaceServiceImpl().importFeaturesNoUpdate(list));
     }
@@ -61,7 +63,7 @@ public class FaceController {
     //更新特征库
     @RequestMapping(value = "/face/importFeaturesUpdateFeatures", method = RequestMethod.POST)
     public Response importFeaturesUpdateFeatures(@RequestBody List<String> list) {
-        return  Response.show("");
+        return Response.show("");
 
         //return  Response.show("");return new UnifiedShow(new FaceServiceImpl().importFeaturesUpdateFeatures(list));
     }
@@ -69,7 +71,7 @@ public class FaceController {
     //清理特征库by user
     @RequestMapping(value = "/face/cleanFeatureByUser", method = RequestMethod.POST)
     public Response cleanFeatureByUser(@RequestBody UserIdsPost o) {
-        return  Response.show("");
+        return Response.show("");
 
         //return new UnifiedShow(new FaceServiceImpl().cleanFeature(o.getUserIds()));
     }

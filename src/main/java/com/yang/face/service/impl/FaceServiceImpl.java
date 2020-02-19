@@ -101,7 +101,7 @@ public class FaceServiceImpl implements FaceService {
             Example example = new Example(UserInfo.class);
             Example.Criteria criteria = example.createCriteria();
 
-            if(userIds.isEmpty()) {
+            if (userIds.isEmpty()) {
                 userInfoMapper.deleteByExample(example);
             } else {
                 criteria.andIn("userId", userIds);

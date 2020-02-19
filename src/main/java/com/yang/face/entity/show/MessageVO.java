@@ -23,7 +23,7 @@ public class MessageVO {
 
     public MessageVO(MessageEnum messageEnum, Integer num) {
         this.state = messageEnum.equals(MessageEnum.SUCCESS);
-        this.msg = messageEnum.getMessage()+":"+num+"条数据";
+        this.msg = messageEnum.getMessage() + ":" + num + "条数据";
     }
 
     public MessageVO(MessageEnum messageEnum, String message) {
