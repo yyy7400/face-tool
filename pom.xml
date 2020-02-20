@@ -11,6 +11,7 @@
     <groupId>com.yang</groupId>
     <artifactId>face</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>face</name>
     <description>face reco</description>
 
@@ -105,7 +106,7 @@
             <artifactId>arcsoft-sdk-face</artifactId>
             <version>2.2.0.1</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/arcsoft-sdk-face-2.2.0.1.jar</systemPath>
+            <systemPath>${pom.basedir}/lib/arcsoft-sdk-face-2.2.0.1.jar</systemPath>
         </dependency>
     </dependencies>
 
@@ -114,6 +115,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>
