@@ -39,7 +39,7 @@ public class FaceController {
     }
 
     //清理特征库
-    @RequestMapping(value = "/face/cleanFeature", method = RequestMethod.GET)
+    @RequestMapping(value = "/face/cleanFeature", method = RequestMethod.POST)
     public Response cleanFeature() {
         return Response.show(faceService.cleanFeature(new ArrayList<>()));
     }
@@ -63,7 +63,7 @@ public class FaceController {
         return Response.show(faceService.importFeatures(list));
     }
 
-    //更新特征库
+    //更新特征库, 暂时不实现
     @RequestMapping(value = "/face/importFeaturesUpdateFeatures", method = RequestMethod.POST)
     public Response importFeaturesUpdateFeatures(@RequestBody List<String> list) {
         return Response.show("");

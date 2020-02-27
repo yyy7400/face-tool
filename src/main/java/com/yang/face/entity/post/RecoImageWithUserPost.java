@@ -16,6 +16,5 @@ public class RecoImageWithUserPost {
     @Min(value = 1)
     private Integer type;
     private String photo;
-    @NonNull
     private List<String> userIds;
 }

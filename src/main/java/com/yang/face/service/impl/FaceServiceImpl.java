@@ -92,7 +92,7 @@ public class FaceServiceImpl implements FaceService {
             List<FaceUserInfo> faces = faceEngineService.compareFaceFeature(bytes, userInfoList);
 
             for (FaceUserInfo o : faces) {
-                list.add(new FaceRecoShow(o.getUserId(), o.getSimilarityScore(), o.getPhotoUrl()));
+                list.add(new FaceRecoShow(o.getUserId(), o.getSimilarityScore(), PathUtil.getUrl(o.getPhotoUrl())));
             }
         } catch (Exception e) {
             logger.error("", e);
@@ -121,10 +121,11 @@ public class FaceServiceImpl implements FaceService {
                 userInfoMapper.deleteByExample(example);
             }
         } catch (Exception e) {
-
+            logger.error(e.getMessage(), e);
+            return new MessageVO(false, "删除失败");
         }
 
-        return null;
+        return new MessageVO(true, "");
     }
 
     /**
@@ -157,22 +158,21 @@ public class FaceServiceImpl implements FaceService {
 
 
                 // 2. 人脸特征获取
+                String filePath = Properties.SERVER_RESOURCE_IMAGE_FEATRUE + byteFile.getFileName();
                 byte[] bytes = faceEngineService.extractFaceFeature(imageInfo);
                 if (bytes == null) {
-                    res.add(new ImportFeatrueShow(o.getUserId(), "", o.getType(), "", "", false, "未检测到人脸"));
+                    res.add(new ImportFeatrueShow(o.getUserId(), o.getUserId(), o.getType(), "", "", false, "未检测到人脸"));
                     continue;
                 } else {
-                    res.add(new ImportFeatrueShow(o.getUserId(), "", o.getType(), "", "", true, ""));
+
+                    // 3. 保存图片
+                    if (!NetUtil.byte2File(byteFile.getBytes(), filePath)) {
+                        filePath = "";
+                    }
+                    res.add(new ImportFeatrueShow(o.getUserId(), o.getUserId(), o.getType(), PathUtil.getUrl(filePath), PathUtil.getRelPath(filePath), true, ""));
                 }
 
-                // 3.保存图片
-                String filePath = Properties.SERVER_RESOURCE_IMAGE_FEATRUE + byteFile.getFileName();
-                if (!NetUtil.byte2File(byteFile.getBytes(), filePath)) {
-                    filePath = "";
-                }
-
-
-                // 更新特征
+                // 4.0 更新特征
                 if (!userMap.containsKey(o.getUserId())) {
                     usersAdd.add(new UserInfo(o.getUserId(), o.getType(), o.getUserId(), 0, 0, PathUtil.getRelPath(filePath), bytes, DateUtil.date(), DateUtil.date()));
                 } else {
@@ -185,7 +185,7 @@ public class FaceServiceImpl implements FaceService {
                 }
             }
 
-            // 批量插入特征, 每次插入100条
+            // 4.1 批量插入特征, 每次插入100条
             if (!usersAdd.isEmpty()) {
                 int index = usersAdd.size() / 100;
                 for (int i = 0; i <= index; i++) {

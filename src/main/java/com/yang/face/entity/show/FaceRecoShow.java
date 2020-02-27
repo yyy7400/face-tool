@@ -21,6 +21,6 @@ public class FaceRecoShow implements Serializable {
     public FaceRecoShow(String userId, Integer similarityScore, String photoUrl) {
         this.userId = userId;
         this.similarityScore = similarityScore;
-        this.headPhoto = headPhoto;
+        this.headPhoto = photoUrl;
     }
 }
