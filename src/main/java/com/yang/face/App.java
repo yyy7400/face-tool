@@ -5,6 +5,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import tk.mybatis.spring.annotation.MapperScan;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author yangyuyang
  */
@@ -16,6 +21,12 @@ public class App {
         SpringApplication.run(App.class, args);
 
         System.out.println(new FaceEngineServiceImpl());
+
+        StringBuffer a;
+        StringBuilder b;
+        String str;
+        ArrayList l = new ArrayList();
+        Map<Integer, String> c = new ConcurrentHashMap<>();
     }
 
 }

@@ -196,7 +196,7 @@ public class FaceEngineServiceImpl implements FaceEngineService {
             }
         }
 
-        return new byte[0];
+        return null;
     }
 
     /**

@@ -1,11 +1,15 @@
 package com.yang.face.service.impl;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.arcsoft.face.toolkit.ImageFactory;
 import com.arcsoft.face.toolkit.ImageInfo;
+import com.yang.face.constant.Properties;
 import com.yang.face.constant.enums.PhotoType;
 import com.yang.face.engine.FaceUserInfo;
 import com.yang.face.entity.db.UserInfo;
+import com.yang.face.entity.midle.ByteFile;
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.FaceRecoShow;
 import com.yang.face.entity.show.ImportFeatrueShow;
@@ -15,20 +19,26 @@ import com.yang.face.service.FaceEngineService;
 import com.yang.face.service.FaceService;
 import com.yang.face.util.Base64Util;
 import com.yang.face.util.NetUtil;
+import com.yang.face.util.PathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author yangyuyang
  */
+@Service
 public class FaceServiceImpl implements FaceService {
 
     private static final Logger logger = LoggerFactory.getLogger(FaceServiceImpl.class);
@@ -53,8 +63,11 @@ public class FaceServiceImpl implements FaceService {
         List<FaceRecoShow> list = new ArrayList<>();
         try {
             // 1. 图片转转byte
-            byte[] photoBytes = getPhotoByte(type, photo);
-            ImageInfo imageInfo = ImageFactory.getRGBData(photoBytes);
+            ByteFile byteFile = getPhotoByteFile(type, photo);
+            if (byteFile == null) {
+                return list;
+            }
+            ImageInfo imageInfo = ImageFactory.getRGBData(byteFile.getBytes());
 
             // 2. 人脸特征获取
             byte[] bytes = faceEngineService.extractFaceFeature(imageInfo);
@@ -121,8 +134,72 @@ public class FaceServiceImpl implements FaceService {
      * @return
      */
     @Override
+    @Transactional
     public List<ImportFeatrueShow> importFeatures(List<ImportFeaturePost> list) {
-        return null;
+
+        List<ImportFeatrueShow> res = new ArrayList<>();
+
+        try {
+
+            // 0. 获取所有已存在的用户
+            List<UserInfo> users = userInfoMapper.selectAll();
+            Map<String, UserInfo> userMap = users.stream().collect(Collectors.toMap(UserInfo::getUserId, userInfo -> userInfo));
+
+            List<UserInfo> usersAdd = new ArrayList<>();
+            for (ImportFeaturePost o : list) {
+
+                // 1. 图片转转byte
+                ByteFile byteFile = getPhotoByteFile(o.getType(), o.getPhoto());
+                if (byteFile == null) {
+                    continue;
+                }
+                ImageInfo imageInfo = ImageFactory.getRGBData(byteFile.getBytes());
+
+
+                // 2. 人脸特征获取
+                byte[] bytes = faceEngineService.extractFaceFeature(imageInfo);
+                if (bytes == null) {
+                    res.add(new ImportFeatrueShow(o.getUserId(), "", o.getType(), "", "", false, "未检测到人脸"));
+                    continue;
+                } else {
+                    res.add(new ImportFeatrueShow(o.getUserId(), "", o.getType(), "", "", true, ""));
+                }
+
+                // 3.保存图片
+                String filePath = Properties.SERVER_RESOURCE_IMAGE_FEATRUE + byteFile.getFileName();
+                if (!NetUtil.byte2File(byteFile.getBytes(), filePath)) {
+                    filePath = "";
+                }
+
+
+                // 更新特征
+                if (!userMap.containsKey(o.getUserId())) {
+                    usersAdd.add(new UserInfo(o.getUserId(), o.getType(), o.getUserId(), 0, 0, PathUtil.getRelPath(filePath), bytes, DateUtil.date(), DateUtil.date()));
+                } else {
+                    Example example = new Example(UserInfo.class);
+                    Example.Criteria criteria = example.createCriteria();
+                    criteria.andEqualTo("userId", o.getUserId());
+
+                    UserInfo userInfo = new UserInfo(null, null, null, null, null, PathUtil.getRelPath(filePath), bytes, null, DateUtil.date());
+                    userInfoMapper.updateByExampleSelective(userInfo, example);
+                }
+            }
+
+            // 批量插入特征, 每次插入100条
+            if (!usersAdd.isEmpty()) {
+                int index = usersAdd.size() / 100;
+                for (int i = 0; i <= index; i++) {
+                    //stream流表达式，skip表示跳过前i*100条记录，limit表示读取当前流的前100条记录
+                    userInfoMapper.insertList(usersAdd.stream().skip(i * 100).limit(100).collect(Collectors.toList()));
+                }
+            }
+
+
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+
+        return res;
     }
 
     /**
@@ -135,14 +212,25 @@ public class FaceServiceImpl implements FaceService {
         return null;
     }
 
-    public byte[] getPhotoByte(int type, String photo) throws IOException {
+    public ByteFile getPhotoByteFile(int type, String srcPhoto) throws IOException {
         // url
-        if (type == PhotoType.IMAGE.getKey())
-            return NetUtil.image2byte(photo);
-        else if (type == PhotoType.BASE64.getKey()) {
-            return Base64.decode(Base64Util.base64Process(photo));
+        ByteFile byteFile = new ByteFile();
+        if (type == PhotoType.IMAGE.getKey()) {
+            byteFile.setBytes(NetUtil.image2byte(srcPhoto));
+            byteFile.setExt(srcPhoto.substring(srcPhoto.lastIndexOf('.')));
+            byteFile.setFileName(DateUtil.format(DateUtil.date(), DatePattern.PURE_DATETIME_MS_PATTERN) + byteFile.getExt());
+            return byteFile;
+        } else if (type == PhotoType.BASE64.getKey()) {
+            String dstPhotoExt = ".jpg";
+
+            byteFile.setBytes(Base64.decode(Base64Util.base64Process(srcPhoto)));
+            byteFile.setExt(".jpg");
+            byteFile.setFileName(DateUtil.format(DateUtil.date(), DatePattern.PURE_DATETIME_MS_PATTERN) + dstPhotoExt);
+            return byteFile;
         }
 
-        return new byte[0];
+        return null;
     }
+
+
 }

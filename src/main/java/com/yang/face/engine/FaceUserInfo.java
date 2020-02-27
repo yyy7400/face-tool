@@ -19,7 +19,7 @@ public class FaceUserInfo {
 
     private String userName;
 
-    private Boolean sex;
+    private Integer sex;
 
     private Integer age;
 

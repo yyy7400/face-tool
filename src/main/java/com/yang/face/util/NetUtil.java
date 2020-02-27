@@ -3,9 +3,7 @@ package com.yang.face.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -46,5 +44,23 @@ public class NetUtil {
         output.close();
         input.close();
         return data;
+    }
+
+    // 保持图片
+    public static boolean byte2File(byte[] b, String filePath) {
+
+        try {
+
+            OutputStream out = new FileOutputStream(filePath);
+            out.write(b);
+            out.flush();
+            out.close();
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return false;
+        }
+
+        return true;
     }
 }
