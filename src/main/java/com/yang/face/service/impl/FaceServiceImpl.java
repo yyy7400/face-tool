@@ -17,6 +17,7 @@ import com.yang.face.entity.show.MessageVO;
 import com.yang.face.mapper.UserInfoMapper;
 import com.yang.face.service.FaceEngineService;
 import com.yang.face.service.FaceService;
+import com.yang.face.service.UserInfoService;
 import com.yang.face.util.Base64Util;
 import com.yang.face.util.NetUtil;
 import com.yang.face.util.PathUtil;
@@ -27,9 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +44,9 @@ public class FaceServiceImpl implements FaceService {
 
     @Resource
     private UserInfoMapper userInfoMapper;
+
+    @Resource
+    private UserInfoService userInfoService;
 
     @Resource
     private FaceEngineService faceEngineService;
@@ -77,14 +79,23 @@ public class FaceServiceImpl implements FaceService {
 
             // 3. 从数据库中取出人脸库
             List<UserInfo> userInfoList = new ArrayList<>();
+//            if (userIds.isEmpty()) {
+//                userInfoList = userInfoService.selectAll();
+//            } else {
+//                Example example = new Example(UserInfo.class);
+//                Example.Criteria criteria = example.createCriteria();
+//                criteria.andIn("userId", userIds);
+//                userInfoList = userInfoMapper.selectByExample(example);
+//            }
+
             if (userIds.isEmpty()) {
-                userInfoList = userInfoMapper.selectAll();
+                //if (userIds.size() == 0) {
+                userInfoList = userInfoService.selectAll();
             } else {
-                Example example = new Example(UserInfo.class);
-                Example.Criteria criteria = example.createCriteria();
-                criteria.andIn("userId", userIds);
-                userInfoList = userInfoMapper.selectByExample(example);
+                List<UserInfo> tmp = userInfoService.selectAll();
+                userInfoList = userInfoService.selectByUserIds(userIds, tmp);
             }
+
             if (userInfoList.isEmpty())
                 return list;
 
@@ -120,6 +131,9 @@ public class FaceServiceImpl implements FaceService {
                 criteria.andIn("userId", userIds);
                 userInfoMapper.deleteByExample(example);
             }
+
+            userInfoService.clearSelectAllCache();
+
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return new MessageVO(false, "删除失败");
@@ -139,11 +153,14 @@ public class FaceServiceImpl implements FaceService {
     public List<ImportFeatrueShow> importFeatures(List<ImportFeaturePost> list) {
 
         List<ImportFeatrueShow> res = new ArrayList<>();
+        int rowCount = 0;
 
         try {
 
             // 0. 获取所有已存在的用户
-            List<UserInfo> users = userInfoMapper.selectAll();
+            //List<UserInfo> users = userInfoMapper.selectAll();
+            // 缓存
+            List<UserInfo> users = userInfoService.selectAll();
             Map<String, UserInfo> userMap = users.stream().collect(Collectors.toMap(UserInfo::getUserId, userInfo -> userInfo));
 
             List<UserInfo> usersAdd = new ArrayList<>();
@@ -181,7 +198,7 @@ public class FaceServiceImpl implements FaceService {
                     criteria.andEqualTo("userId", o.getUserId());
 
                     UserInfo userInfo = new UserInfo(null, null, null, null, null, PathUtil.getRelPath(filePath), bytes, null, DateUtil.date());
-                    userInfoMapper.updateByExampleSelective(userInfo, example);
+                    rowCount += userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
             }
 
@@ -190,10 +207,14 @@ public class FaceServiceImpl implements FaceService {
                 int index = usersAdd.size() / 100;
                 for (int i = 0; i <= index; i++) {
                     //stream流表达式，skip表示跳过前i*100条记录，limit表示读取当前流的前100条记录
-                    userInfoMapper.insertList(usersAdd.stream().skip(i * 100).limit(100).collect(Collectors.toList()));
+                    rowCount += userInfoMapper.insertList(usersAdd.stream().skip(i * 100).limit(100).collect(Collectors.toList()));
                 }
             }
 
+            // 删除缓存
+            if (rowCount > 0) {
+                userInfoService.clearSelectAllCache();
+            }
 
         } catch (Exception e) {
             logger.error("", e);

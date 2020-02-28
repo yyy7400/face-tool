@@ -4,10 +4,6 @@ import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.FaceRecoShow;
 import com.yang.face.entity.show.ImportFeatrueShow;
 import com.yang.face.entity.show.MessageVO;
-import com.yang.face.service.impl.FaceServiceImpl;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 

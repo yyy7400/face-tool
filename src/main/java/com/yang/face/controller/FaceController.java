@@ -3,7 +3,6 @@ package com.yang.face.controller;
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.post.RecoImageWithUserPost;
 import com.yang.face.entity.post.TypeAndPhotoPost;
-import com.yang.face.entity.post.UserIdsPost;
 import com.yang.face.entity.show.Response;
 import com.yang.face.service.FaceService;
 import org.springframework.validation.annotation.Validated;
