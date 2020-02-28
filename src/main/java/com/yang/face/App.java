@@ -21,12 +21,6 @@ public class App {
         SpringApplication.run(App.class, args);
 
         System.out.println(new FaceEngineServiceImpl());
-
-        StringBuffer a;
-        StringBuilder b;
-        String str;
-        ArrayList l = new ArrayList();
-        Map<Integer, String> c = new ConcurrentHashMap<>();
     }
 
 }
