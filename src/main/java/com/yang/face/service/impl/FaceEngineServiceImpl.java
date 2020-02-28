@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ClassUtils;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
@@ -32,8 +33,8 @@ public class FaceEngineServiceImpl implements FaceEngineService {
 
     public final static Logger logger = LoggerFactory.getLogger(FaceEngineServiceImpl.class);
 
-    @Value("${config.arcface-sdk.sdk-lib-path}")
-    public String sdkLibPath;
+    //@Value("${config.arcface-sdk.sdk-lib-path}")
+    //public String sdkLibPath;
     @Value("${config.arcface-sdk.app-id}")
     public String appId;
 
@@ -52,6 +53,10 @@ public class FaceEngineServiceImpl implements FaceEngineService {
 
     @PostConstruct
     public void init() {
+
+        String jarDir = ClassUtils.getDefaultClassLoader().getResource("").getPath().substring(1);
+        String sdkLibPath = jarDir + "lib";
+
         // alibaba 推荐手动重建线程池，以便了解线程池运行机制，规避资源耗尽的风险
         threadPoolExecutor = new ThreadPoolExecutor(5, 10, 200, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
         //threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadPoolSize)

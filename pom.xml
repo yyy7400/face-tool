@@ -50,6 +50,19 @@
             <version>${tomcat.version}</version>
         </dependency>
 
+        <!-- Spring Boot 缓存支持启动器 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <!-- Ehcache 坐标 -->
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>2.10.4</version>
+        </dependency>
+
         <!-- 通用Mapper -->
         <dependency>
             <groupId>tk.mybatis</groupId>
@@ -126,13 +139,16 @@
             <artifactId>arcsoft-sdk-face</artifactId>
             <version>2.2.0.1</version>
             <scope>system</scope>
-            <systemPath>${pom.basedir}/lib/arcsoft-sdk-face-2.2.0.1.jar</systemPath>
+            <systemPath>${project.basedir}/src/main/resources/lib/arcsoft-sdk-face-2.2.0.1.jar</systemPath>
         </dependency>
 
 
     </dependencies>
 
     <build>
+        <!-- 产生war包的文件名，默认值是${artifactId}-${version}。 -->
+        <finalName>face</finalName>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -155,7 +171,7 @@
                 <configuration>
                     <webResources>
                         <resource>
-                            <directory>${pom.basedir}/lib/</directory>
+                            <directory>src/main/resources/lib/</directory>
                             <targetPath>WEB-INF/lib/</targetPath>
                             <includes>
                                 <include>**/*.jar</include>
