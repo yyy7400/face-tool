@@ -3,6 +3,8 @@ package com.yang.face;
 import com.yang.face.service.impl.FaceEngineServiceImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import tk.mybatis.spring.annotation.MapperScan;
 
 import java.util.ArrayList;
@@ -15,9 +17,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @SpringBootApplication
 @MapperScan("com.yang.face.mapper")
-public class App {
+public class App extends SpringBootServletInitializer {
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(App.class);
+    }
 
     public static void main(String[] args) {
+
         SpringApplication.run(App.class, args);
 
         System.out.println(new FaceEngineServiceImpl());
