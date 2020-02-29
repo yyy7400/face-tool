@@ -1,2 +1,2 @@
 # face-tool
-base on ArcSoftFaceDemo
+base on ArcSoftFace
