@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author yangyuyang
@@ -31,6 +32,8 @@ public class App extends SpringBootServletInitializer {
         SpringApplication.run(App.class, args);
 
         System.out.println(new FaceEngineServiceImpl());
+
+        ThreadPoolExecutor pool;
     }
 
 }
