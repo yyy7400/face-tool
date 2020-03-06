@@ -33,7 +33,6 @@ public class App extends SpringBootServletInitializer {
 
         System.out.println(new FaceEngineServiceImpl());
 
-        ThreadPoolExecutor pool;
     }
 
 }

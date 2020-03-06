@@ -3,10 +3,13 @@ package com.yang.face.service.impl;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import com.arcsoft.face.FaceInfo;
 import com.arcsoft.face.toolkit.ImageFactory;
 import com.arcsoft.face.toolkit.ImageInfo;
 import com.yang.face.constant.Properties;
+import com.yang.face.constant.enums.FaceFeatureTypeEnum;
 import com.yang.face.constant.enums.PhotoType;
+import com.yang.face.constant.enums.UserTypeEnum;
 import com.yang.face.engine.FaceUserInfo;
 import com.yang.face.entity.db.UserInfo;
 import com.yang.face.entity.midle.ByteFile;
@@ -79,17 +82,9 @@ public class FaceServiceImpl implements FaceService {
 
             // 3. 从数据库中取出人脸库
             List<UserInfo> userInfoList = new ArrayList<>();
-//            if (userIds.isEmpty()) {
-//                userInfoList = userInfoService.selectAll();
-//            } else {
-//                Example example = new Example(UserInfo.class);
-//                Example.Criteria criteria = example.createCriteria();
-//                criteria.andIn("userId", userIds);
-//                userInfoList = userInfoMapper.selectByExample(example);
-//            }
 
+            // 缓存
             if (userIds.isEmpty()) {
-                //if (userIds.size() == 0) {
                 userInfoList = userInfoService.selectAll();
             } else {
                 List<UserInfo> tmp = userInfoService.selectAll();
@@ -172,6 +167,7 @@ public class FaceServiceImpl implements FaceService {
                     continue;
                 }
                 ImageInfo imageInfo = ImageFactory.getRGBData(byteFile.getBytes());
+                List<FaceInfo> faceInfos = faceEngineService.detectFaces(imageInfo);
 
 
                 // 2. 人脸特征获取
@@ -191,13 +187,16 @@ public class FaceServiceImpl implements FaceService {
 
                 // 4.0 更新特征
                 if (!userMap.containsKey(o.getUserId())) {
-                    usersAdd.add(new UserInfo(o.getUserId(), o.getType(), o.getUserId(), 0, 0, PathUtil.getRelPath(filePath), bytes, DateUtil.date(), DateUtil.date()));
+                    usersAdd.add(new UserInfo(null, o.getUserId(), o.getUserId(), UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
+                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes,  "", DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
+
                     Example.Criteria criteria = example.createCriteria();
                     criteria.andEqualTo("userId", o.getUserId());
 
-                    UserInfo userInfo = new UserInfo(null, null, null, null, null, PathUtil.getRelPath(filePath), bytes, null, DateUtil.date());
+                    UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
+                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, null, DateUtil.date());
                     rowCount += userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
             }
@@ -252,6 +251,8 @@ public class FaceServiceImpl implements FaceService {
 
         return null;
     }
+
+
 
 
 }

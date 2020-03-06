@@ -100,12 +100,26 @@ public class FaceEngineServiceImpl implements FaceEngineService {
         try {
             //获取引擎对象
             faceEngine = faceEngineObjectPool.borrowObject();
+            faceEngine.setLivenessParam(0.8f,0.8f);
 
             //人脸检测得到人脸列表
             List<FaceInfo> faceInfoList = new ArrayList<>();
 
             //人脸检测
             faceEngine.detectFaces(imageInfo.getImageData(), imageInfo.getWidth(), imageInfo.getHeight(), imageInfo.getImageFormat(), faceInfoList);
+
+            // 图片不支持活体检测,推荐的方案采用双目（RGB/ IR）摄像头，RGB摄像头数据用于人脸检测，将人脸检测的结果用于IR活体检测。
+//            FunctionConfiguration configuration = new FunctionConfiguration();
+//            configuration.setSupportIRLiveness(true);
+//            int processCode2 = faceEngine.processIr(imageInfo.getImageData(), imageInfo.getWidth(), imageInfo.getHeight(), imageInfo.getImageFormat(), faceInfoList, configuration);
+//
+//            //IR 活体检测
+//            List<IrLivenessInfo> irLivenessInfos = new ArrayList<>();
+//            int livenessIr = faceEngine.getLivenessIr(irLivenessInfos);
+//            if(!irLivenessInfos.isEmpty()) {
+//                System.out.println("IR活体： " + irLivenessInfos.get(0).getLiveness());
+//            }
+
             return faceInfoList;
         } catch (Exception e) {
             logger.error("", e);
@@ -266,7 +280,7 @@ public class FaceEngineServiceImpl implements FaceEngineService {
                 faceEngine = faceEngineObjectPool.borrowObject();
                 for (UserInfo userInfo : userInfoList) {
                     FaceFeature sourceFaceFeature = new FaceFeature();
-                    sourceFaceFeature.setFeatureData(userInfo.getFaceFeature());
+                    sourceFaceFeature.setFeatureData(userInfo.getFaceFeatureByte());
                     FaceSimilar faceSimilar = new FaceSimilar();
                     faceEngine.compareFaceFeature(targetFaceFeature, sourceFaceFeature, faceSimilar);
                     //获取相似值
@@ -278,10 +292,9 @@ public class FaceEngineServiceImpl implements FaceEngineService {
                         info.setId(userInfo.getId());
                         info.setUserId(userInfo.getUserId());
                         info.setSex(userInfo.getSex());
-                        info.setAge(userInfo.getAge());
                         // 转为url地址
                         info.setPhotoUrl(userInfo.getPhotoUrl());
-                        info.setFaceFeature(userInfo.getFaceFeature());
+                        info.setFaceFeature(userInfo.getFaceFeatureByte());
                         info.setCreateTime(userInfo.getCreateTime());
                         info.setUpdateTime(userInfo.getUpdateTime());
                         info.setSimilarityScore(similarValue);

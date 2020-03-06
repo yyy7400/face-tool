@@ -14,4 +14,10 @@ public interface UserInfoService {
 
     public List<UserInfo> selectByUserIds(List<String> userIds, List<UserInfo> list);
 
+    /**
+     * 更新用户信息
+     * @return
+     */
+    Boolean updateUserInfo();
+
 }

@@ -20,6 +20,7 @@ public interface FaceEngineService {
      */
     List<FaceInfo> detectFaces(ImageInfo imageInfo);
 
+
     /**
      * 提取性别和年龄
      *
@@ -44,5 +45,6 @@ public interface FaceEngineService {
      * @return
      */
     List<FaceUserInfo> compareFaceFeature(byte[] faceFeature, List<UserInfo> userInfos) throws InterruptedException, ExecutionException;
+
 
 }
