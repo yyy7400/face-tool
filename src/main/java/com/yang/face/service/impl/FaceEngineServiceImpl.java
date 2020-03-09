@@ -113,6 +113,7 @@ public class FaceEngineServiceImpl implements FaceEngineService {
             if (faceEngine != null) {
                 //释放引擎对象
                 faceEngineObjectPool.returnObject(faceEngine);
+
             }
         }
         return null;
