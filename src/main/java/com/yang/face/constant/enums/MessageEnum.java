@@ -16,11 +16,11 @@ public enum MessageEnum {
     FAIL(400, "操作失败"),
     ;
 
-    MessageEnum(Integer status, String message) {
-        this.status = status;
-        this.message = message;
+    MessageEnum(Integer key, String name) {
+        this.key = key;
+        this.name = name;
     }
 
-    Integer status;
-    String message;
+    Integer key;
+    String name;
 }

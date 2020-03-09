@@ -18,16 +18,17 @@ public class MessageVO {
 
     public MessageVO(MessageEnum messageEnum) {
         this.state = messageEnum.equals(MessageEnum.SUCCESS);
-        this.msg = messageEnum.getMessage();
+        this.msg = messageEnum.getName();
     }
 
     public MessageVO(MessageEnum messageEnum, Integer num) {
         this.state = messageEnum.equals(MessageEnum.SUCCESS);
-        this.msg = messageEnum.getMessage() + ":" + num + "条数据";
+        this.msg = messageEnum.getName() + ":" + num + "条数据";
     }
 
     public MessageVO(MessageEnum messageEnum, String message) {
         this.state = messageEnum.equals(MessageEnum.SUCCESS);
         this.msg = message;
     }
+
 }

@@ -2,7 +2,7 @@ package com.yang.face.service;
 
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.FaceRecoShow;
-import com.yang.face.entity.show.ImportFeatrueShow;
+import com.yang.face.entity.show.ImportFeatureShow;
 import com.yang.face.entity.show.MessageVO;
 
 import java.util.List;
@@ -36,7 +36,15 @@ public interface FaceService {
      * @param list
      * @return
      */
-    public List<ImportFeatrueShow> importFeatures(List<ImportFeaturePost> list);
+    public List<ImportFeatureShow> importFeatures(List<ImportFeaturePost> list);
+
+    /**
+     * 批量导入人脸库，并更新
+     *
+     * @param zipPath
+     * @return
+     */
+    public List<ImportFeatureShow> importFeatures(String zipPath);
 
     /**
      * 更新人脸库特征

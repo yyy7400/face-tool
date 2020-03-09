@@ -2,6 +2,7 @@ package com.yang.face.util;
 
 import cn.hutool.core.util.StrUtil;
 import com.yang.face.constant.Properties;
+import org.springframework.util.StringUtils;
 
 /**
  * 路径转换处理,只支持本系统内路劲
@@ -63,6 +64,23 @@ public class PathUtil {
         }
 
         return Properties.SERVER_ADRR + StrUtil.removePrefix(srcPath, "/");
+    }
+
+    /**
+     * 拼接字符串
+     * @param paths
+     * @return
+     */
+    public static String combine(String... paths) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (String path : paths) {
+            String temp = StringUtils.trimLeadingCharacter(StringUtils.trimLeadingCharacter(path, '/'), '\\');
+            stringBuilder.append('/').append(temp);
+        }
+        stringBuilder.delete(0, 1);
+        return stringBuilder.toString();
     }
 
 
