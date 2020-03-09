@@ -14,6 +14,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor()
 @AllArgsConstructor()
+@Table(name = "User_Info")
 public class UserInfo implements Serializable {
 
     private static final long serialVersionUID = 8543251640066597652L;
@@ -22,55 +23,55 @@ public class UserInfo implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "userId")
+    //@Column(name = "userId")
     private String userId;
 
-    @Column(name = "userName")
+    //@Column(name = "userName")
     private String userName;
 
-    @Column(name = "userType")
+    //@Column(name = "userType")
     private Integer userType;
 
-    @Column(name = "sex")
+    //@Column(name = "sex")
     private Integer sex;
 
-    @Column(name = "gradeId")
+    //@Column(name = "gradeId")
     private String gradeId;
 
-    @Column(name = "gradeName")
+    //@Column(name = "gradeName")
     private String gradeName;
 
-    @Column(name = "classId")
+    //@Column(name = "classId")
     private String classId;
 
-    @Column(name = "className")
+    //@Column(name = "className")
     private String className;
 
-    @Column(name = "groupId")
+    //@Column(name = "groupId")
     private String groupId;
 
-    @Column(name = "groupName")
+    //@Column(name = "groupName")
     private String groupName;
 
-    @Column(name = "photoUrl")
+    //@Column(name = "photoUrl")
     private String photoUrl;
 
-    @Column(name = "faceFeatureType")
+    //@Column(name = "faceFeatureType")
     private Integer faceFeatureType;
 
-    @Column(name = "faceFeatureByte")
+    //@Column(name = "faceFeatureByte")
     private byte[] faceFeatureByte;
 
-    @Column(name = "faceFeatureFile")
+    //@Column(name = "faceFeatureFile")
     private String faceFeatureFile;
 
-    @Column(name = "score")
+    //@Column(name = "score")
     private Integer score;
 
-    @Column(name = "createTime")
+    //@Column(name = "createTime")
     private Date createTime;
 
-    @Column(name = "updateTime")
+    //@Column(name = "updateTime")
     private Date updateTime;
 
     public UserInfo(String userId) {

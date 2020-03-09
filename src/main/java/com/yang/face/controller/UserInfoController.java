@@ -2,6 +2,7 @@ package com.yang.face.controller;
 
 import com.yang.face.entity.show.Response;
 import com.yang.face.service.UserInfoService;
+import com.yang.face.service.yun.SchoolInfoStructUtil;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,7 +24,7 @@ public class UserInfoController {
 
     /**
      * 分页查找用户信息
-     * @param schoolId
+     * @param groupId
      * @param groupId
      * @param userName
      * @param pageIndex
@@ -31,8 +32,8 @@ public class UserInfoController {
      * @return
      */
     @GetMapping("/userInfo/search")
-    public Response search(String schoolId, String groupId, String userName, Integer pageIndex, Integer pageSize) {
-        return null;
+    public Response search( String groupId, Integer userType, String userName, Integer pageIndex, Integer pageSize) {
+        return Response.show(userInfoService.search(groupId, userType, userName, pageIndex, pageSize));
     }
 
     /**
@@ -42,7 +43,7 @@ public class UserInfoController {
      */
     @GetMapping("/userInfo/getById")
     public Response getById(Integer id) {
-        return Response.show("");
+        return Response.show(userInfoService.selectById(id));
     }
 
     /**
@@ -51,8 +52,8 @@ public class UserInfoController {
      * @return
      */
     @GetMapping("/userInfo/getByUserId")
-    public Response getByUserId(Integer userId) {
-        return null;
+    public Response getByUserId(String userId) {
+        return Response.show(userInfoService.selectByUserId(userId));
     }
 
     /**
@@ -61,8 +62,8 @@ public class UserInfoController {
      * @return
      */
     @DeleteMapping("/userInfo/delPhoto")
-    public Response delPhoto(Integer userId) {
-        return null;
+    public Response delPhoto(String userId) {
+        return Response.show(userInfoService.deletePhoto(userId));
     }
 
     /**
@@ -72,8 +73,8 @@ public class UserInfoController {
      * @return
      */
     @PutMapping("/userInfo/updatePhoto2")
-    public Response updatePhoto2(Integer userId, String photo) {
-        return null;
+    public Response updatePhoto2(String userId, String photo) {
+        return Response.show(userInfoService.updatePhoto(userId, photo));
     }
 
     /**
@@ -81,17 +82,16 @@ public class UserInfoController {
      * @return
      */
     @GetMapping("/userInfo/importFeature")
-    public Response importFeature() {
+    public Response importFeature(String zipPath) {
         return null;
     }
 
     /*
-     *重置学生
+     *重置人脸特征
      * */
     @GetMapping("/userInfo/resetLibrary")
     public Response resetLibrary(String token) {
-        return null;
-        //return new UnifiedShow(new StudentFaceServiceImpl().resetLibrary(token));
+        return Response.show(userInfoService.resetUserInfo());
     }
 
     /*
@@ -99,8 +99,7 @@ public class UserInfoController {
      * */
     @GetMapping("/studentFace/getPhotoFromYun")
     public Response getPhotoFromYun(String token, String userId, Integer userType) {
-        return null;
-        //return new UnifiedShow(sfService.getPhotoFromYun(token, userId, userType));
+        return Response.show(userInfoService.getPhotoFromYun(token, userId, userType));
     }
 
     /*
@@ -108,8 +107,7 @@ public class UserInfoController {
      * */
     @GetMapping("/userInfo/getSchoolInfo")
     public Response getSchoolInfo() {
-        return null;
-        //return new UnifiedShow(new SchoolInfoStructUnits().getSchoolInfo());
+        return Response.show(new SchoolInfoStructUtil().getSchoolInfo());
     }
 
     /*
@@ -117,9 +115,7 @@ public class UserInfoController {
      * */
     @GetMapping("/userInfo/getGradeInfo")
     public Response getGradeInfo(String token) {
-        return null;
-        //new StudentFaceServiceImpl().SyncStudents(token);
-        //return new UnifiedShow(new SchoolInfoStructUnits().getGradeInfo(token));
+        return Response.show(new SchoolInfoStructUtil().getGradeInfo(token));
     }
 
     /*
@@ -127,9 +123,16 @@ public class UserInfoController {
      * */
     @GetMapping("/userInfo/getClassInfo")
     public Response getClassInfo(String token) {
-        return null;
-        //return new UnifiedShow(new SchoolInfoStructUnits().getClassInfo(token));
+        userInfoService.updateYunUserInfo();
+        return Response.show(new SchoolInfoStructUtil().getClassInfo(token));
     }
 
+    /*
+     * 从基础云平台得到教师分组信息
+     * */
+    @GetMapping("/userInfo/getGroupInfo")
+    public Response getGroupInfo(String token) {
+        return Response.show(userInfoService.getGroupInfo(token));
+    }
 
 }

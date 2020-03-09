@@ -6,6 +6,7 @@ import cn.hutool.core.date.DateUtil;
 import com.arcsoft.face.FaceInfo;
 import com.arcsoft.face.toolkit.ImageFactory;
 import com.arcsoft.face.toolkit.ImageInfo;
+import com.yang.face.constant.Constants;
 import com.yang.face.constant.Properties;
 import com.yang.face.constant.enums.FaceFeatureTypeEnum;
 import com.yang.face.constant.enums.PhotoType;
@@ -15,15 +16,15 @@ import com.yang.face.entity.db.UserInfo;
 import com.yang.face.entity.midle.ByteFile;
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.FaceRecoShow;
-import com.yang.face.entity.show.ImportFeatrueShow;
+import com.yang.face.entity.show.ImportFeatureShow;
 import com.yang.face.entity.show.MessageVO;
 import com.yang.face.mapper.UserInfoMapper;
 import com.yang.face.service.FaceEngineService;
 import com.yang.face.service.FaceService;
 import com.yang.face.service.UserInfoService;
-import com.yang.face.util.Base64Util;
-import com.yang.face.util.NetUtil;
-import com.yang.face.util.PathUtil;
+import com.yang.face.util.*;
+import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,10 +32,13 @@ import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -145,9 +149,9 @@ public class FaceServiceImpl implements FaceService {
      */
     @Override
     @Transactional
-    public List<ImportFeatrueShow> importFeatures(List<ImportFeaturePost> list) {
+    public List<ImportFeatureShow> importFeatures(List<ImportFeaturePost> list) {
 
-        List<ImportFeatrueShow> res = new ArrayList<>();
+        List<ImportFeatureShow> res = new ArrayList<>();
         int rowCount = 0;
 
         try {
@@ -174,7 +178,7 @@ public class FaceServiceImpl implements FaceService {
                 String filePath = Properties.SERVER_RESOURCE_IMAGE_FEATRUE + byteFile.getFileName();
                 byte[] bytes = faceEngineService.extractFaceFeature(imageInfo);
                 if (bytes == null) {
-                    res.add(new ImportFeatrueShow(o.getUserId(), o.getUserId(), o.getType(), "", "", false, "未检测到人脸"));
+                    res.add(new ImportFeatureShow(o.getUserId(), o.getUserId(), o.getType(), "", "", false, "未检测到人脸"));
                     continue;
                 } else {
 
@@ -182,13 +186,13 @@ public class FaceServiceImpl implements FaceService {
                     if (!NetUtil.byte2File(byteFile.getBytes(), filePath)) {
                         filePath = "";
                     }
-                    res.add(new ImportFeatrueShow(o.getUserId(), o.getUserId(), o.getType(), PathUtil.getUrl(filePath), PathUtil.getRelPath(filePath), true, ""));
+                    res.add(new ImportFeatureShow(o.getUserId(), o.getUserId(), o.getType(), PathUtil.getUrl(filePath), PathUtil.getRelPath(filePath), true, ""));
                 }
 
                 // 4.0 更新特征
                 if (!userMap.containsKey(o.getUserId())) {
                     usersAdd.add(new UserInfo(null, o.getUserId(), o.getUserId(), UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes,  "", 0, DateUtil.date(), DateUtil.date()));
+                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 0, DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
 
@@ -222,6 +226,185 @@ public class FaceServiceImpl implements FaceService {
         return res;
     }
 
+    @Override
+    public List<ImportFeatureShow> importFeatures(String fileZip) {
+        List<ImportFeatureShow> list = new ArrayList<>();
+
+        fileZip = PathUtil.getRelPath(fileZip);
+
+        // 1、解压
+        String timeStr = DateTimeUtil.getTimeStamp();
+        String zipFilePath = Properties.SERVER_RESOURCE + fileZip;
+        String unzipFilePath = Properties.SERVER_RESOURCE + Constants.Dir.UPLOAD + timeStr + "/";
+        boolean state = new ZipUtil().unzip(zipFilePath, unzipFilePath, false);
+        if (!state)
+            return list;
+
+        List<ImportFeatureShow> fails = new ArrayList<>();// 不在人脸库中
+        List<ImportFeatureShow> featureFails = new ArrayList<>();// 提取特征失败
+        List<ImportFeatureShow> sameNameFails = new ArrayList<>();// 名称相同
+        List<ImportFeatureShow> scoreFails = new ArrayList<>();// 分数低相同
+
+        // 2、提取特征，3、插入数据库
+        try {
+            List<StudentFace> studentAll = mapper.selectAll();
+            Map<String, ImportFeatureShow> userMap = new ConcurrentHashMap<String, ImportFeatureShow>();
+
+            // 建立userId和上传图片文件对应关系
+            List<File> files = FileUnits.getFilesAll(Constains.DirAbsolution.UPLOAD + timeStr);
+            for (File f : files) {
+                if (!f.isFile())
+                    continue;
+
+                String photoUrl = PathUtil.getTotalUrl(PathUtil.getRelativePath(f.getAbsolutePath()));
+                // String photoUrl = "http://192.168.3.4:8081/" +
+                // PathUtil.getRelativePath(f.getAbsolutePath());
+                String picUserId = f.getName().substring(0, f.getName().lastIndexOf('.'));
+                String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1, f.getName().length());
+
+                if (!supportImage(ext))
+                    continue;
+
+                Boolean flag = false;
+                Boolean sameNameFlag = false;
+                if (userMap.containsKey(picUserId)) {
+                    sameNameFlag = true;
+                } else {
+                    for (StudentFace o : studentAll) {
+                        if (o.getUserId().equals(picUserId)) {
+                            userMap.put(o.getUserId(), new ImportFeatureShow(o.getUserName(), photoUrl, f.getName()));
+                            flag = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!flag) {
+                    String fileName = f.getName();
+                    String PhotoAbsNew = f.getParent() + "/" + fileName.substring(0, fileName.lastIndexOf(".")) + "_c"
+                            + fileName.substring(fileName.lastIndexOf("."), fileName.length());
+
+                    Thumbnails.Builder<File> fileBuilder = Thumbnails.of(f.getAbsolutePath()).scale(1.0)
+                            .outputQuality(1.0);
+                    BufferedImage src = fileBuilder.asBufferedImage();
+                    int size = src.getWidth() < src.getHeight() ? src.getWidth() : src.getHeight();
+
+                    Thumbnails.of(f.getAbsolutePath()).sourceRegion(Positions.CENTER, size, size).outputQuality(1.0)
+                            .size(300, 300).toFile(PhotoAbsNew);
+
+                    if (sameNameFlag)
+                        sameNameFails.add(new ImportFeatureShow(picUserId, "", PhotoType.IMAGE.getKey(),
+                                PathUtil.getUrl(PhotoAbsNew), f.getName(), false,
+                                picUserId + " 存在多张照片,不再导入"));
+                    else
+                        fails.add(new ImportFeatureShow(picUserId, "", PhotoType.IMAGE.getKey(),
+                                PathUtil.getUrl(PhotoAbsNew), f.getName(), false,
+                                picUserId + " 不在人脸库中"));
+
+                }
+            }
+
+            // 同步特征列表
+            Map<String, List<IdFile>> syncMap = new ConcurrentHashMap<>();
+            FaceUnits faceUnits = new FaceUnits();
+            for (String userId : userMap.keySet()) {
+                ImportFeatureShow user = userMap.get(userId);
+                String photoUrl = user.getPhoto();
+
+                // 移动到image/face中，压缩图片，最大不超过300*300
+                String photoAbs = PathUtil.getAbsPath(photoUrl);
+                Thumbnails.Builder<File> fileBuilder = Thumbnails.of(photoAbs).scale(1.0).outputQuality(1.0);
+                BufferedImage src = fileBuilder.asBufferedImage();
+                int size = src.getWidth() < src.getHeight() ? src.getWidth() : src.getHeight();
+                fileBuilder.toFile(photoAbs); // 重置照片，放正
+
+                String fileName = new File(photoAbs).getName();
+                String PhotoAbsNew = Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE
+                        + fileName.substring(0, fileName.lastIndexOf(".")) + "_c"
+                        + fileName.substring(fileName.lastIndexOf("."), fileName.length());
+
+                Thumbnails.of(photoAbs).sourceRegion(Positions.CENTER, size, size).outputQuality(1.0).size(300, 300)
+                        .toFile(PhotoAbsNew);
+
+                // 评分
+                String imageUrl = PathUtil.getTotalUrl(photoUrl);
+                ScoreCopy score = null;
+                if (Constains.PropertiesValue.FACE_DEPLOYMENT_DISTRIBUTED)
+                    //score = that.faceSyncSender.faceScoreCopyImage(imageUrl);
+                    score = new FaceExtralSender().faceScoreCopyImage(imageUrl);
+                else
+                    score = faceUnits.getScoreCopy(imageUrl);
+                if (score == null || !score.getState()) {
+                    StateMsg stateMsg = ScoreCopy2StateMsg(score);
+                    scoreFails.add(new ImportFeatureShow(userId, user.getUserName(), PhotoType.IMAGE.getKey(),
+                            PathUtil.getTotalUrl(PathUtil.getRelativePath(PhotoAbsNew)), user.getPhotoName(), false,
+                            stateMsg.getMsg()));
+                    continue;
+                }
+
+                List<FeatureSend> featureSends = new ArrayList<>();
+                FeatureSend featureSend = new FeatureSend(userId, 1, photoUrl);
+                featureSends.add(featureSend);
+
+                List<IdFile> features = new ArrayList<>();
+                if (Constains.PropertiesValue.FACE_DEPLOYMENT_DISTRIBUTED) {
+                    //FeatureAddr featureAddr = that.faceSyncSender.faceFeatureAddr(featureSends);
+                    FeatureAddr featureAddr = new FaceExtralSender().faceFeatureAddr(featureSends);
+                    if (featureAddr != null) {
+                        features.addAll(featureAddr.getList());
+
+                        if (!syncMap.containsKey(featureAddr.getAddr())) {
+                            syncMap.put(featureAddr.getAddr(), featureAddr.getList());
+                        } else {
+                            List<IdFile> temp = syncMap.get(featureAddr.getAddr());
+                            temp.addAll(featureAddr.getList());
+                            syncMap.put(featureAddr.getAddr(), temp);
+                        }
+                    }
+                } else
+                    features = new FaceUnits().getFeature(featureSends);
+
+                if (features == null || features.size() == 0) {
+                    featureFails.add(new ImportFeatureShow(userId, user.getUserName(), PhotoType.IMAGE.getKey(),
+                            PathUtil.getTotalUrl(PathUtil.getRelativePath(PhotoAbsNew)), user.getPhotoName(), false,
+                            "特征提取失败"));
+                } else {
+                    // 移动到Face文件夹下
+                    FileUnits.moveFile(photoAbs, Constains.DirAbsolution.IMAGE_FACE);
+                    list.add(new ImportFeatureShow(userId, user.getUserName(), PhotoType.IMAGE.getKey(),
+                            PathUtil.getTotalUrl(PathUtil.getRelativePath(PhotoAbsNew)), user.getPhotoName(), true,
+                            score.getScore().toString()));
+
+                    Integer res = mapper.updatePhoto2ByUserId(userId,
+                            PathUtil.getTotalUrl(PathUtil.getRelativePath(PhotoAbsNew)),
+                            PhotoSourceType.UPLOAD.getKey(), features.get(0).getFeatureFile(), score.getScore());
+                }
+            }
+
+            if (Constains.PropertiesValue.FACE_DEPLOYMENT_DISTRIBUTED) {
+                // 同步
+                for (String key : syncMap.keySet()) {
+                    new FaceExtralSender().featureSyncByIdFile(key, syncMap.get(key));
+                }
+            } else
+                new FaceUnits().faceFeatureUpdate();
+
+            list.addAll(featureFails);
+            list.addAll(scoreFails);
+            list.addAll(sameNameFails);
+            list.addAll(fails);
+
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        // 4、统计提取特征结果
+
+        return list;
+    }
+    }
+
     /**
      * 更新人脸库特征
      *
@@ -251,8 +434,6 @@ public class FaceServiceImpl implements FaceService {
 
         return null;
     }
-
-
 
 
 }

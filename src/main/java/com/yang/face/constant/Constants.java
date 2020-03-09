@@ -13,7 +13,7 @@ public class Constants {
     /**
      * 路径
      */
-    public class Dir{
+    public class Dir {
 
         public static final String CLASS = "Class/";
 
@@ -30,10 +30,10 @@ public class Constants {
         public static final String FACE_FEATRUE = "face_features/";
     }
 
-    public class UploadType
-    {
+
+    public class UploadType {
         public static final String IMAGE_FACE = "face_image";
 
-        public static final String NORMAL_FILE = "normal_file" ;
+        public static final String NORMAL_FILE = "normal_file";
     }
 }

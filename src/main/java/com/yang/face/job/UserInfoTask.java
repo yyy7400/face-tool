@@ -16,7 +16,7 @@ public class UserInfoTask implements CommandLineRunner {
     }
 
     public void updateTask() {
-        userInfoService.updateUserInfo();
+        userInfoService.updateYunUserInfo();
     }
 
     @Override

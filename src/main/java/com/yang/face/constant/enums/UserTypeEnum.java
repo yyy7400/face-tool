@@ -12,6 +12,14 @@ public enum UserTypeEnum {
 
     STUDENT(2, "学生"),
 
+    PARENTS(3, "家长"),
+
+    EXPERT(4, "教育专家"),
+
+    LEADER_BUREAU(5, "教育局领导"),
+
+    ADMIN_BUREAU(6, "教育局管理员"),
+
     OTHER(99, "未知"),
 
     ;
