@@ -1,6 +1,6 @@
 package com.yang.face.service.impl;
 
-import cn.hutool.core.date.DateUtil;
+import com.github.pagehelper.PageHelper;
 import com.yang.face.constant.enums.FaceFeatureTypeEnum;
 import com.yang.face.constant.enums.SexTypeEnum;
 import com.yang.face.constant.enums.UserTypeEnum;
@@ -14,7 +14,6 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
-import tk.mybatis.mapper.util.Sqls;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -39,6 +38,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     public void clearSelectAllCache() {
     }
 
+    @Override
+    public List<UserInfo> search(String schoolId, String groupId, String userName, Integer pageIndex, Integer pageSize) {
+
+        PageHelper.startPage(pageIndex, pageSize);
+
+        return null;
+    }
+
 
     @Cacheable(value = "userInfos", key = "#userId")
     @Override
@@ -46,6 +53,21 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         //System.out.println("调用了db userId");
         return userInfoMapper.selectOne(new UserInfo(userId));
+    }
+
+    @Override
+    public UserInfo selectById(Integer id) {
+        return null;
+    }
+
+    @Override
+    public boolean updatePhtoto(String userId, String photo) {
+        return false;
+    }
+
+    @Override
+    public boolean deletePhoto(String userId) {
+        return false;
     }
 
     @Override
@@ -72,13 +94,13 @@ public class UserInfoServiceImpl implements UserInfoService {
         List<AdminStruct> adminsYun = new AdminStructUtil().getAdminDetailInfo(token);
         List<TeacherStruct> teachersYun = new TeacherStructUtil().getTeaDetailInfo(token);
         List<StudentStruct> studentsYun = new StudentStructUtil().getStuDetailInfo(token);
-        Map<String, ClassStruct> classMap= new HashMap<>();
+        Map<String, ClassStruct> classMap = new HashMap<>();
 
         for (TeacherStruct o : teachersYun) {
             // 100000 —普通教师； 110000 —任课教师； 101000 —班主任； 100100 —教研者； 100010 —学科主管； 100001 校领导
-            if("1".equals(o.getUserClass().substring(2, 3))) {
+            if ("1".equals(o.getUserClass().substring(2, 3))) {
                 List<ClassStruct> temp = new SchoolInfoStructUtil().getClassInfoByUser(token, o.getUserID());
-                if(!temp.isEmpty()) {
+                if (!temp.isEmpty()) {
                     classMap.put(o.getUserID(), temp.get(0));
                 }
             }
@@ -143,7 +165,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
             UserInfo userInfo = new UserInfo(null, obj.getUserID(), obj.getUserName(), UserTypeEnum.ADMIN.getKey()
                     , sex, "", "", "", "", "", "", obj.getPhotoPath()
-                    , FaceFeatureTypeEnum.NONE.getKey(), "".getBytes(), "", date, date);
+                    , FaceFeatureTypeEnum.NONE.getKey(), "".getBytes(), "", 0, date, date);
             map.put(obj.getUserID(), userInfo);
         }
 
@@ -153,14 +175,14 @@ public class UserInfoServiceImpl implements UserInfoService {
             String classId = "";
             String className = "";
 
-            if(classMap.containsKey(obj.getUserID())) {
+            if (classMap.containsKey(obj.getUserID())) {
                 classId = classMap.get(obj.getUserID()).getClassID();
                 className = classMap.get(obj.getUserID()).getClassName();
             }
 
             UserInfo userInfo = new UserInfo(null, obj.getUserID(), obj.getUserName(), UserTypeEnum.TEACHER.getKey()
                     , sex, "", "", classId, className, obj.getGroupID(), obj.getGroupName(), obj.getPhotoPath()
-                    , FaceFeatureTypeEnum.NONE.getKey(), "".getBytes(), "", date, date);
+                    , FaceFeatureTypeEnum.NONE.getKey(), "".getBytes(), "", 0, date, date);
             map.put(obj.getUserID(), userInfo);
         }
 
@@ -170,7 +192,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
             UserInfo userInfo = new UserInfo(null, obj.getUserID(), obj.getUserName(), UserTypeEnum.STUDENT.getKey()
                     , sex, obj.getGradeID(), obj.getGradeName(), obj.getClassID(), obj.getClassName(), "", "", obj.getPhotoPath()
-                    , FaceFeatureTypeEnum.NONE.getKey(), "".getBytes(), "", date, date);
+                    , FaceFeatureTypeEnum.NONE.getKey(), "".getBytes(), "", 0, date, date);
             map.put(obj.getUserID(), userInfo);
         }
 

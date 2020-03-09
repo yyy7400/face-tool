@@ -188,7 +188,7 @@ public class FaceServiceImpl implements FaceService {
                 // 4.0 更新特征
                 if (!userMap.containsKey(o.getUserId())) {
                     usersAdd.add(new UserInfo(null, o.getUserId(), o.getUserId(), UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes,  "", DateUtil.date(), DateUtil.date()));
+                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes,  "", 0, DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
 
@@ -196,7 +196,7 @@ public class FaceServiceImpl implements FaceService {
                     criteria.andEqualTo("userId", o.getUserId());
 
                     UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, null, DateUtil.date());
+                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, null, null, DateUtil.date());
                     rowCount += userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
             }

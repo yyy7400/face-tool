@@ -24,9 +24,10 @@ CREATE TABLE `user_info` (
   `groupId` varchar(45) COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '教师组ID',
   `groupName` varchar(45) COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '教师组名称',
   `photoUrl` varchar(256) COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '照片，url地址',
-  `faceFeatureType` int(11) COLLATE utf8mb4_bin NOT NULL DEFAULT 1 COMMENT '人脸特征类型',
+  `faceFeatureType` int(11) COLLATE utf8mb4_bin NOT NULL DEFAULT 0 COMMENT '人脸特征类型',
   `faceFeatureByte` blob COMMENT '人脸特征二进制',
   `faceFeatureFile` varchar(45) COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '人脸特征本地文件',
+  `score` int(11) COLLATE utf8mb4_bin NOT NULL DEFAULT 0 COMMENT '人脸评分',
    `createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
    `updateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
 

@@ -88,6 +88,11 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.18</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.2.9</version>
+        </dependency>
 
         <!-- 热部署
         <dependency>
@@ -97,6 +102,7 @@
             <optional>true</optional>
         </dependency>
         -->
+
 
         <!-- hutool工具类 -->
         <dependency>
@@ -152,6 +158,12 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.3</version><!--$NO-MVN-MAN-VER$-->
+        </dependency>
+        <!-- google 图片处理工具 -->
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>0.4.8</version>
         </dependency>
 
         <dependency>

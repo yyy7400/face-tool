@@ -64,6 +64,9 @@ public class UserInfo implements Serializable {
     @Column(name = "faceFeatureFile")
     private String faceFeatureFile;
 
+    @Column(name = "score")
+    private Integer score;
+
     @Column(name = "createTime")
     private Date createTime;
 
