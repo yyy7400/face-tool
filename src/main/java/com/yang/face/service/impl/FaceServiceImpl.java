@@ -247,18 +247,17 @@ public class FaceServiceImpl implements FaceService {
 
         // 2、提取特征，3、插入数据库
         try {
-            List<StudentFace> studentAll = mapper.selectAll();
+            List<UserInfo> userInfoAll = userInfoService.selectAll();
             Map<String, ImportFeatureShow> userMap = new ConcurrentHashMap<String, ImportFeatureShow>();
 
             // 建立userId和上传图片文件对应关系
-            List<File> files = FileUnits.getFilesAll(Constains.DirAbsolution.UPLOAD + timeStr);
+            List<File> files = FileUtil.getFilesAll(Properties.SERVER_RESOURCE + Constants.Dir.UPLOAD + timeStr);
             for (File f : files) {
                 if (!f.isFile())
                     continue;
 
-                String photoUrl = PathUtil.getTotalUrl(PathUtil.getRelativePath(f.getAbsolutePath()));
+                String photoUrl = PathUtil.getUrl(f.getAbsolutePath());
                 // String photoUrl = "http://192.168.3.4:8081/" +
-                // PathUtil.getRelativePath(f.getAbsolutePath());
                 String picUserId = f.getName().substring(0, f.getName().lastIndexOf('.'));
                 String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1, f.getName().length());
 
@@ -270,7 +269,7 @@ public class FaceServiceImpl implements FaceService {
                 if (userMap.containsKey(picUserId)) {
                     sameNameFlag = true;
                 } else {
-                    for (StudentFace o : studentAll) {
+                    for (UserInfo o : userInfoAll) {
                         if (o.getUserId().equals(picUserId)) {
                             userMap.put(o.getUserId(), new ImportFeatureShow(o.getUserName(), photoUrl, f.getName()));
                             flag = true;
@@ -304,9 +303,8 @@ public class FaceServiceImpl implements FaceService {
                 }
             }
 
-            // 同步特征列表
+            /* 同步特征列表
             Map<String, List<IdFile>> syncMap = new ConcurrentHashMap<>();
-            FaceUnits faceUnits = new FaceUnits();
             for (String userId : userMap.keySet()) {
                 ImportFeatureShow user = userMap.get(userId);
                 String photoUrl = user.getPhoto();
@@ -327,13 +325,9 @@ public class FaceServiceImpl implements FaceService {
                         .toFile(PhotoAbsNew);
 
                 // 评分
-                String imageUrl = PathUtil.getTotalUrl(photoUrl);
+                String imageUrl = PathUtil.getUrl(photoUrl);
                 ScoreCopy score = null;
-                if (Constains.PropertiesValue.FACE_DEPLOYMENT_DISTRIBUTED)
-                    //score = that.faceSyncSender.faceScoreCopyImage(imageUrl);
-                    score = new FaceExtralSender().faceScoreCopyImage(imageUrl);
-                else
-                    score = faceUnits.getScoreCopy(imageUrl);
+                score = new FaceExtralSender().faceScoreCopyImage(imageUrl);
                 if (score == null || !score.getState()) {
                     StateMsg stateMsg = ScoreCopy2StateMsg(score);
                     scoreFails.add(new ImportFeatureShow(userId, user.getUserName(), PhotoType.IMAGE.getKey(),
@@ -347,47 +341,42 @@ public class FaceServiceImpl implements FaceService {
                 featureSends.add(featureSend);
 
                 List<IdFile> features = new ArrayList<>();
-                if (Constains.PropertiesValue.FACE_DEPLOYMENT_DISTRIBUTED) {
-                    //FeatureAddr featureAddr = that.faceSyncSender.faceFeatureAddr(featureSends);
-                    FeatureAddr featureAddr = new FaceExtralSender().faceFeatureAddr(featureSends);
-                    if (featureAddr != null) {
-                        features.addAll(featureAddr.getList());
+                //FeatureAddr featureAddr = that.faceSyncSender.faceFeatureAddr(featureSends);
+                FeatureAddr featureAddr = new FaceExtralSender().faceFeatureAddr(featureSends);
+                if (featureAddr != null) {
+                    features.addAll(featureAddr.getList());
 
-                        if (!syncMap.containsKey(featureAddr.getAddr())) {
-                            syncMap.put(featureAddr.getAddr(), featureAddr.getList());
-                        } else {
-                            List<IdFile> temp = syncMap.get(featureAddr.getAddr());
-                            temp.addAll(featureAddr.getList());
-                            syncMap.put(featureAddr.getAddr(), temp);
-                        }
+                    if (!syncMap.containsKey(featureAddr.getAddr())) {
+                        syncMap.put(featureAddr.getAddr(), featureAddr.getList());
+                    } else {
+                        List<IdFile> temp = syncMap.get(featureAddr.getAddr());
+                        temp.addAll(featureAddr.getList());
+                        syncMap.put(featureAddr.getAddr(), temp);
                     }
-                } else
-                    features = new FaceUnits().getFeature(featureSends);
+                }
 
                 if (features == null || features.size() == 0) {
                     featureFails.add(new ImportFeatureShow(userId, user.getUserName(), PhotoType.IMAGE.getKey(),
-                            PathUtil.getTotalUrl(PathUtil.getRelativePath(PhotoAbsNew)), user.getPhotoName(), false,
+                            PathUtil.getUrl(PhotoAbsNew), user.getPhotoName(), false,
                             "特征提取失败"));
                 } else {
                     // 移动到Face文件夹下
-                    FileUnits.moveFile(photoAbs, Constains.DirAbsolution.IMAGE_FACE);
+                    FileUtil.moveFile(photoAbs, Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE);
                     list.add(new ImportFeatureShow(userId, user.getUserName(), PhotoType.IMAGE.getKey(),
-                            PathUtil.getTotalUrl(PathUtil.getRelativePath(PhotoAbsNew)), user.getPhotoName(), true,
+                            PathUtil.getUrl(PhotoAbsNew), user.getPhotoName(), true,
                             score.getScore().toString()));
 
                     Integer res = mapper.updatePhoto2ByUserId(userId,
-                            PathUtil.getTotalUrl(PathUtil.getRelativePath(PhotoAbsNew)),
+                            PathUtil.getUrl(hotoAbsNew),
                             PhotoSourceType.UPLOAD.getKey(), features.get(0).getFeatureFile(), score.getScore());
                 }
             }
 
-            if (Constains.PropertiesValue.FACE_DEPLOYMENT_DISTRIBUTED) {
-                // 同步
-                for (String key : syncMap.keySet()) {
-                    new FaceExtralSender().featureSyncByIdFile(key, syncMap.get(key));
-                }
-            } else
-                new FaceUnits().faceFeatureUpdate();
+            // 同步
+            for (String key : syncMap.keySet()) {
+                new FaceExtralSender().featureSyncByIdFile(key, syncMap.get(key));
+            }
+*/
 
             list.addAll(featureFails);
             list.addAll(scoreFails);
@@ -402,7 +391,6 @@ public class FaceServiceImpl implements FaceService {
         // 4、统计提取特征结果
 
         return list;
-    }
     }
 
     /**
@@ -435,5 +423,17 @@ public class FaceServiceImpl implements FaceService {
         return null;
     }
 
+    public boolean supportImage(String ext) {
+        String[] exts = { "JPG", "JPEG", "PNG", "BMP" };
 
+        boolean state = false;
+        for (String string : exts) {
+            if (string.equalsIgnoreCase(ext)) {
+                state = true;
+                break;
+            }
+        }
+
+        return state;
+    }
 }
