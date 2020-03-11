@@ -1,4 +1,4 @@
-package com.yang.face.entity.midle;
+package com.yang.face.entity.middle;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

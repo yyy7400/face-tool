@@ -13,7 +13,7 @@ import com.yang.face.constant.enums.PhotoType;
 import com.yang.face.constant.enums.UserTypeEnum;
 import com.yang.face.engine.FaceUserInfo;
 import com.yang.face.entity.db.UserInfo;
-import com.yang.face.entity.midle.ByteFile;
+import com.yang.face.entity.middle.ByteFile;
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.FaceRecoShow;
 import com.yang.face.entity.show.ImportFeatureShow;

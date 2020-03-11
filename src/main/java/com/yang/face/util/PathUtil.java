@@ -77,6 +77,7 @@ public class PathUtil {
 
         for (String path : paths) {
             String temp = StringUtils.trimLeadingCharacter(StringUtils.trimLeadingCharacter(path, '/'), '\\');
+            temp = StringUtils.trimTrailingCharacter(StringUtils.trimTrailingCharacter(temp, '/'), '\\');
             stringBuilder.append('/').append(temp);
         }
         stringBuilder.delete(0, 1);
