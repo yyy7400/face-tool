@@ -3,7 +3,6 @@ package com.yang.face.entity.middle;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import sun.reflect.generics.scope.Scope;
 
 /**
  * @author yangyuyang
