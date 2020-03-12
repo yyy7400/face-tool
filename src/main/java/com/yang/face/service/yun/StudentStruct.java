@@ -2,8 +2,8 @@ package com.yang.face.service.yun;
 
 import lombok.Data;
 
-/*
- * author zhufeng 2018-12-17
+/**
+ * @author zhufeng 2018-12-17
  */
 @Data
 public class StudentStruct {

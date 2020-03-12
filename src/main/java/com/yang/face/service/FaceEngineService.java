@@ -9,7 +9,9 @@ import com.yang.face.entity.db.UserInfo;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-
+/**
+ * @author Yang
+ */
 public interface FaceEngineService {
 
     /**

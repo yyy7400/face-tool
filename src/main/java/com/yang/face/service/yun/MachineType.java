@@ -1,5 +1,8 @@
 package com.yang.face.service.yun;
 
+/**
+ * @author Yang
+ */
 public class MachineType {
 	
 	public static final int SCHOOL_PC = 1;

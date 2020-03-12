@@ -7,6 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
+ * @author Yang
  * 从云平台获取班级信息列表
  */
 @Data

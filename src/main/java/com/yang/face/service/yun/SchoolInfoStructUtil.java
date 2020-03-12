@@ -16,6 +16,7 @@ import java.util.List;
 
 
 /**
+ * @author Yang
  * 从云平台，拿取学校信息
  */
 @Service

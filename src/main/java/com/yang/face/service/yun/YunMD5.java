@@ -4,6 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * @author Yang
+ */
 public class YunMD5 {
 
 	public static String reverseMd5(String string) {

@@ -10,6 +10,9 @@ import com.yang.face.service.yun.GradeStruct;
 
 import java.util.List;
 
+/**
+ * @author Yang
+ */
 public interface UserInfoService {
 
     /**

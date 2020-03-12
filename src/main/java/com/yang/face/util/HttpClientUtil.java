@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Yang
+ */
 public class HttpClientUtil {
 	
 	private static int TIMEOUT = 10000;//10s

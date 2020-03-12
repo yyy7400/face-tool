@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * yangyuyang 2019-07-16
+ * @author Yang
  */
 @Data
 @XStreamAlias("ArrayOfString")

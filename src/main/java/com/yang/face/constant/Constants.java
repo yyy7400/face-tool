@@ -1,5 +1,8 @@
 package com.yang.face.constant;
 
+/**
+ * @author Yang
+ */
 public class Constants {
     /**
      * 系统代号

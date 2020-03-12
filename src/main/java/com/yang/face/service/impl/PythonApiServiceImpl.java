@@ -18,8 +18,10 @@ import com.yang.face.util.HttpClientUtil;
 import com.yang.face.util.PathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -30,9 +32,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * @author Yang
  * Python Web Api 调用
  */
-@Component
+@Service
 public class PythonApiServiceImpl implements PythonApiService {
 
     private final static Logger logger = LoggerFactory.getLogger(PythonApiServiceImpl.class);
@@ -57,6 +60,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @param photo
      * @return userId, featureFile
      */
+    @Override
     public Map<String, String> getFaceFeature(String userId, Integer photoType, String photo) {
 
         Map<String, String> map = new ConcurrentHashMap<>();
@@ -101,6 +105,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @param photo
      * @return score, state
      */
+    @Override
     public Map<Integer, Boolean> faceScoreIamge(Integer photoType, String photo) {
 
         Map<Integer, Boolean> map = new ConcurrentHashMap<>();
@@ -141,6 +146,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @param photo
      * @return
      */
+    @Override
     public FaceScoreImageMod faceScoreIamgeMod(Integer photoType, String photo) {
 
         FaceScoreImageMod res = null;
@@ -176,6 +182,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      *
      * @return
      */
+    @Override
     public Boolean updateFaceFeature() {
 
         Boolean state = false;
@@ -216,6 +223,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @param videoUrl
      * @return liveUrl, state
      */
+    @Override
     public Map<String, Boolean> faceDetectionVideoStart(String videoUrl) {
 
         Map<String, Boolean> map = new ConcurrentHashMap<>();
@@ -255,6 +263,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @param videoUrl
      * @return liveUrl, state
      */
+    @Override
     public Boolean faceDetectionVideoClose(String videoUrl) {
 
         try {
@@ -290,6 +299,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      *
      * @return
      */
+    @Override
     public List<String> faceDetectionVideoList() {
 
         List<String> list = new ArrayList<>();
@@ -327,6 +337,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @param userIds
      * @return
      */
+    @Override
     public List<FaceRecognitionImage> faceRecognitionImage(Integer photoType, String photo, List<String> userIds) {
         return faceRecognitionImage(photoType, photo, userIds, false);
     }
@@ -339,17 +350,20 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @param userIds
      * @return
      */
+    @Override
     public List<FaceRecognitionImage> faceRecognitionImageEC(Integer photoType, String photo, List<String> userIds) {
         return faceRecognitionImage(photoType, photo, userIds, true);
     }
 
     /**
+     * 两种人脸照片对比
      * @param photoType
      * @param photo
      * @param photoType2
      * @param photo2
      * @return similarityScore, state
      */
+    @Override
     public Map<Double, Boolean> idCardFaceCmp(Integer photoType, String photo, Integer photoType2, String photo2) {
         Map<Double, Boolean> map = new ConcurrentHashMap<>();
 
@@ -392,6 +406,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @param ids
      * @return
      */
+    @Override
     public Boolean faceFeatureClean(List<String> ids) {
         List<String> addrs = ClientManager.getKeyPython();
         addrs.forEach((o) -> noticeDownloadFeature(ids, o));
@@ -439,6 +454,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      *
      * @param files
      */
+    @Override
     public void noticeDownloadFeature(List<String> files) {
 
         List<String> addrs = ClientManager.getKeyPython();
@@ -531,7 +547,8 @@ public class PythonApiServiceImpl implements PythonApiService {
         return res;
     }
 
-    public List<FeatureFileInfo> getFeatureFile() {
+    @Override
+    public List<FeatureFileInfo> getFeatureFiles() {
 
         List<FeatureFileInfo> list = new ArrayList<>();
 

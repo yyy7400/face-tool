@@ -1,6 +1,7 @@
 package com.yang.face.constant.enums;
 
 /**
+ * @author Yang
  * 图片类型
  */
 public enum PhotoTypeEnum {

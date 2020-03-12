@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * @author Yang
  * Plupload是一个上传插件。
  * 上传原理为单个文件依次发送至服务器.
  * 上传打文件时可以将其碎片化上传。但是一般情况下，不会这样做，

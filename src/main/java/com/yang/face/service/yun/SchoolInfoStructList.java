@@ -9,6 +9,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * @author Yang
+ */
 @Data
 @XStreamAlias("ArrayOfAnyType")
 public class SchoolInfoStructList {

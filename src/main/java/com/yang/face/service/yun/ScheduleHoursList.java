@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * @author Yang
+ */
 @Data
 public class ScheduleHoursList {
     private String error;

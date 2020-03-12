@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 
 /**
+ * @author Yang
  * Plupload是一个上传插件。
  * 这是一个bean类,主要存储Plupload插件上传时需要的参数。
  * 属性名不可随意改动.

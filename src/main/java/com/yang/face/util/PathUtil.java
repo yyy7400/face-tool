@@ -5,6 +5,7 @@ import com.yang.face.constant.Properties;
 import org.springframework.util.StringUtils;
 
 /**
+ * @author Yang
  * 路径转换处理,只支持本系统内路劲
  */
 public class PathUtil {

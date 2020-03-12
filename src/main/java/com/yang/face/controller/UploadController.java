@@ -23,8 +23,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-/*
- * yangyuyang 2020-03-07
+/**
+ * @yangyuyang 2020-03-07
  * 分片上传文件, 前端需要使用Plupload 插件
  * */
 @RestController

@@ -1,7 +1,7 @@
 package com.yang.face.service.yun;
 
-/*
- * yangyuyang 2018-12-13
+/**
+ * @yangyuyang 2018-12-13
  * 生成token
  * */
 public class TokenJson {

@@ -5,6 +5,9 @@ package com.yang.face.service.yun;
 
 import lombok.Data;
 
+/**
+ * @author Yang
+ */
 @Data
 public class TeacherStruct {
 	

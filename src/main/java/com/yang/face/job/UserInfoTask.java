@@ -5,6 +5,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author Yang
+ */
 @Component
 @Order(2)
 public class UserInfoTask implements CommandLineRunner {

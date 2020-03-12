@@ -3,6 +3,9 @@ package com.yang.face.service.yun;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+/**
+ * @author Yang
+ */
 @Data
 public class ScheduleHours {
 

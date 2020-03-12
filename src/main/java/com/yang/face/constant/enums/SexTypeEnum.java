@@ -1,5 +1,8 @@
 package com.yang.face.constant.enums;
 
+/**
+ * @author Yang
+ */
 public enum SexTypeEnum {
     /**
      * 未知

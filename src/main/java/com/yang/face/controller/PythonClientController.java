@@ -1,8 +1,11 @@
 package com.yang.face.controller;
 
 import com.yang.face.entity.show.Response;
+import com.yang.face.service.PythonApiService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
 
 /**
  * @author yangyuyang
@@ -12,9 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PythonClientController {
 
-    @GetMapping("/PythonClietn/Features")
+    @Resource
+    PythonApiService pythonApiService;
+
+    @GetMapping("/pythonClietn/features")
     public Response features(){
 
-        return Response.show("");
+        return Response.show(pythonApiService.getFeatureFiles());
     }
 }

@@ -1,7 +1,7 @@
 package com.yang.face.constant.enums;
 
 /**
- *
+ * @author Yang
  */
 public enum ClientTypeEnum {
     PYTHON(1, "PYTHON"),
