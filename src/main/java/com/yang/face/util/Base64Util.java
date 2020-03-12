@@ -7,6 +7,9 @@ import org.springframework.util.StringUtils;
 import java.io.*;
 import java.util.Base64;
 
+/**
+ * @author Yang
+ */
 public class Base64Util {
 
     private static final Logger logger = LoggerFactory.getLogger(Base64Util.class);
@@ -23,14 +26,17 @@ public class Base64Util {
     public static boolean base64ToImage(String imgStr, String path) {
 
 
-        if (imgStr == null)
+        if (imgStr == null) {
             return false;
+        }
+
         // 解密
         try {
             Base64.Decoder decoder = Base64.getDecoder();
             String base64Header = "data:image/jpeg;base64,";
-            if (imgStr.startsWith(base64Header))
+            if (imgStr.startsWith(base64Header)) {
                 imgStr = imgStr.substring(base64Header.length());
+            }
 
             byte[] b = decoder.decode(imgStr);
             // 处理数据
@@ -57,7 +63,7 @@ public class Base64Util {
      * @Author:
      * @CreateTime:
      */
-    public static String ImageToBase64(String imgFile) {
+    public static String imageToBase64(String imgFile) {
         InputStream inputStream = null;
         byte[] data = null;
         try {
@@ -79,7 +85,7 @@ public class Base64Util {
      * @param data 要加密的数据
      * @return 加密后的字符串
      */
-    public static String encryptBASE64(byte[] data) {
+    public static String encryptBase64(byte[] data) {
         // 从JKD 9开始rt.jar包已废除，从JDK 1.8开始使用java.util.Base64.Encoder
         Base64.Encoder encoder = Base64.getEncoder();
         String encode = encoder.encodeToString(data);
@@ -93,11 +99,10 @@ public class Base64Util {
      * @return 解密后的byte[]
      * @throws Exception
      */
-    public static byte[] decryptBASE64(String data) throws Exception {
+    public static byte[] decryptBase64(String data) throws Exception {
         // 从JKD 9开始rt.jar包已废除，从JDK 1.8开始使用java.util.Base64.Decoder
         Base64.Decoder decoder = Base64.getDecoder();
         byte[] buffer = decoder.decode(data);
-        //System.out.println(new String(buffer));
         return buffer;
     }
 

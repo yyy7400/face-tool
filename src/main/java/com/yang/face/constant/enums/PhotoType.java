@@ -6,9 +6,9 @@ public enum PhotoType {
     BASE64(2, "图片Base64"),
     ;
 
-    private PhotoType(int _key, String _name) {
-        key = _key;
-        name = _name;
+    private PhotoType(int key, String name) {
+        this.key = key;
+        this.name = name;
     }
 
     int key;
@@ -24,8 +24,9 @@ public enum PhotoType {
 
     public static String getName(int key) {
         for (PhotoType e : PhotoType.values()) {
-            if (e.getKey() == key)
+            if (e.getKey() == key) {
                 return e.getName();
+            }
         }
 
         return "";

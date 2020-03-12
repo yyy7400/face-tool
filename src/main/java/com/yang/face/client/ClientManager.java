@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
  */
 public class ClientManager {
 
-    private final static Map<String, ClientInfo> clientMap = new ConcurrentHashMap<>();
+    private final static Map<String, ClientInfo> CLIENT_MAP = new ConcurrentHashMap<>();
 
     public static void put(String key, ClientInfo value){
-        clientMap.put(key,value);
+        CLIENT_MAP.put(key,value);
     }
 
     public static void put(String addr, Integer type){
@@ -27,8 +27,8 @@ public class ClientManager {
     }
 
     public static ClientInfo get(String key){
-        if(clientMap.containsKey(key)) {
-            return clientMap.get(key);
+        if(CLIENT_MAP.containsKey(key)) {
+            return CLIENT_MAP.get(key);
         } else {
             return null;
         }
@@ -36,8 +36,8 @@ public class ClientManager {
 
     // 每秒检测一次, 10s 过期
     @Scheduled(cron = "1 * * * * ?")
-    public void ClearExpiredClient() {
-        clientMap.values().removeIf(v -> DateUtil.isExpired(v.getUpdateTime(), DateField.SECOND, 10, DateUtil.date()));
+    public void clearExpiredClient() {
+        CLIENT_MAP.values().removeIf(v -> DateUtil.isExpired(v.getUpdateTime(), DateField.SECOND, 10, DateUtil.date()));
     }
 
     /**
@@ -45,7 +45,7 @@ public class ClientManager {
      * @return
      */
     public static List<ClientInfo> getValuePython() {
-        return clientMap.values().stream().filter(o -> o.getType().equals(ClientTypeEnum.PYTHON.getKey())).collect(Collectors.toList());
+        return CLIENT_MAP.values().stream().filter(o -> o.getType().equals(ClientTypeEnum.PYTHON.getKey())).collect(Collectors.toList());
     }
 
     /**
@@ -54,7 +54,7 @@ public class ClientManager {
      */
     public static List<String> getKeyPython() {
         List<String> addrs = new ArrayList<>();
-        clientMap.forEach((k, v) -> {
+        CLIENT_MAP.forEach((k, v) -> {
             if(v.getType().equals(ClientTypeEnum.PYTHON.getKey())) {
                 addrs.add(k);
             }

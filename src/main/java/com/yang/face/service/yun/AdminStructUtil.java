@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 public class AdminStructUtil {
     private static final Logger logger = LoggerFactory.getLogger(AdminStructUtil.class);
-    private static String ADDR = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
+    private static String addr = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
 
 
     String yunAddr = Properties.YUN_SERVER_ADDR;
@@ -54,12 +54,21 @@ public class AdminStructUtil {
         Token = Token + token;
         UserID = UserID + userId;
 
-        String url = yunAddr + ADDR + method + Token + UserID +
-                UserName + SchoolID + UserType + UpdateTime + DataModel;
+        String url = new StringBuilder().append(yunAddr)
+                .append(addr)
+                .append(method)
+                .append(Token)
+                .append(UserID)
+                .append(UserName)
+                .append(SchoolID)
+                .append(UserType)
+                .append(UpdateTime)
+                .append(DataModel)
+                .toString();
         List<AdminStruct> resList = new ArrayList<>();
 
         try {
-            String result = new HttpClientUtil().httpGetStr(url);
+            String result = HttpClientUtil.httpGetStr(url);
             if (result.isEmpty()) {
                 return resList;
             }

@@ -28,15 +28,15 @@ public class SchoolInfoStructUtil {
     //从云平台，拿取学校信息
     public List<SchoolInfoStruct> getSchoolInfo() {
 
-        String ADDR = "SysMgr/SysSetting/WS/Service_SysSetting.asmx/";
+        String addr = "SysMgr/SysSetting/WS/Service_SysSetting.asmx/";
         String method = "WS_SysMgr_G_GetSchoolBaseInfo";
-        String schoolID = "?schoolID=";
+        String schoolId = "?schoolID=";
 
-        String url = yunAddr + ADDR + method + schoolID;
+        String url = yunAddr + addr + method + schoolId;
         List<SchoolInfoStruct> resList = new ArrayList<SchoolInfoStruct>();
 
         try {
-            String result = new HttpClientUtil().httpGetStr(url);
+            String result = HttpClientUtil.httpGetStr(url);
             if (result.isEmpty()) {
                 return resList;
             }
@@ -62,17 +62,17 @@ public class SchoolInfoStructUtil {
     //从云平台，拿取年级信息
     public List<GradeStruct> getGradeInfo(String token) {
 
-        String ADDR = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
+        String addr = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
         String method = "WS_UserMgr_G_GetGrade";
         String tokens = "?Token=" + token;
         String gradeID = "&GradeID=";
-        String schoolID = "&SchoolID=";
+        String schoolId = "&SchoolID=";
 
-        String url = yunAddr + ADDR + method + tokens + gradeID + schoolID;
+        String url = yunAddr + addr + method + tokens + gradeID + schoolId;
         List<GradeStruct> resList = new ArrayList<GradeStruct>();
 
         try {
-            String result = new HttpClientUtil().httpGetStr(url);
+            String result = HttpClientUtil.httpGetStr(url);
             if (result == "") {
 				return resList;
 			}
@@ -99,7 +99,7 @@ public class SchoolInfoStructUtil {
     //从云平台，拿取班级信息
     public List<ClassStruct> getClassInfo(String token) {
 
-        String ADDR = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
+        String addr = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
         String method = "WS_UserMgr_G_GetClass";
         String tokens = "?Token=" + token;
         String classID = "&ClassID=";
@@ -108,11 +108,11 @@ public class SchoolInfoStructUtil {
         String teacherGH = "&TeacherGH=";
         String updateTime = "&UpdateTime=";
 
-        String url = yunAddr + ADDR + method + tokens + classID + gradeID + schoolID + teacherGH + updateTime;
+        String url = yunAddr + addr + method + tokens + classID + gradeID + schoolID + teacherGH + updateTime;
         List<ClassStruct> resList = new ArrayList<ClassStruct>();
 
         try {
-            String result = new HttpClientUtil().httpGetStr(url);
+            String result = HttpClientUtil.httpGetStr(url);
             if (result == "") {
 				return resList;
 			}
@@ -137,7 +137,7 @@ public class SchoolInfoStructUtil {
     //通过班主任获取行政班
     public List<ClassStruct> getClassInfoByUser(String token, String teacherId) {
 
-        String ADDR = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
+        String addr = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
         String method = "WS_UserMgr_G_GetClassByUser";
         String tokens = "?Token=" + token;
         String classID = "&ClassID=";
@@ -146,11 +146,20 @@ public class SchoolInfoStructUtil {
         String teacherGH = "&TeacherID=" + teacherId;
         String updateTime = "&UpdateTime=";
 
-        String url = yunAddr + ADDR + method + tokens + classID + gradeID + schoolID + teacherGH + updateTime;
+        String url = new StringBuilder().append(yunAddr)
+                .append(addr)
+                .append(method)
+                .append(tokens)
+                .append(classID)
+                .append(gradeID)
+                .append(schoolID)
+                .append(teacherGH)
+                .append(updateTime)
+                .toString();
         List<ClassStruct> resList = new ArrayList<ClassStruct>();
 
         try {
-            String result = new HttpClientUtil().httpGetStr(url);
+            String result = HttpClientUtil.httpGetStr(url);
             if (result == "") {
                 return resList;
             }

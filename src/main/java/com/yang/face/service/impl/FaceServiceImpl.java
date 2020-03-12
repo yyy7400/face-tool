@@ -95,8 +95,9 @@ public class FaceServiceImpl implements FaceService {
                 userInfoList = userInfoService.selectByUserIds(userIds, tmp);
             }
 
-            if (userInfoList.isEmpty())
+            if (userInfoList.isEmpty()) {
                 return list;
+            }
 
             // 4. 识别到的人脸列表
             List<FaceUserInfo> faces = faceEngineService.compareFaceFeature(bytes, userInfoList);
@@ -237,8 +238,9 @@ public class FaceServiceImpl implements FaceService {
         String zipFilePath = Properties.SERVER_RESOURCE + fileZip;
         String unzipFilePath = Properties.SERVER_RESOURCE + Constants.Dir.UPLOAD + timeStr + "/";
         boolean state = new ZipUtil().unzip(zipFilePath, unzipFilePath, false);
-        if (!state)
+        if (!state) {
             return list;
+        }
 
         List<ImportFeatureShow> fails = new ArrayList<>();// 不在人脸库中
         List<ImportFeatureShow> featureFails = new ArrayList<>();// 提取特征失败
@@ -253,16 +255,18 @@ public class FaceServiceImpl implements FaceService {
             // 建立userId和上传图片文件对应关系
             List<File> files = FileUtil.getFilesAll(Properties.SERVER_RESOURCE + Constants.Dir.UPLOAD + timeStr);
             for (File f : files) {
-                if (!f.isFile())
+                if (!f.isFile()) {
                     continue;
+                }
 
                 String photoUrl = PathUtil.getUrl(f.getAbsolutePath());
                 // String photoUrl = "http://192.168.3.4:8081/" +
                 String picUserId = f.getName().substring(0, f.getName().lastIndexOf('.'));
                 String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1, f.getName().length());
 
-                if (!supportImage(ext))
+                if (!supportImage(ext)) {
                     continue;
+                }
 
                 Boolean flag = false;
                 Boolean sameNameFlag = false;
@@ -280,7 +284,7 @@ public class FaceServiceImpl implements FaceService {
 
                 if (!flag) {
                     String fileName = f.getName();
-                    String PhotoAbsNew = f.getParent() + "/" + fileName.substring(0, fileName.lastIndexOf(".")) + "_c"
+                    String photoAbsNew = f.getParent() + "/" + fileName.substring(0, fileName.lastIndexOf(".")) + "_c"
                             + fileName.substring(fileName.lastIndexOf("."), fileName.length());
 
                     Thumbnails.Builder<File> fileBuilder = Thumbnails.of(f.getAbsolutePath()).scale(1.0)
@@ -289,16 +293,17 @@ public class FaceServiceImpl implements FaceService {
                     int size = src.getWidth() < src.getHeight() ? src.getWidth() : src.getHeight();
 
                     Thumbnails.of(f.getAbsolutePath()).sourceRegion(Positions.CENTER, size, size).outputQuality(1.0)
-                            .size(300, 300).toFile(PhotoAbsNew);
+                            .size(300, 300).toFile(photoAbsNew);
 
-                    if (sameNameFlag)
+                    if (sameNameFlag) {
                         sameNameFails.add(new ImportFeatureShow(picUserId, "", PhotoType.IMAGE.getKey(),
-                                PathUtil.getUrl(PhotoAbsNew), f.getName(), false,
+                                PathUtil.getUrl(photoAbsNew), f.getName(), false,
                                 picUserId + " 存在多张照片,不再导入"));
-                    else
+                    } else {
                         fails.add(new ImportFeatureShow(picUserId, "", PhotoType.IMAGE.getKey(),
-                                PathUtil.getUrl(PhotoAbsNew), f.getName(), false,
+                                PathUtil.getUrl(photoAbsNew), f.getName(), false,
                                 picUserId + " 不在人脸库中"));
+                    }
 
                 }
             }

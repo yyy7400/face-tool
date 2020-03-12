@@ -1,14 +1,15 @@
 package com.yang.face.util;
 
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,8 +62,9 @@ public class FileUtil {
         File[] files = file.listFiles();
 
         for (File f : files) {
-            if (f.isFile())
+            if (f.isFile()) {
                 list.add(f.getName());
+            }
         }
 
         return list;
@@ -77,8 +79,9 @@ public class FileUtil {
         File[] files = file.listFiles();
 
         for (File f : files) {
-            if (f.isFile())
+            if (f.isFile()) {
                 list.add(f);
+            }
         }
 
         return list;
@@ -89,17 +92,20 @@ public class FileUtil {
         List<File> list = new ArrayList<>();
 
         File file = new File(path);
-        if (!file.isDirectory())
+        if (!file.isDirectory()) {
             return list;
+        }
 
         File[] files = file.listFiles();
 
         for (File f : files) {
-            if (f.isFile())
+            if (f.isFile()) {
                 list.add(f);
+            }
 
-            if (f.isDirectory())
+            if (f.isDirectory()) {
                 list.addAll(getFilesAll(f.getAbsolutePath()));
+            }
         }
         return list;
     }
@@ -128,8 +134,9 @@ public class FileUtil {
             }
             System.out.println(tmpFile.getAbsolutePath());
             File newFile = new File(tmpFile.getAbsolutePath() + File.separator + startFile.getName());
-            if (newFile.exists())
+            if (newFile.exists()) {
                 newFile.delete();
+            }
             boolean state = startFile.renameTo(new File(tmpFile.getAbsolutePath() + File.separator + startFile.getName()));
             return state;
 
@@ -154,13 +161,15 @@ public class FileUtil {
             }
             System.out.println(tmpFile.getAbsolutePath());
             File newFile = new File(tmpFile.getAbsolutePath() + File.separator + startFile.getName());
-            if (newFile.exists())
+            if (newFile.exists()) {
                 newFile.delete();
+            }
 
             String newFileName = startFile.getName();
             boolean state = startFile.renameTo(new File(tmpFile.getAbsolutePath() + File.separator + startFile.getName()));
-            if (state)
+            if (state) {
                 return newFileName;
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -197,8 +206,9 @@ public class FileUtil {
 
             String fileName = file.getName();
             String fileNameWithoutExt = fileName.substring(0, fileName.lastIndexOf("."));
-            if (fileNameWithoutExts.contains(fileNameWithoutExt))
+            if (fileNameWithoutExts.contains(fileNameWithoutExt)) {
                 file.delete();
+            }
         }
 
         return true;
@@ -225,8 +235,9 @@ public class FileUtil {
             //获取自己数组
             byte[] getData = readInputStream(inputStream);
 
-            if (fileName.isEmpty())
-                fileName = String.valueOf(new Date().getTime());
+            if (fileName.isEmpty()) {
+                fileName = String.valueOf(System.currentTimeMillis());
+            }
             //后缀，不包含。
             String ext = pathUrl.substring(pathUrl.lastIndexOf(".") + 1);
 
@@ -326,15 +337,17 @@ public class FileUtil {
     public static boolean base64ToImage(String imgStr, String path) {
 
 
-        if (imgStr == null)
+        if (imgStr == null) {
             return false;
+        }
         // 解密
         try {
             Base64.Decoder decoder = Base64.getDecoder();
             Base64.getUrlDecoder();
             String base64Header = "data:image/jpeg;base64,";
-            if (imgStr.startsWith(base64Header))
+            if (imgStr.startsWith(base64Header)) {
                 imgStr = imgStr.substring(base64Header.length());
+            }
 
             byte[] b = decoder.decode(imgStr);
             // 处理数据
@@ -361,7 +374,7 @@ public class FileUtil {
      * @Author:
      * @CreateTime:
      */
-    public static String ImageToBase64(String imgFile) {
+    public static String imageToBase64(String imgFile) {
         InputStream inputStream = null;
         byte[] data = null;
         try {
@@ -383,7 +396,7 @@ public class FileUtil {
      * @param data 要加密的数据
      * @return 加密后的字符串
      */
-    public static String encryptBASE64(byte[] data) {
+    public static String encryptBase64(byte[] data) {
         // BASE64Encoder encoder = new BASE64Encoder();
         // String encode = encoder.encode(data);
         // 从JKD 9开始rt.jar包已废除，从JDK 1.8开始使用java.util.Base64.Encoder
@@ -399,7 +412,7 @@ public class FileUtil {
      * @return 解密后的byte[]
      * @throws Exception
      */
-    public static byte[] decryptBASE64(String data) throws Exception {
+    public static byte[] decryptBase4(String data) throws Exception {
         // BASE64Decoder decoder = new BASE64Decoder();
         // byte[] buffer = decoder.decodeBuffer(data);
         // 从JKD 9开始rt.jar包已废除，从JDK 1.8开始使用java.util.Base64.Decoder
@@ -407,6 +420,36 @@ public class FileUtil {
         byte[] buffer = decoder.decode(data);
         //System.out.println(new String(buffer));
         return buffer;
+    }
+
+    /**
+     * 获取一个文件的md5值(可处理大文件)
+     *
+     * @return md5 value
+     */
+    public static String getMD5(File file) {
+        FileInputStream fileInputStream = null;
+        try {
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            fileInputStream = new FileInputStream(file);
+            byte[] buffer = new byte[8192];
+            int length;
+            while ((length = fileInputStream.read(buffer)) != -1) {
+                md5.update(buffer, 0, length);
+            }
+            return new String(Hex.encodeHex(md5.digest()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (fileInputStream != null) {
+                    fileInputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void main(String[] args) {

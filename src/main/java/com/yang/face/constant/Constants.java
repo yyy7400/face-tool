@@ -10,6 +10,8 @@ public class Constants {
      */
     public static final int SYS_LOCK_ID = 165;
 
+    public static final String PYTHON_FEATURE_EXT = "npy";
+
     /**
      * 路径
      */

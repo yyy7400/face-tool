@@ -11,7 +11,7 @@ public class YunEncrypt {
 	 * 
 	 * @return加密后字符串
 	 */
-	public static String EncryptCode(String userID, String str) {
+	public static String encryptCode(String userID, String str) {
 		byte[] idByte = null;
 		idByte = YunMD5.md5(userID).getBytes();
 		byte S_key = idByte[idByte.length - 1];// 密钥
@@ -44,7 +44,7 @@ public class YunEncrypt {
 	 * @throws UnsupportedEncodingException
 	 * @return原文
 	 */
-	public static String DecryptCode(String userID, String EncryptInfo) {
+	public static String decryptCode(String userID, String EncryptInfo) {
 		byte[] idByte = YunMD5.md5(userID).getBytes();// android默认utf-8格式，一个中文字符占用3个字符
 		byte S_key = idByte[idByte.length - 1];// 密钥
 		String S_source = new StringBuffer("").append(EncryptInfo).reverse()

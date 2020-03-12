@@ -9,9 +9,9 @@ public enum ClientTypeEnum {
     OTHRER(2, "OTHER"),
             ;
 
-    private ClientTypeEnum(int _key, String _name) {
-        key = _key;
-        name = _name;
+    private ClientTypeEnum(int key, String name) {
+        this.key = key;
+        this.name = name;
     }
 
     int key;
@@ -27,8 +27,9 @@ public enum ClientTypeEnum {
 
     public static String getName(int key) {
         for (ClientTypeEnum e : ClientTypeEnum.values()) {
-            if (e.getKey() == key)
+            if (e.getKey() == key) {
                 return e.getName();
+            }
         }
 
         return "";

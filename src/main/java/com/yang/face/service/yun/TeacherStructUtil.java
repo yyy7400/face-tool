@@ -19,7 +19,7 @@ import java.util.List;
 public class TeacherStructUtil {
 	
 	private static final Logger logger = LoggerFactory.getLogger(TeacherStructUtil.class);
-	private static String ADDR = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
+	private static String addr = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
 	
 	
 	String yunAddr = Properties.YUN_SERVER_ADDR;
@@ -48,12 +48,12 @@ public class TeacherStructUtil {
 		Token = Token + token;
 		UserID = UserID + userId;
 		
-		String url = yunAddr + ADDR + method + Token + UserID + 
+		String url = yunAddr + addr + method + Token + UserID +
 				UserName + GroupID + SchoolID + UserClass + UpdateTime + DataModel;
 		List<TeacherStruct> resList = new ArrayList<>();
 		
 		try {
-			String result = new HttpClientUtil().httpGetStr(url);
+			String result = HttpClientUtil.httpGetStr(url);
 			if(result.isEmpty()) {
 				return resList;
 			}
@@ -88,11 +88,18 @@ public class TeacherStructUtil {
 			SchoolID = SchoolID + schoolId;
 		}
 
-		String url = yunAddr + ADDR + method + Token + GroupID + SchoolID + UpdateTime;
+		String url = new StringBuilder().append(yunAddr)
+				.append(addr)
+				.append(method)
+				.append(Token)
+				.append(GroupID)
+				.append(SchoolID)
+				.append(UpdateTime)
+				.toString();
 		List<TeacherGroupStruct> resList = new ArrayList<TeacherGroupStruct>();
 
 		try {
-			String result = new HttpClientUtil().httpGetStr(url);
+			String result = HttpClientUtil.httpGetStr(url);
 			if(result.isEmpty()) {
 				return resList;
 			}

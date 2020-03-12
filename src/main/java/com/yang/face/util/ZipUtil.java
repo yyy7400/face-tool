@@ -42,7 +42,7 @@ public class ZipUtil {
         if (file.isFile())
         {
             int count, bufferLen = 1024;
-            byte data[] = new byte[bufferLen];
+            byte[] data = new byte[bufferLen];
 
             //获取文件相对于压缩文件夹根目录的子路径
             String subPath = file.getAbsolutePath();
@@ -222,8 +222,9 @@ public class ZipUtil {
                 entryFilePath = PathUtil.combine(unzipFilePath, entry.getName());
                 if(entry.isDirectory()) {
                     entryDir = new File(entryFilePath);
-                    if(!entryDir.exists())
+                    if(!entryDir.exists()) {
                         entryDir.mkdirs();
+                    }
                 }
             } catch (Exception e) {
                 // 解决越界问题
@@ -240,8 +241,9 @@ public class ZipUtil {
                 entryFilePath = PathUtil.combine(unzipFilePath, name);
                 if(entry.isDirectory()) {
                     entryDir = new File(entryFilePath);
-                    if(!entryDir.exists())
+                    if(!entryDir.exists()) {
                         entryDir.mkdirs();
+                    }
 
                     continue;
                 }

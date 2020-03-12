@@ -43,10 +43,12 @@ public class UploadController {
         String type = request.getParameter("type");
         //String runtime = request.getParameter("runtime");
 
-        if (type.equals(Constants.UploadType.IMAGE_FACE))
+        if (type.equals(Constants.UploadType.IMAGE_FACE)) {
             FileDir = Constants.Dir.IMAGE_FACE;
-        else if (type.equals(Constants.UploadType.NORMAL_FILE))
+        }
+        else if (type.equals(Constants.UploadType.NORMAL_FILE)) {
             FileDir = Constants.Dir.UPLOAD;
+        }
 
         //文件存储路径
         File dir = new File(Properties.SERVER_RESOURCE + FileDir);

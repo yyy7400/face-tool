@@ -21,9 +21,9 @@ public enum StatusType {
     //"操作失败"
     FAILED_OPERATE(4, "操作失败");
 
-    StatusType(int _key, String _name) {
-        key = _key;
-        name = _name;
+    StatusType(int key, String name) {
+        this.key = key;
+        this.name = name;
     }
 
     int key;

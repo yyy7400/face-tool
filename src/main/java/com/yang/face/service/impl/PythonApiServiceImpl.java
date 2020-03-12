@@ -1,19 +1,30 @@
 package com.yang.face.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yang.face.client.ClientManager;
+import com.yang.face.constant.Constants;
+import com.yang.face.constant.Properties;
 import com.yang.face.constant.enums.ClientTypeEnum;
 import com.yang.face.entity.middle.FaceRecognitionImage;
 import com.yang.face.entity.middle.FaceScoreImageMod;
+import com.yang.face.entity.middle.FeatureFileInfo;
 import com.yang.face.entity.middle.UserIdFeatureFiles;
 import com.yang.face.service.PythonApiService;
+import com.yang.face.service.UserInfoService;
+import com.yang.face.util.FileUtil;
 import com.yang.face.util.HttpClientUtil;
 import com.yang.face.util.PathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,9 +32,13 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Python Web Api 调用
  */
+@Component
 public class PythonApiServiceImpl implements PythonApiService {
 
     private final static Logger logger = LoggerFactory.getLogger(PythonApiServiceImpl.class);
+
+    @Resource
+    private UserInfoService userInfoService;
 
     /**
      * 地址轮询位置
@@ -371,16 +386,36 @@ public class PythonApiServiceImpl implements PythonApiService {
         return map;
     }
 
+    /**
+     * 清除特征库
+     *
+     * @param ids
+     * @return
+     */
     public Boolean faceFeatureClean(List<String> ids) {
+        List<String> addrs = ClientManager.getKeyPython();
+        addrs.forEach((o) -> noticeDownloadFeature(ids, o));
+        return true;
+    }
+
+    /**
+     * 多线程调用api
+     *
+     * @param ids
+     * @param addr
+     * @return
+     */
+    @Async("taskExcutor")
+    public void faceFeatureClean(List<String> ids, String addr) {
         try {
             // 请求
             String url = "";
             JSONObject json = new JSONObject();
 
             if (ids.isEmpty()) {
-                url = PathUtil.combine(getAddrByPolling(), "/face_feature_clean");
+                url = PathUtil.combine(addr, "/face_feature_clean");
             } else {
-                url = PathUtil.combine(getAddrByPolling(), "/face_detection_video_close_all");
+                url = PathUtil.combine(addr, "/face_detection_video_close_all");
                 json.put("ids", ids);
             }
             String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
@@ -389,14 +424,56 @@ public class PythonApiServiceImpl implements PythonApiService {
             JSONObject jsonObject = JSONObject.parseObject(str);
             Integer status = jsonObject.getInteger("status");
             if (status != 0) {
-                return false;
+                System.out.println("success");
             } else {
-                return true;
+                System.out.println("failed");
             }
 
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
-            return false;
+        }
+    }
+
+    /**
+     * 通知客户端更新特征
+     *
+     * @param files
+     */
+    public void noticeDownloadFeature(List<String> files) {
+
+        List<String> addrs = ClientManager.getKeyPython();
+        addrs.forEach((o) -> noticeDownloadFeature(files, o));
+    }
+
+    /**
+     * 多线程调用api
+     *
+     * @param addr
+     * @param files
+     */
+    @Async("taskExcutor")
+    public void noticeDownloadFeature(List<String> files, String addr) {
+
+        try {
+            // 请求
+            String url = PathUtil.combine(addr, "/face_feature_clean");
+            ;
+            JSONArray jsonArray = new JSONArray();
+            jsonArray.addAll(files);
+
+            String str = HttpClientUtil.httpPostStr(jsonArray.toJSONString(), url);
+
+            // 解析首层
+            JSONObject jsonObject = JSONObject.parseObject(str);
+            Integer status = jsonObject.getInteger("status");
+            if (status != 0) {
+                System.out.println("success");
+            } else {
+                System.out.println("failed");
+            }
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
         }
     }
 
@@ -454,6 +531,28 @@ public class PythonApiServiceImpl implements PythonApiService {
         return res;
     }
 
+    public List<FeatureFileInfo> getFeatureFile() {
+
+        List<FeatureFileInfo> list = new ArrayList<>();
+
+        String dir = Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE;
+        List<File> files = FileUtil.getFilesAll(dir);
+        files.forEach((f) -> {
+            String[] strs = f.getName().split(".");
+            // 判断后缀名
+            if(strs.length < 2 || !Constants.PYTHON_FEATURE_EXT.equals(strs[1])) {
+                return;
+            }
+
+            String fileUrl = PathUtil.getRelPath(f.getAbsolutePath());
+            Date updateTime = DateUtil.date(f.lastModified());
+            String md5 = FileUtil.getMD5(f);
+
+            list.add(new FeatureFileInfo(strs[0], fileUrl, updateTime, md5));
+        });
+
+        return list;
+    }
 
     @Override
     public String getAddrByPolling() {
@@ -472,4 +571,5 @@ public class PythonApiServiceImpl implements PythonApiService {
 
         return addr;
     }
+
 }

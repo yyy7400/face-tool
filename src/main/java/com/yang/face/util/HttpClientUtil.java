@@ -30,7 +30,7 @@ public class HttpClientUtil {
 	
 	public static String httpGetStr(String url, int timeOut) throws ClientProtocolException, IOException {
 		
-		RequestConfig  Requestconfig = RequestConfig.custom()
+		RequestConfig  requestConfig = RequestConfig.custom()
 				.setConnectTimeout(timeOut) //设置连接超时时间
 				.setConnectionRequestTimeout(timeOut) //设置请求超时时间
 				.setSocketTimeout(timeOut) //设置socket超时时间
@@ -40,7 +40,7 @@ public class HttpClientUtil {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpGet getMethod = new HttpGet(url);
 		
-		getMethod.setConfig(Requestconfig);
+		getMethod.setConfig(requestConfig);
 		HttpResponse response = client.execute(getMethod);
 		
 		String result = "";
@@ -82,27 +82,23 @@ public class HttpClientUtil {
 		post.setConfig(Requestconfig);
 		post.setHeader("Content-Type", "application/json");
 		
-		//String param = URLEncodedUtils.format(params, "UTF-8");
-		//如果参数含有中文，加上面一句进行转码处理
 
 		StringEntity entity = new StringEntity(jsonData, Charset.forName("UTF-8"));
 		post.setEntity(entity);
 		// 执行,返回一个结果
 		HttpResponse response = client.execute(post);
-		//System.out.println("结果：" + response);
 		// 获取xml结果
 		String result = "";
 		if (200 == response.getStatusLine().getStatusCode()) {
 			// 得到执行结果
 			result = EntityUtils.toString(response.getEntity());
-			//System.out.println(result);
 		}
 		return result;
 	}
 
 	public static String httpPostStr(Map<String, Object> paramMap, String url, int timeOut) throws HttpException, IOException {
 
-		RequestConfig  Requestconfig = RequestConfig.custom()
+		RequestConfig  requestConfig = RequestConfig.custom()
 				.setConnectTimeout(timeOut)//设置连接超时时间
 				.setConnectionRequestTimeout(timeOut)//设置请求超时时间
 				.setSocketTimeout(timeOut)//设置socket超时时间
@@ -112,7 +108,7 @@ public class HttpClientUtil {
 		HttpClient client = HttpClientBuilder.create().build();
 
 		HttpPost post= new HttpPost(url);
-		post.setConfig(Requestconfig);
+		post.setConfig(requestConfig);
 		post.setHeader("Content-Type", "application/json");
 
 
@@ -125,13 +121,11 @@ public class HttpClientUtil {
 		post.setEntity(entity);
 		// 执行,返回一个结果
 		HttpResponse response = client.execute(post);
-		//System.out.println("结果：" + response);
 		// 获取xml结果
 		String result = "";
 		if (200 == response.getStatusLine().getStatusCode()) {
 			// 得到执行结果
 			result = EntityUtils.toString(response.getEntity());
-			//System.out.println(result);
 		}
 		return result;
 	}

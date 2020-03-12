@@ -60,7 +60,9 @@ public class PluploadUtil {
         MultiValueMap<String, MultipartFile> map = multipartRequest.getMultiFileMap();
 
         if (map != null) {
-            if (!dir.exists()) dir.mkdirs();    //如果目标文件夹不存在则创建新的文件夹
+            if (!dir.exists()) {
+                dir.mkdirs();    //如果目标文件夹不存在则创建新的文件夹
+            }
 
             //事实上迭代器中只存在一个值,所以只需要返回一个值即可
             Iterator<String> iter = map.keySet().iterator();

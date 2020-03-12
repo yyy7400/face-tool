@@ -1,6 +1,7 @@
 package com.yang.face.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.thread.NamedThreadFactory;
 import com.arcsoft.face.*;
 import com.arcsoft.face.enums.DetectMode;
 import com.arcsoft.face.enums.DetectOrient;
@@ -58,7 +59,7 @@ public class FaceEngineServiceImpl implements FaceEngineService {
         String sdkLibPath = jarDir + "lib";
 
         // alibaba 推荐手动重建线程池，以便了解线程池运行机制，规避资源耗尽的风险
-        threadPoolExecutor = new ThreadPoolExecutor(5, 10, 200, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
+        threadPoolExecutor = new ThreadPoolExecutor(5, 10, 200, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5), new NamedThreadFactory("FaceEngine", false));
         //threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadPoolSize)
         //executorService = Executors.newFixedThreadPool(threadPoolSize);
         GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
@@ -227,6 +228,7 @@ public class FaceEngineServiceImpl implements FaceEngineService {
      * @throws InterruptedException
      * @throws ExecutionException
      */
+    @Override
     public List<FaceUserInfo> compareFaceFeature(byte[] faceFeature, List<UserInfo> userInfoList) throws InterruptedException, ExecutionException {
         //识别到的人脸列表
         List<FaceUserInfo> resultFaceInfoList = Lists.newLinkedList();

@@ -20,7 +20,7 @@ import java.util.List;
 public class StudentStructUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(StudentStructUtil.class);
-	private static String ADDR = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
+	private static String addr = "UserMgr/UserInfoMgr/WS/Service_UserInfo.asmx/";
 	
 	
 	String yunAddr = Properties.YUN_SERVER_ADDR;
@@ -53,13 +53,27 @@ public class StudentStructUtil {
 		
 		Token = Token + token;
 		UserID = UserID + userId;
-		
-		String url = yunAddr + ADDR + method + Token + UserID + 
-				UserName + ClassID + GradeID + SchoolID + UserClass + TeacherID + UpdateTime + DataModel;
+
+		String url = new StringBuilder().append(yunAddr)
+				.append(addr)
+				.append(method)
+				.append(Token)
+				.append(UserID)
+				.append(UserName)
+				.append(ClassID)
+				.append(GradeID)
+				.append(SchoolID)
+				.append(UserClass)
+				.append(TeacherID)
+				.append(UpdateTime)
+				.append(DataModel)
+				.toString();
+
+
 		List<StudentStruct> resList = new ArrayList<>();
 		
 		try {
-			String result = new HttpClientUtil().httpGetStr(url);
+			String result = HttpClientUtil.httpGetStr(url);
 			if(result.isEmpty()) {
 				return resList;
 			}

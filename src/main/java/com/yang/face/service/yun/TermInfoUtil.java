@@ -21,7 +21,7 @@ public class TermInfoUtil {
 	
 	private static final Logger logger = LoggerFactory.getLogger(TermInfoUtil.class);
 
-	private static String ADDR = "SysMgr/SysSetting/WS/Service_SysSetting.asmx/";
+	private static String addr = "SysMgr/SysSetting/WS/Service_SysSetting.asmx/";
 
 	String yunAddr = Properties.YUN_SERVER_ADDR;
 	String method = "WS_SysMgr_G_GetFullTermInfo";
@@ -33,11 +33,11 @@ public class TermInfoUtil {
 	 * 2020/2/15 0:00:00
 	 */
 	public TermInfoExtract getTermInfo() {
-		String url = yunAddr + ADDR + method;
+		String url = new StringBuilder().append(yunAddr).append(addr).append(method).toString();
 
 		TermInfoExtract res = new TermInfoExtract();
 		try {
-			String result = new HttpClientUtil().httpGetStr(url);
+			String result = HttpClientUtil.httpGetStr(url);
 			if(result.isEmpty()) {
 				return res;
 			}

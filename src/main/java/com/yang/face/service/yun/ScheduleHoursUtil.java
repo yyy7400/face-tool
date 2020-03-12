@@ -17,11 +17,11 @@ import java.util.List;
 public class ScheduleHoursUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduleHoursUtil.class);
-    private static String ADDR = "UserMgr/TeachInfoMgr/Api/Service_TeachInfo.ashx";
+    private static String addr = "UserMgr/TeachInfoMgr/Api/Service_TeachInfo.ashx";
 
     String yunAddr = Properties.YUN_SERVER_ADDR;
-    String Method = "?method=GetScheduleHours";
-    String Params = "&params=";
+    String method = "?method=GetScheduleHours";
+    String params = "&params=";
 
     /**
      * 获取课程表时间安排
@@ -44,16 +44,20 @@ public class ScheduleHoursUtil {
     public List<ScheduleHours> getScheduleHours(String schoolId, String token) {
 
         System.out.println("schoolId:" + schoolId );
-        Params += schoolId;
-        Params += "&token=" + token;
-        String url = yunAddr + ADDR + Method + Params;
+        params += schoolId;
+        params += "&token=" + token;
+        String url = new StringBuilder().append(yunAddr)
+                .append(addr)
+                .append(method)
+                .append(params)
+                .toString();
 
         System.out.println("get schedule:" + url);
         List<ScheduleHours> list = new ArrayList<>();
 
         try {
 
-            String result = new HttpClientUtil().httpGetStr(url);
+            String result = HttpClientUtil.httpGetStr(url);
             if(result.isEmpty()) {
                 return list;
             }

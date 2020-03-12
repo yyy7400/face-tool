@@ -142,27 +142,31 @@ public class UserInfoServiceImpl implements UserInfoService {
         FacePathShow fPath = new FacePathShow();
         try {
             // 默认是学生
-            if (userType == null)
+            if (userType == null) {
                 userType = UserTypeEnum.STUDENT.getKey();
+            }
 
             String photoYun = "";
             if (userType.equals(UserTypeEnum.STUDENT.getKey())) {
                 List<StudentStruct> list = new StudentStructUtil().getStuDetailInfo(token, userId);
-                if (list == null || list.size() == 0)
+                if (list == null || list.size() == 0) {
                     return fPath;
+                }
 
                 photoYun = list.get(0).getPhotoPath();
             } else if (userType.equals(UserTypeEnum.TEACHER.getKey())) {
                 List<TeacherStruct> list = new TeacherStructUtil().getTeaDetailInfo(token, userId);
-                if (list == null || list.size() == 0)
+                if (list == null || list.size() == 0) {
                     return fPath;
+                }
 
                 photoYun = list.get(0).getPhotoPath();
             } else if (userType.equals(UserTypeEnum.ADMIN_BUREAU.getKey())
                     || userType.equals(UserTypeEnum.ADMIN.getKey())) {
                 List<AdminStruct> list = new AdminStructUtil().getAdminDetailInfo(token, userId);
-                if (list == null || list.size() == 0)
+                if (list == null || list.size() == 0) {
                     return fPath;
+                }
 
                 photoYun = list.get(0).getPhotoPath();
             } else {
@@ -172,8 +176,9 @@ public class UserInfoServiceImpl implements UserInfoService {
             String dirSave = Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_YUN;
             String path = new FileUtil().downloadUrl(photoYun, dirSave);
 
-            if (path.isEmpty())
+            if (path.isEmpty()) {
                 return fPath;
+            }
 
             // 重基础平台下载的头像为png,face opencv无法读取，需要另存为jpg
             BufferedImage bufferedImage = ImageIO.read(new File(path));

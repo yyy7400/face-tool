@@ -50,7 +50,7 @@ public class LockerMgrUtil {
 					.append(secCode)
 					.toString();
 			
-			String result =new HttpClientUtil().httpGetStr(url);
+			String result = HttpClientUtil.httpGetStr(url);
 			if(result == "") {
                 return null;
             }
@@ -71,7 +71,6 @@ public class LockerMgrUtil {
 			res = new SubSystemLocker();
 			res.setResult(Integer.valueOf(objs.get(0)));
 			res.setPoint(getDecryptInt(lockId, objs.get(1)));
-			//res.setPoint(0);
 			res.setYear(getDecryptInt(lockId, objs.get(2)));
 			res.setMonth(getDecryptInt(lockId, objs.get(3)));
 			res.setDay(getDecryptInt(lockId, objs.get(4)));
@@ -101,6 +100,6 @@ public class LockerMgrUtil {
 
     private String getDecrytString(int lockid, String str)
     {
-        return YunEncrypt.DecryptCode(String.valueOf(lockid), str);
+        return YunEncrypt.decryptCode(String.valueOf(lockid), str);
     }
 }

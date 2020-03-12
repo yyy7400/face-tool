@@ -36,12 +36,11 @@ public class YunToken {
      */
     public String getToken(String userId) {
         try {
-            userId = EncodeCardUserID(userId);
+            userId = encodeCardUserID(userId);
             String params = URLEncoder.encode(String.format("%s|%s|%d||||", userId, Constants.SYS_ID, MachineType.TERMINAL), "utf-8");
             String url = yunAddr + "?method=LoginByCard&params=" + params;
-            //logger.info("token url:" + url);
 
-            String jsonStr = new HttpClientUtil().httpGetStr(url);
+            String jsonStr = HttpClientUtil.httpGetStr(url);
 
             if (jsonStr.isEmpty()) {
                 return "";
@@ -62,7 +61,7 @@ public class YunToken {
         }
     }
 
-    private static String EncodeCardUserID(String userId) {
+    private static String encodeCardUserID(String userId) {
         // 0.1 数据反序 ---- 字符串格式为：用户ID?学校ID?卡的序列号? 
         String str_before = userId + "?0?0?";
 
