@@ -2,6 +2,9 @@ package com.yang.face.service.yun;
 
 import java.io.UnsupportedEncodingException;
 
+/**
+ * @author Yang
+ */
 public class YunEncrypt {
 
 	/**

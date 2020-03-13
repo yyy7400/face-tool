@@ -20,7 +20,7 @@ public interface FaceService {
      * @param userIds
      * @return
      */
-    public List<FaceRecoShow> recoImage(Integer type, String photo, List<String> userIds);
+    List<FaceRecoShow> recoImage(Integer type, String photo, List<String> userIds);
 
     /**
      * 清理人脸库特征
@@ -28,7 +28,7 @@ public interface FaceService {
      * @param userId
      * @return
      */
-    public MessageVO cleanFeature(List<String> userId);
+    MessageVO cleanFeature(List<String> userId);
 
     /**
      * 批量导入人脸库，并更新
@@ -36,7 +36,7 @@ public interface FaceService {
      * @param list
      * @return
      */
-    public List<ImportFeatureShow> importFeatures(List<ImportFeaturePost> list);
+    List<ImportFeatureShow> importFeatures(List<ImportFeaturePost> list);
 
     /**
      * 批量导入人脸库，并更新
@@ -44,13 +44,13 @@ public interface FaceService {
      * @param zipPath
      * @return
      */
-    public List<ImportFeatureShow> importFeatures(String zipPath);
+    List<ImportFeatureShow> importFeatures(String zipPath);
 
     /**
      * 更新人脸库特征
      *
      * @return
      */
-    public MessageVO updateFeatures();
+    MessageVO updateFeatures();
 
 }

@@ -18,7 +18,7 @@ public class PythonClientController {
     @Resource
     PythonApiService pythonApiService;
 
-    @GetMapping("/pythonClietn/features")
+    @GetMapping("/pythonClient/features")
     public Response features(){
 
         return Response.show(pythonApiService.getFeatureFiles());

@@ -1,5 +1,8 @@
 package com.yang.face.constant.enums;
 
+/**
+ * @author Yang
+ */
 public enum PhotoType {
     IMAGE(1, "图片URL地址"),
 

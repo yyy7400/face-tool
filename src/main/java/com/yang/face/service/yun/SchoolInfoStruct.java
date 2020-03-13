@@ -3,7 +3,7 @@ package com.yang.face.service.yun;
 import lombok.Data;
 
 /*
- * author zhufeng 2018-12-14
+ * @author zhufeng 2018-12-14
  */
 @Data
 public class SchoolInfoStruct {

@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
+ * @author Yang
  * client 管理器
  */
 public class ClientManager {

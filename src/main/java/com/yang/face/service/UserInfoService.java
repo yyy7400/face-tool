@@ -19,12 +19,12 @@ public interface UserInfoService {
      * 获取所有用户，加入缓存
      * @return
      */
-    public List<UserInfo> selectAll();
+    List<UserInfo> selectAll();
 
     /**
      * 清除缓存
      */
-    public void clearSelectAllCache();
+    void clearSelectAllCache();
 
     /**
      * 查询用户
@@ -35,32 +35,32 @@ public interface UserInfoService {
      * @param pageSize
      * @return
      */
-    public PageShow search (String groupId, Integer userType, String userName, Integer pageIndex, Integer pageSize);
+    PageShow search (String groupId, Integer userType, String userName, Integer pageIndex, Integer pageSize);
 
-    public UserInfo selectByUserId(String userId);
+    UserInfo selectByUserId(String userId);
 
-    public UserInfo selectById(Integer id);
+    UserInfo selectById(Integer id);
 
-    public MessageVO updatePhoto(String userId, String photo);
+    MessageVO updatePhoto(String userId, String photo);
 
-    public MessageVO deletePhoto(String userId);
+    MessageVO deletePhoto(String userId);
 
-    public List<UserInfo> selectByUserIds(List<String> userIds, List<UserInfo> list);
+    List<UserInfo> selectByUserIds(List<String> userIds, List<UserInfo> list);
 
-    public FacePathShow getPhotoFromYun(String token, String userId, Integer userType);
+    FacePathShow getPhotoFromYun(String token, String userId, Integer userType);
 
     /**
      * 更新基础平台用户信息
      * @return
      */
-    public Boolean updateYunUserInfo();
+    Boolean updateYunUserInfo();
 
     /**
      * 重置用户信息
      * @return
      */
-    public MessageVO resetUserInfo();
+    MessageVO resetUserInfo();
 
-    public List<TeacherGroup> getGroupInfo(String token);
+    List<TeacherGroup> getGroupInfo(String token);
 
 }

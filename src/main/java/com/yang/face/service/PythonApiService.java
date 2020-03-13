@@ -7,6 +7,9 @@ import com.yang.face.entity.middle.FeatureFileInfo;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Yang
+ */
 public interface PythonApiService {
 
     /**
@@ -17,7 +20,7 @@ public interface PythonApiService {
      * @param photo
      * @return userId, featureFile
      */
-    public Map<String, String> getFaceFeature(String userId, Integer photoType, String photo);
+    Map<String, String> getFaceFeature(String userId, Integer photoType, String photo);
 
     /**
      * 单张图片人脸评分
@@ -26,7 +29,7 @@ public interface PythonApiService {
      * @param photo
      * @return score, state
      */
-    public Map<Integer, Boolean> faceScoreIamge(Integer photoType, String photo);
+    Map<Integer, Boolean> faceScoreIamge(Integer photoType, String photo);
 
     /**
      * 单张图片人脸评分-带维度
@@ -35,14 +38,14 @@ public interface PythonApiService {
      * @param photo
      * @return
      */
-    public FaceScoreImageMod faceScoreIamgeMod(Integer photoType, String photo);
+    FaceScoreImageMod faceScoreIamgeMod(Integer photoType, String photo);
 
     /**
      * 更新特征库, tested
      *
      * @return
      */
-    public Boolean updateFaceFeature();
+    Boolean updateFaceFeature();
 
     /**
      * 开启视频流检测
@@ -50,7 +53,7 @@ public interface PythonApiService {
      * @param videoUrl
      * @return liveUrl, state
      */
-    public Map<String, Boolean> faceDetectionVideoStart(String videoUrl);
+    Map<String, Boolean> faceDetectionVideoStart(String videoUrl);
 
     /**
      * 关闭视频流检测
@@ -58,14 +61,14 @@ public interface PythonApiService {
      * @param videoUrl
      * @return liveUrl, state
      */
-    public Boolean faceDetectionVideoClose(String videoUrl);
+    Boolean faceDetectionVideoClose(String videoUrl);
 
     /**
      * 获取当前人脸检测视频列表
      *
      * @return
      */
-    public List<String> faceDetectionVideoList();
+    List<String> faceDetectionVideoList();
 
     /**
      * 教室内人脸识别-图片
@@ -75,7 +78,7 @@ public interface PythonApiService {
      * @param userIds
      * @return
      */
-    public List<FaceRecognitionImage> faceRecognitionImage(Integer photoType, String photo, List<String> userIds);
+    List<FaceRecognitionImage> faceRecognitionImage(Integer photoType, String photo, List<String> userIds);
 
     /**
      * 单面摄像头，电子班牌上人脸识别
@@ -85,7 +88,7 @@ public interface PythonApiService {
      * @param userIds
      * @return
      */
-    public List<FaceRecognitionImage> faceRecognitionImageEC(Integer photoType, String photo, List<String> userIds);
+    List<FaceRecognitionImage> faceRecognitionImageEC(Integer photoType, String photo, List<String> userIds);
 
     /**
      * 两种人脸照片对比
@@ -95,7 +98,7 @@ public interface PythonApiService {
      * @param photo2
      * @return similarityScore, state
      */
-    public Map<Double, Boolean> idCardFaceCmp(Integer photoType, String photo, Integer photoType2, String photo2);
+    Map<Double, Boolean> idCardFaceCmp(Integer photoType, String photo, Integer photoType2, String photo2);
 
     /**
      * 清除特征库
@@ -103,20 +106,26 @@ public interface PythonApiService {
      * @param ids
      * @return
      */
-    public Boolean faceFeatureClean(List<String> ids);
+    Boolean faceFeatureClean(List<String> ids);
 
     /**
      * 通知客户端更新特征
      *
      * @param files
      */
-    public void noticeDownloadFeature(List<String> files);
+    void noticeDownloadFeature(List<String> files);
 
     /**
      * 获取特征文件
      * @return
      */
-    public List<FeatureFileInfo> getFeatureFiles();
+    List<FeatureFileInfo> getFeatureFiles();
 
-    public String getAddrByPolling();
+    /**
+     * 清理特征文件缓存
+     * @return
+     */
+    void clearFeatureFiles();
+
+    String getAddrByPolling();
 }

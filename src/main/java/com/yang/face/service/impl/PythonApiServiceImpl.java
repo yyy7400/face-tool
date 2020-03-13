@@ -19,6 +19,8 @@ import com.yang.face.util.PathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -424,7 +426,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     public void faceFeatureClean(List<String> ids, String addr) {
         try {
             // 请求
-            String url = "";
+            String url;
             JSONObject json = new JSONObject();
 
             if (ids.isEmpty()) {
@@ -473,7 +475,6 @@ public class PythonApiServiceImpl implements PythonApiService {
         try {
             // 请求
             String url = PathUtil.combine(addr, "/face_feature_clean");
-            ;
             JSONArray jsonArray = new JSONArray();
             jsonArray.addAll(files);
 
@@ -548,6 +549,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     }
 
     @Override
+    @Cacheable(value = "featureFiles")
     public List<FeatureFileInfo> getFeatureFiles() {
 
         List<FeatureFileInfo> list = new ArrayList<>();
@@ -569,6 +571,11 @@ public class PythonApiServiceImpl implements PythonApiService {
         });
 
         return list;
+    }
+
+    @Override
+    @CacheEvict(value = "featureFiles")
+    public void clearFeatureFiles() {
     }
 
     @Override

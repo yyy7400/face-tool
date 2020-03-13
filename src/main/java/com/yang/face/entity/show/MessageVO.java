@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class MessageVO {
     private Boolean state;
     private String msg;
@@ -31,4 +30,13 @@ public class MessageVO {
         this.msg = message;
     }
 
+    public MessageVO(Boolean state, Integer num) {
+        this.state = state;
+        this.msg = state ? MessageEnum.SUCCESS.getName() : MessageEnum.FAIL.getName() + ":" + num + "条数据";
+    }
+
+    public MessageVO(Boolean state, String message) {
+        this.state = state;
+        this.msg = message;
+    }
 }
