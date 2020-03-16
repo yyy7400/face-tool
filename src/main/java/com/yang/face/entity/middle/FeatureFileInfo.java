@@ -17,6 +17,6 @@ import java.util.Date;
 public class FeatureFileInfo {
     private String userId;
     private String fileUrl;
-    private Date updateTime;
+    private String updateTime;
     private String md5;
 }

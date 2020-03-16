@@ -14,7 +14,7 @@ import com.yang.face.entity.show.MessageVO;
 import com.yang.face.entity.show.PageShow;
 import com.yang.face.entity.show.TeacherGroup;
 import com.yang.face.mapper.UserInfoMapper;
-import com.yang.face.service.UserInfoService;
+import com.yang.face.service.*;
 import com.yang.face.service.yun.*;
 import com.yang.face.util.FileUtil;
 import com.yang.face.util.PathUtil;
@@ -35,8 +35,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -70,13 +70,13 @@ public class UserInfoServiceImpl implements UserInfoService {
         Example example = new Example(UserInfo.class);
         Example.Criteria criteria = example.createCriteria();
 
-        if(userType >= 0) {
+        if (userType >= 0) {
             criteria.andEqualTo("userType", userType);
         }
-        if(StringUtils.isEmpty(groupId)) {
+        if (StringUtils.isEmpty(groupId)) {
             criteria.andEqualTo("groupId", groupId);
         }
-        if(StringUtils.isEmpty(userName)) {
+        if (StringUtils.isEmpty(userName)) {
             criteria.andEqualTo("userName", userName);
         }
 
@@ -177,7 +177,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             }
 
             String dirSave = Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_YUN;
-            String path = new FileUtil().downloadUrl(photoYun, dirSave);
+            String path = FileUtil.downloadUrl(photoYun, dirSave);
 
             if (path.isEmpty()) {
                 return fPath;
@@ -193,13 +193,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 
             // 生成缩略图
             String iconPathNew = pathNew.substring(0, path.lastIndexOf(".")) + "_c"
-                    + pathNew.substring(pathNew.lastIndexOf("."), pathNew.length());
+                    + pathNew.substring(pathNew.lastIndexOf("."));
 
             // 获取截图宽高
             String photoAbs = PathUtil.getAbsPath(pathNew);
             Thumbnails.Builder<File> fileBuilder = Thumbnails.of(photoAbs).scale(1.0).outputQuality(1.0);
             BufferedImage src = fileBuilder.asBufferedImage();
-            int size = src.getWidth() < src.getHeight() ? src.getWidth() : src.getHeight();
+            int size = Math.min(src.getWidth(), src.getHeight());
 
             fileBuilder.toFile(photoAbs);
             Thumbnails.of(photoAbs).sourceRegion(Positions.CENTER, size, size).outputQuality(1.0).size(300, 300)
@@ -303,8 +303,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     public List<TeacherGroup> getGroupInfo(String token) {
 
         List<TeacherGroup> list = new ArrayList<>();
-        List<TeacherGroupStruct> teachers = new TeacherStructUtil().getTeaGroupInfo(token,"");
-        for(TeacherGroupStruct o : teachers) {
+        List<TeacherGroupStruct> teachers = new TeacherStructUtil().getTeaGroupInfo(token, "");
+        for (TeacherGroupStruct o : teachers) {
             list.add(new TeacherGroup(o.getGroupID(), o.getGroupName(), o.getSchoolID()));
         }
 

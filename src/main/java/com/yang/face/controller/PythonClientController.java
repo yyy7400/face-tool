@@ -20,7 +20,6 @@ public class PythonClientController {
 
     @GetMapping("/pythonClient/features")
     public Response features(){
-
         return Response.show(pythonApiService.getFeatureFiles());
     }
 }

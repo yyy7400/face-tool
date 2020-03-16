@@ -9,9 +9,12 @@ public enum PhotoTypeEnum {
     IMAGE(1, "图片URL地址"),
 
     BASE64(2, "图片Base64"),
+
+    //智慧考试
+    FTPURL_TEST(3, "FTP地址"),
     ;
 
-    private PhotoTypeEnum(int key, String name) {
+    PhotoTypeEnum(int key, String name) {
         this.key = key;
         this.name = name;
     }

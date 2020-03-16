@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -27,7 +28,7 @@ public class FileUtil {
             StringBuilder sb = new StringBuilder();//定义一个字符串缓存，将字符串存放缓存中
             String s = "";
             while ((s = bReader.readLine()) != null) {//逐行读取文件内容，不读取换行符和末尾的空格
-                sb.append(s + "\n");//将读取的字符串添加换行符后累加存放在缓存中
+                sb.append(s).append("\n");//将读取的字符串添加换行符后累加存放在缓存中
             }
             bReader.close();
             return sb.toString();
@@ -39,7 +40,7 @@ public class FileUtil {
     public static String readFile2(String path) {
         try {
             FileInputStream fis = new FileInputStream(path);
-            InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+            InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
             BufferedReader br = new BufferedReader(isr);
             StringBuilder sb = new StringBuilder();//定义一个字符串缓存，将字符串存放缓存中
             String line = null;
@@ -78,6 +79,9 @@ public class FileUtil {
 
         File file = new File(path);
         File[] files = file.listFiles();
+        if (files == null) {
+            return list;
+        }
 
         for (File f : files) {
             if (f.isFile()) {
@@ -98,6 +102,7 @@ public class FileUtil {
         }
 
         File[] files = file.listFiles();
+
 
         for (File f : files) {
             if (f.isFile()) {
@@ -123,13 +128,10 @@ public class FileUtil {
     //移动文件
     public static boolean moveFile(String srcFile, String destPath) {
 
-        String startPath = srcFile;
-        String endPath = destPath;
-
         try {
 
-            File startFile = new File(startPath);
-            File tmpFile = new File(endPath);//获取文件夹路径
+            File startFile = new File(srcFile);
+            File tmpFile = new File(destPath);//获取文件夹路径
             if (!tmpFile.exists()) {//判断文件夹是否创建，没有创建则创建新文件夹
                 tmpFile.mkdirs();
             }
@@ -180,6 +182,10 @@ public class FileUtil {
         return "";
     }
 
+    public static boolean deleteDir(String dir) {
+        File file = new File(dir);
+        return deleteDir(file);
+    }
 
     //递归删除目录下的所有文件及子目录下所有文件
     public static boolean deleteDir(File dir) {
@@ -216,12 +222,12 @@ public class FileUtil {
     }
 
     //返回绝对路径
-    public String downloadUrl(String pathUrl, String dirSave) {
+    public static String downloadUrl(String pathUrl, String dirSave) {
         return downloadUrl(pathUrl, dirSave, "");
     }
 
     //返回绝对路径
-    public String downloadUrl(String pathUrl, String dirSave, String fileName) {
+    public static String downloadUrl(String pathUrl, String dirSave, String fileName) {
 
         try {
             URL url = new URL(pathUrl);
@@ -268,7 +274,7 @@ public class FileUtil {
     }
 
     //返回绝对路径
-    public String downloadUrl2(String pathUrl, String fileAbsSave) {
+    public static String downloadUrl2(String pathUrl, String fileAbsSave) {
         try {
             URL url = new URL(pathUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -330,10 +336,7 @@ public class FileUtil {
     /**
      * @param imgStr base64编码字符串
      * @param path   图片路径-具体到文件
-     * @return
-     * @Description: 将base64编码字符串转换为图片
-     * @Author:
-     * @CreateTime:
+     *  将base64编码字符串转换为图片
      */
     public static boolean base64ToImage(String imgStr, String path) {
 
@@ -344,7 +347,6 @@ public class FileUtil {
         // 解密
         try {
             Base64.Decoder decoder = Base64.getDecoder();
-            Base64.getUrlDecoder();
             String base64Header = "data:image/jpeg;base64,";
             if (imgStr.startsWith(base64Header)) {
                 imgStr = imgStr.substring(base64Header.length());
@@ -370,10 +372,7 @@ public class FileUtil {
     }
 
     /**
-     * @return
-     * @Description: 根据图片地址转换为base64编码字符串
-     * @Author:
-     * @CreateTime:
+     * @Description 根据图片地址转换为base64编码字符串
      */
     public static String imageToBase64(String imgFile) {
         InputStream inputStream = null;
@@ -402,8 +401,7 @@ public class FileUtil {
         // String encode = encoder.encode(data);
         // 从JKD 9开始rt.jar包已废除，从JDK 1.8开始使用java.util.Base64.Encoder
         Base64.Encoder encoder = Base64.getEncoder();
-        String encode = encoder.encodeToString(data);
-        return encode;
+        return encoder.encodeToString(data);
     }
 
     /**
@@ -411,16 +409,13 @@ public class FileUtil {
      *
      * @param data 要解密的字符串
      * @return 解密后的byte[]
-     * @throws Exception
      */
-    public static byte[] decryptBase4(String data) throws Exception {
+    public static byte[] decryptBase4(String data) {
         // BASE64Decoder decoder = new BASE64Decoder();
         // byte[] buffer = decoder.decodeBuffer(data);
         // 从JKD 9开始rt.jar包已废除，从JDK 1.8开始使用java.util.Base64.Decoder
         Base64.Decoder decoder = Base64.getDecoder();
-        byte[] buffer = decoder.decode(data);
-        //System.out.println(new String(buffer));
-        return buffer;
+        return decoder.decode(data);
     }
 
     /**

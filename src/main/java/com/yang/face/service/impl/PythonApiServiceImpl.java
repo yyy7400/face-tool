@@ -13,16 +13,15 @@ import com.yang.face.entity.middle.FeatureFileInfo;
 import com.yang.face.entity.middle.UserIdFeatureFiles;
 import com.yang.face.service.PythonApiService;
 import com.yang.face.service.UserInfoService;
+import com.yang.face.util.DateTimeUtil;
 import com.yang.face.util.FileUtil;
 import com.yang.face.util.HttpClientUtil;
 import com.yang.face.util.PathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -48,7 +47,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     /**
      * 地址轮询位置
      */
-    private static volatile int addrPollingIndex = 0;
+    private static int addrPollingIndex = 0;
 
     public PythonApiServiceImpl() {
         ClientManager.put("http://192.168.129.134:8001/", ClientTypeEnum.PYTHON.getKey());
@@ -64,6 +63,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      */
     @Override
     public Map<String, String> getFaceFeature(String userId, Integer photoType, String photo) {
+
 
         Map<String, String> map = new ConcurrentHashMap<>();
 
@@ -359,6 +359,7 @@ public class PythonApiServiceImpl implements PythonApiService {
 
     /**
      * 两种人脸照片对比
+     *
      * @param photoType
      * @param photo
      * @param photoType2
@@ -411,7 +412,8 @@ public class PythonApiServiceImpl implements PythonApiService {
     @Override
     public Boolean faceFeatureClean(List<String> ids) {
         List<String> addrs = ClientManager.getKeyPython();
-        addrs.forEach((o) -> noticeDownloadFeature(ids, o));
+        addrs.forEach((o) -> faceFeatureClean(ids));
+
         return true;
     }
 
@@ -420,7 +422,6 @@ public class PythonApiServiceImpl implements PythonApiService {
      *
      * @param ids
      * @param addr
-     * @return
      */
     @Async("taskExcutor")
     public void faceFeatureClean(List<String> ids, String addr) {
@@ -499,7 +500,6 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @param photo
      * @param userIds
      * @param ec:       true 调用电子班牌人脸识别接口
-     * @return
      */
     private List<FaceRecognitionImage> faceRecognitionImage(Integer photoType, String photo, List<String> userIds, Boolean ec) {
 
@@ -549,7 +549,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     }
 
     @Override
-    @Cacheable(value = "featureFiles")
+    //@Cacheable(value = "featureFiles")
     public List<FeatureFileInfo> getFeatureFiles() {
 
         List<FeatureFileInfo> list = new ArrayList<>();
@@ -557,17 +557,17 @@ public class PythonApiServiceImpl implements PythonApiService {
         String dir = Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE;
         List<File> files = FileUtil.getFilesAll(dir);
         files.forEach((f) -> {
-            String[] strs = f.getName().split(".");
+            String[] strs = f.getName().split("\\.");
             // 判断后缀名
-            if(strs.length < 2 || !Constants.PYTHON_FEATURE_EXT.equals(strs[1])) {
+            if (strs.length < 2 || !Constants.PYTHON_FEATURE_EXT.equals(strs[1])) {
                 return;
             }
 
-            String fileUrl = PathUtil.getRelPath(f.getAbsolutePath());
+            String fileUrl = PathUtil.getUrl(f.getAbsolutePath());
             Date updateTime = DateUtil.date(f.lastModified());
             String md5 = FileUtil.getMD5(f);
 
-            list.add(new FeatureFileInfo(strs[0], fileUrl, updateTime, md5));
+            list.add(new FeatureFileInfo(strs[0], fileUrl, String.valueOf(updateTime.getTime()), md5));
         });
 
         return list;

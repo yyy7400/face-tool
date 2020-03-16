@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Objects;
 
@@ -15,8 +16,9 @@ import java.util.Objects;
  * @author yangyuyang
  * @date 2020/3/13 13:43
  */
-public class GlobalExceptionAop {
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionAop.class);
+//@RestControllerAdvice
+public class GlobalExceptionHandle {
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandle.class);
 
     @ExceptionHandler(value = Exception.class)
     public Response exceptionHandler(Exception e) {
@@ -26,7 +28,7 @@ public class GlobalExceptionAop {
         for (int i = 0; i < Math.min(5, stackTrace.length); i++) {
             sOut.append("\tat ").append(stackTrace[i]).append("\r\n");
         }
-        //logger.error("{}", sOut);
+        logger.error("{}", sOut);
         return Response.show(new MessageVO(MessageEnum.FAIL, "系统错误"));
     }
 

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Intel OpenVINO 人脸识别
  * @author Yang
  */
 public interface PythonApiService {

@@ -90,10 +90,10 @@ public class SysResourceTask implements CommandLineRunner {
 
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
 
         createFolder();
-        clearPythonFeatureFile();
+        //clearPythonFeatureFile();
         timerTask.clearFeatrueImage();
 
         //clearFeatrueImage();

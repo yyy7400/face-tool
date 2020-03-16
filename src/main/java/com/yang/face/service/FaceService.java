@@ -13,6 +13,12 @@ import java.util.List;
 public interface FaceService {
 
     /**
+     * 人脸识别类型，Arc、OpenVINO
+     * @return
+     */
+    public Integer faceType();
+
+    /**
      * 人脸识别
      *
      * @param type
@@ -25,10 +31,10 @@ public interface FaceService {
     /**
      * 清理人脸库特征
      *
-     * @param userId
+     * @param userIds
      * @return
      */
-    MessageVO cleanFeature(List<String> userId);
+    MessageVO cleanFeature(List<String> userIds);
 
     /**
      * 批量导入人脸库，并更新
@@ -52,5 +58,19 @@ public interface FaceService {
      * @return
      */
     MessageVO updateFeatures();
+
+    static Boolean supportImage(String ext) {
+        String[] exts = { "JPG", "JPEG", "PNG", "BMP" };
+
+        boolean state = false;
+        for (String string : exts) {
+            if (string.equalsIgnoreCase(ext)) {
+                state = true;
+                break;
+            }
+        }
+
+        return state;
+    }
 
 }

@@ -40,3 +40,6 @@ CREATE TABLE `system_setting` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPACT COMMENT='用户信息';
 
+-- 默认使用虹软
+INSERT INTO `system_setting` VALUES(1, 1);
+

@@ -1,21 +1,14 @@
 package com.yang.face;
 
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpUtil;
 import com.yang.face.service.impl.FaceEngineServiceImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.scheduling.annotation.Scheduled;
 import tk.mybatis.spring.annotation.MapperScan;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.*;
+import java.util.concurrent.Executors;
 
 /**
  * @author yangyuyang
@@ -23,6 +16,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @SpringBootApplication
 @MapperScan("com.yang.face.mapper")
 public class App extends SpringBootServletInitializer {
+
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
@@ -33,7 +27,22 @@ public class App extends SpringBootServletInitializer {
 
         SpringApplication.run(App.class, args);
 
-        System.out.println(new FaceEngineServiceImpl());
+        //System.out.println(new FaceEngineServiceImpl());
+
+//        HashSet hashSet;
+//        LinkedHashSet linkedHashSet;
+//        TreeSet treeSet;
+//        LinkedList linkedList = new LinkedList();
+//        linkedList.get(0);
+//
+//        ArrayList<String> arrayList = new ArrayList<>();
+//        arrayList.get(0);
+//        arrayList.remove(0);
+//
+//        Vector vector;
+//        LinkedHashMap linkedHashMap;
+//
+//        Executors excutors;
 
     }
 

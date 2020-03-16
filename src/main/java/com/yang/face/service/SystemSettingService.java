@@ -22,10 +22,4 @@ public interface SystemSettingService {
      */
     MessageVO update(SystemSetting systemSetting);
 
-    /**
-     * 更新人脸识别方式
-     * @param faceType
-     * @return
-     */
-    MessageVO updateFaceType(Integer faceType);
 }
