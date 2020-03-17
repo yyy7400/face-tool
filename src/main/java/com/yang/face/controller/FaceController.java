@@ -57,17 +57,17 @@ public class FaceController {
         return Response.show(FaceStrageService.cleanFeature(userIds));
     }
 
-    //单张图片导入特征库（无更新特征库操作）
+    //批量图片导入特征库
     @RequestMapping(value = "/face/importFeatures", method = RequestMethod.POST)
     public Response importFeatures(@RequestBody List<ImportFeaturePost> list) {
         return Response.show(FaceStrageService.importFeatures(list));
     }
 
-    //批量导入特征库
+    //单张图片导入特征库（无更新数据库）
     @Deprecated
     @RequestMapping(value = "/face/importFeaturesNoUpdate", method = RequestMethod.POST)
     public Response importFeaturesNoUpdate(@RequestBody List<ImportFeaturePost> list) {
-        return Response.show(FaceStrageService.importFeatures(list));
+        return Response.show(FaceStrageService.importFeaturesNoUpdate(list));
     }
 
     //更新特征库, 暂时不实现

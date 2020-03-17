@@ -67,6 +67,17 @@ public class FaceStrageService {
     }
 
     /**
+     * 批量导入人脸库，不更新
+     *
+     * @param list
+     * @return
+     */
+    public List<ImportFeatureShow> importFeaturesNoUpdate(List<ImportFeaturePost> list) {
+        FaceService faceService = map.get(getFaceTypeDb());
+        return faceService.importFeaturesNoUpadte(list);
+    }
+
+    /**
      * 批量导入人脸库，并更新
      *
      * @param list
@@ -96,5 +107,15 @@ public class FaceStrageService {
     public MessageVO updateFeatures() {
         FaceService faceService = map.get(getFaceTypeDb());
         return faceService.updateFeatures();
+    }
+
+    /**
+     * 人脸评分，不持之base64格式
+     *
+     * @return
+     */
+    public MessageVO getPhotoScore(String photo) {
+        FaceService faceService = map.get(getFaceTypeDb());
+        return faceService.getPhotoScore(photo);
     }
 }

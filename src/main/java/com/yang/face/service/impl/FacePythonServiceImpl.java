@@ -120,8 +120,7 @@ public class FacePythonServiceImpl implements FaceService {
     }
 
     @Override
-    public List<ImportFeatureShow> importFeatures(List<ImportFeaturePost> list) {
-
+    public List<ImportFeatureShow> importFeaturesNoUpadte(List<ImportFeaturePost> list) {
         List<ImportFeatureShow> res = new ArrayList<>();
 
         // 0. 获取所有已存在的用户
@@ -199,6 +198,13 @@ public class FacePythonServiceImpl implements FaceService {
             }
         }
 
+        return res;
+    }
+
+    @Override
+    public List<ImportFeatureShow> importFeatures(List<ImportFeaturePost> list) {
+
+        List<ImportFeatureShow> res = importFeaturesNoUpadte(list);
         // 删除缓存
         userInfoService.clearSelectAllCache();
 
@@ -400,6 +406,14 @@ public class FacePythonServiceImpl implements FaceService {
 
 
         return new MessageVO(true, "");
+    }
+
+    @Override
+    public MessageVO getPhotoScore(String photo) {
+
+        photo = getPhoto(PhotoTypeEnum.IMAGE.getKey(), photo);
+        FaceScoreImageMod faceScoreImageMod = pythonApiService.faceScoreIamgeMod(PhotoTypeEnum.IMAGE.getKey(), photo);
+        return ScoreCopy2MessageVO(faceScoreImageMod);
     }
 
     public String getPhoto(int type, String photo) {

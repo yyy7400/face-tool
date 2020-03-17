@@ -37,6 +37,9 @@ public class SysResourceTask implements CommandLineRunner {
     @Resource
     private TimerTask timerTask;
 
+    /**
+     * 创建初始文件夹
+     */
     private void createFolder() {
 
         List<String> dirs = new ArrayList<>();

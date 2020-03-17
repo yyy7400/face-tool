@@ -1,5 +1,7 @@
 package com.yang.face.service.impl;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.yang.face.constant.Constants;
@@ -9,13 +11,11 @@ import com.yang.face.constant.enums.MessageEnum;
 import com.yang.face.constant.enums.SexTypeEnum;
 import com.yang.face.constant.enums.UserTypeEnum;
 import com.yang.face.entity.db.UserInfo;
-import com.yang.face.entity.show.FacePathShow;
-import com.yang.face.entity.show.MessageVO;
-import com.yang.face.entity.show.PageShow;
-import com.yang.face.entity.show.TeacherGroup;
+import com.yang.face.entity.show.*;
 import com.yang.face.mapper.UserInfoMapper;
 import com.yang.face.service.*;
 import com.yang.face.service.yun.*;
+import com.yang.face.util.DateTimeUtil;
 import com.yang.face.util.FileUtil;
 import com.yang.face.util.PathUtil;
 import net.coobird.thumbnailator.Thumbnails;
@@ -50,6 +50,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Resource
     UserInfoMapper userInfoMapper;
+    @Resource
+    FaceStrageService faceStrageService;
 
     @Cacheable(cacheNames = "userInfos")
     @Override
@@ -106,6 +108,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public MessageVO updatePhoto(String userId, String photo) {
 
+        //faceStrageService.importFeatures()
+
         Example example = new Example(UserInfo.class);
         example.createCriteria().andEqualTo("userId", userId);
 
@@ -119,10 +123,34 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public MessageVO deletePhoto(String userId) {
 
+        List<String> userIds = Arrays.asList(userId);
+        return faceStrageService.cleanFeature(userIds);
+    }
+
+    @Override
+    public MessageVO deleteUser(Integer userType, String userId) {
+
+        if(userType < 0 && "".equals(userId)) {
+            return new MessageVO(false, "参数错误");
+        }
+
         Example example = new Example(UserInfo.class);
-        example.createCriteria().andEqualTo("userId", userId);
-        int res = userInfoMapper.deleteByExample(example);
-        return new MessageVO(MessageEnum.SUCCESS, res);
+        Example.Criteria criteria = example.createCriteria();
+        if(userType >= 0) {
+            criteria.andEqualTo("userType",userType);
+        }
+
+        if(!"".equals(userId)) {
+            criteria.andEqualTo("userId",userId);
+        }
+        List<UserInfo> userInfos = userInfoMapper.selectByExample(example);
+        List<String> userIds = new ArrayList<>();
+        userInfos.forEach(o -> userIds.add(o.getUserId()));
+
+
+        faceStrageService.cleanFeature(userIds);
+
+        return null;
     }
 
     @Override
@@ -294,6 +322,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         userInfoMapper.turncateTable();
         boolean state = updateYunUserInfo();
+        faceStrageService.updateFeatures();
+
         return state ? new MessageVO(MessageEnum.SUCCESS)
                 : new MessageVO(MessageEnum.FAIL);
     }
@@ -309,6 +339,292 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
 
         return list;
+    }
+
+    @Override
+    public List<PubStudentFeatureShow> getStudentFeature(Boolean hasFeature, Date photoTime) {
+
+        List<PubStudentFeatureShow> resList = new ArrayList<>();
+
+        try {
+            Example example = new Example(UserInfo.class);
+            Example.Criteria criteria = example.createCriteria()
+                    .andEqualTo("userType",UserTypeEnum.STUDENT.getKey())
+                    .andGreaterThan("updateTime", photoTime);
+            if(hasFeature) {
+                criteria.andGreaterThan("score",0);
+            }
+
+
+            List<UserInfo> list = userInfoMapper.selectByExample(example);
+            int size = list.size();
+
+            for (int i = 0; i < size; i++) {
+
+                PubStudentFeatureShow res = new PubStudentFeatureShow();
+                res.setUserId(list.get(i).getUserId());
+                res.setUserName(list.get(i).getUserName());
+                res.setUserPhotoYun(PathUtil.getUrl(list.get(i).getPhotoUrl()));
+                res.setSex(list.get(i).getSex());
+                res.setGradeId(list.get(i).getGradeId());
+                res.setGradeName(list.get(i).getGradeName());
+                res.setClassId(list.get(i).getClassId());
+                res.setClassName(list.get(i).getClassName());
+
+                if (list.get(i).getScore() > 0 ) {
+                    // 没有特征
+                    if (hasFeature) {
+                        continue;
+                    }
+
+                    res.setPhotoUrl("");
+                    res.setPhotoIconUrl("");
+                    res.setPhotoTime(new Date());
+
+                } else {
+                    String str = list.get(i).getPhotoUrl();
+                    String[] strList = str.split("_");
+                    String noIconStr = strList[0] + ".jpg";
+                    res.setPhotoUrl(PathUtil.getUrl(noIconStr));
+                    res.setPhotoIconUrl(PathUtil.getUrl(str));
+
+                    String[] tmp = strList[0].split("\\/");
+                    String strDate = tmp[tmp.length - 1];
+                    Date date = DateUtil.parse(strDate, DatePattern.PURE_DATETIME_MS_PATTERN);
+                    res.setPhotoTime(date);
+
+                }
+                resList.add(res);
+            }
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        return resList;
+    }
+
+    @Override
+    public List<PubTeacherFeatureShow> getTeacherFeature(Boolean hasFeature, Date photoTime) {
+
+        List<PubTeacherFeatureShow> resList = new ArrayList<>();
+
+        try {
+            Example example = new Example(UserInfo.class);
+            Example.Criteria criteria = example.createCriteria()
+                    .andEqualTo("userType",UserTypeEnum.TEACHER.getKey())
+                    .andGreaterThan("updateTime", photoTime);
+            if(hasFeature) {
+                criteria.andGreaterThan("score",0);
+            }
+
+
+            List<UserInfo> list = userInfoMapper.selectByExample(example);
+            int size = list.size();
+
+            for (int i = 0; i < size; i++) {
+
+                PubTeacherFeatureShow res = new PubTeacherFeatureShow();
+                res.setUserId(list.get(i).getUserId());
+                res.setUserName(list.get(i).getUserName());
+                res.setUserPhotoYun(PathUtil.getUrl(list.get(i).getPhotoUrl()));
+                res.setSex(list.get(i).getSex());
+                res.setGroupId(list.get(i).getGradeId());
+                res.setGroupName(list.get(i).getGradeName());
+
+                if (list.get(i).getScore() > 0 ) {
+                    // 没有特征
+                    if (hasFeature) {
+                        continue;
+                    }
+
+                    res.setPhotoUrl("");
+                    res.setPhotoIconUrl("");
+                    res.setPhotoTime(new Date());
+
+                } else {
+                    String str = list.get(i).getPhotoUrl();
+                    String[] strList = str.split("_");
+                    String noIconStr = strList[0] + ".jpg";
+                    res.setPhotoUrl(PathUtil.getUrl(noIconStr));
+                    res.setPhotoIconUrl(PathUtil.getUrl(str));
+
+                    String[] tmp = strList[0].split("\\/");
+                    String strDate = tmp[tmp.length - 1];
+                    Date date = DateUtil.parse(strDate, DatePattern.PURE_DATETIME_MS_PATTERN);
+                    res.setPhotoTime(date);
+
+                }
+                resList.add(res);
+            }
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        return resList;
+    }
+
+    @Override
+    public List<PubAdminFeatureShow> getAdminFeature(Boolean hasFeature, Date photoTime) {
+        List<PubAdminFeatureShow> resList = new ArrayList<>();
+
+        try {
+            Example example = new Example(UserInfo.class);
+            Example.Criteria criteria = example.createCriteria()
+                    .andEqualTo("userType",UserTypeEnum.ADMIN.getKey())
+                    .andGreaterThan("updateTime", photoTime);
+            if(hasFeature) {
+                criteria.andGreaterThan("score",0);
+            }
+
+
+            List<UserInfo> list = userInfoMapper.selectByExample(example);
+            int size = list.size();
+
+            for (int i = 0; i < size; i++) {
+
+                PubAdminFeatureShow res = new PubAdminFeatureShow();
+                res.setUserId(list.get(i).getUserId());
+                res.setUserName(list.get(i).getUserName());
+                res.setUserPhotoYun(PathUtil.getUrl(list.get(i).getPhotoUrl()));
+                res.setSex(list.get(i).getSex());
+
+                if (list.get(i).getScore() > 0 ) {
+                    // 没有特征
+                    if (hasFeature) {
+                        continue;
+                    }
+
+                    res.setPhotoUrl("");
+                    res.setPhotoIconUrl("");
+                    res.setPhotoTime(new Date());
+
+                } else {
+                    String str = list.get(i).getPhotoUrl();
+                    String[] strList = str.split("_");
+                    String noIconStr = strList[0] + ".jpg";
+                    res.setPhotoUrl(PathUtil.getUrl(noIconStr));
+                    res.setPhotoIconUrl(PathUtil.getUrl(str));
+
+                    String[] tmp = strList[0].split("\\/");
+                    String strDate = tmp[tmp.length - 1];
+                    Date date = DateUtil.parse(strDate, DatePattern.PURE_DATETIME_MS_PATTERN);
+                    res.setPhotoTime(date);
+
+                }
+                resList.add(res);
+            }
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        return resList;
+    }
+
+    @Override
+    public List<PubAdminFeatureShow> getOtherFeature(Boolean hasFeature, Date photoTime) {
+        List<PubAdminFeatureShow> resList = new ArrayList<>();
+
+        try {
+            Example example = new Example(UserInfo.class);
+            Example.Criteria criteria = example.createCriteria()
+                    .andEqualTo("userType",UserTypeEnum.OTHER.getKey())
+                    .andGreaterThan("updateTime", photoTime);
+            if(hasFeature) {
+                criteria.andGreaterThan("score",0);
+            }
+
+
+            List<UserInfo> list = userInfoMapper.selectByExample(example);
+            int size = list.size();
+
+            for (int i = 0; i < size; i++) {
+
+                PubAdminFeatureShow res = new PubAdminFeatureShow();
+                res.setUserId(list.get(i).getUserId());
+                res.setUserName(list.get(i).getUserName());
+                res.setUserPhotoYun(PathUtil.getUrl(list.get(i).getPhotoUrl()));
+                res.setSex(list.get(i).getSex());
+
+                if (list.get(i).getScore() > 0 ) {
+                    // 没有特征
+                    if (hasFeature) {
+                        continue;
+                    }
+
+                    res.setPhotoUrl("");
+                    res.setPhotoIconUrl("");
+                    res.setPhotoTime(new Date());
+
+                } else {
+                    String str = list.get(i).getPhotoUrl();
+                    String[] strList = str.split("_");
+                    String noIconStr = strList[0] + ".jpg";
+                    res.setPhotoUrl(PathUtil.getUrl(noIconStr));
+                    res.setPhotoIconUrl(PathUtil.getUrl(str));
+
+                    String[] tmp = strList[0].split("\\/");
+                    String strDate = tmp[tmp.length - 1];
+                    Date date = DateUtil.parse(strDate, DatePattern.PURE_DATETIME_MS_PATTERN);
+                    res.setPhotoTime(date);
+
+                }
+                resList.add(res);
+            }
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        return resList;
+    }
+
+    @Override
+    public List<PubUserPhotoShow> getPhotoByUserIds(List<String> userIds) {
+
+
+        List<PubUserPhotoShow> resList = new ArrayList<>();
+
+        List<UserInfo> userInfos = userInfoMapper.selectByExample(new Example(UserInfo.class).createCriteria().andIn("userId", userIds));
+
+        try {
+            // SqlServer 对语句的条数和参数的数量都有限制，分别是 1000 和 2100。
+            // Mysql 对语句的长度有限制，默认是 4M。
+            // 此处分每1000个id查询一下
+
+            for (UserInfo o : userInfos) {
+                if (o.getScore() <= 0 ) {
+                    resList.add(new PubUserPhotoShow(o.getUserId(), "", "", new Date()));
+                } else {
+                    resList.add(new PubUserPhotoShow(o.getUserId(), PathUtil.getUrl(o.getPhotoUrl()), "", null));
+                }
+            }
+
+            // 补photoUrl和phototime
+            for (int i = 0; i < resList.size(); i++) {
+
+                if ("".equals(resList.get(i).getPhotoIconUrl())) {
+                    continue;
+                }
+
+                String str = resList.get(i).getPhotoIconUrl();
+                String[] strList = str.split("_");
+                String noIconStr = strList[0] + ".jpg";
+                resList.get(i).setPhotoUrl(PathUtil.getUrl(noIconStr));
+
+                String[] tmp = strList[0].split("\\/");
+                String strDate = tmp[tmp.length - 1];
+                Date date = DateUtil.parse(strDate, DatePattern.PURE_DATETIME_MS_PATTERN);
+                resList.get(i).setPhotoTime(date);
+            }
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        return resList;
     }
 
     // 私有方法  yyy

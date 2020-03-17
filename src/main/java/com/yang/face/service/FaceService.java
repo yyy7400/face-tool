@@ -16,7 +16,7 @@ public interface FaceService {
      * 人脸识别类型，Arc、OpenVINO
      * @return
      */
-    public Integer faceType();
+    Integer faceType();
 
     /**
      * 人脸识别
@@ -35,6 +35,14 @@ public interface FaceService {
      * @return
      */
     MessageVO cleanFeature(List<String> userIds);
+
+    /**
+     * 批量导入人脸库, 不更新
+     *
+     * @param list
+     * @return
+     */
+    List<ImportFeatureShow> importFeaturesNoUpadte(List<ImportFeaturePost> list);
 
     /**
      * 批量导入人脸库，并更新
@@ -59,6 +67,18 @@ public interface FaceService {
      */
     MessageVO updateFeatures();
 
+    /**
+     * 获取图片人脸分数
+     * @param photo
+     * @return
+     */
+    MessageVO getPhotoScore(String photo);
+
+    /**
+     * 判断支持的图片格式
+     * @param ext
+     * @return
+     */
     static Boolean supportImage(String ext) {
         String[] exts = { "JPG", "JPEG", "PNG", "BMP" };
 

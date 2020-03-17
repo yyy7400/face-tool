@@ -1,13 +1,11 @@
 package com.yang.face.service;
 
 import com.yang.face.entity.db.UserInfo;
-import com.yang.face.entity.show.FacePathShow;
-import com.yang.face.entity.show.MessageVO;
-import com.yang.face.entity.show.PageShow;
-import com.yang.face.entity.show.TeacherGroup;
+import com.yang.face.entity.show.*;
 import com.yang.face.service.yun.ClassStruct;
 import com.yang.face.service.yun.GradeStruct;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,6 +43,8 @@ public interface UserInfoService {
 
     MessageVO deletePhoto(String userId);
 
+    MessageVO deleteUser(Integer userType, String userId);
+
     List<UserInfo> selectByUserIds(List<String> userIds, List<UserInfo> list);
 
     FacePathShow getPhotoFromYun(String token, String userId, Integer userType);
@@ -62,5 +62,17 @@ public interface UserInfoService {
     MessageVO resetUserInfo();
 
     List<TeacherGroup> getGroupInfo(String token);
+
+    /**  智能门禁 **/
+
+    List<PubStudentFeatureShow> getStudentFeature(Boolean hasFeature, Date photoTime);
+
+    List<PubTeacherFeatureShow> getTeacherFeature(Boolean hasFeature, Date photoTime);
+
+    List<PubAdminFeatureShow> getAdminFeature(Boolean hasFeature, Date photoTime);
+
+    List<PubAdminFeatureShow> getOtherFeature(Boolean hasFeature, Date photoTime);
+
+    List<PubUserPhotoShow> getPhotoByUserIds(List<String> userIds);
 
 }

@@ -9,7 +9,6 @@ import com.arcsoft.face.toolkit.ImageInfo;
 import com.yang.face.constant.Constants;
 import com.yang.face.constant.Properties;
 import com.yang.face.constant.enums.FaceFeatureTypeEnum;
-import com.yang.face.constant.enums.PhotoType;
 import com.yang.face.constant.enums.PhotoTypeEnum;
 import com.yang.face.constant.enums.UserTypeEnum;
 import com.yang.face.engine.FaceUserInfo;
@@ -95,7 +94,7 @@ public class FaceArcServiceImpl implements FaceService {
             }
 
             // 3. 从数据库中取出人脸库
-            List<UserInfo> userInfoList = new ArrayList<>();
+            List<UserInfo> userInfoList;
 
             // 缓存
             if (userIds.isEmpty()) {
@@ -153,17 +152,8 @@ public class FaceArcServiceImpl implements FaceService {
         return new MessageVO(true, "");
     }
 
-    /**
-     * 批量导入人脸库，并更新
-     *
-     * @param list
-     * @return
-     */
     @Override
-    @Transactional
-    public List<ImportFeatureShow> importFeatures(List<ImportFeaturePost> list) {
-
-
+    public List<ImportFeatureShow> importFeaturesNoUpadte(List<ImportFeaturePost> list) {
         List<ImportFeatureShow> res = new ArrayList<>();
 
         try {
@@ -225,12 +215,26 @@ public class FaceArcServiceImpl implements FaceService {
                 }
             }
 
-            // 删除缓存
-            userInfoService.clearSelectAllCache();
-
         } catch (Exception e) {
             logger.error("", e);
         }
+
+        return res;
+    }
+
+    /**
+     * 批量导入人脸库，并更新
+     *
+     * @param list
+     * @return
+     */
+    @Override
+    @Transactional
+    public List<ImportFeatureShow> importFeatures(List<ImportFeaturePost> list) {
+
+        List<ImportFeatureShow> res = importFeaturesNoUpadte(list);
+        // 删除缓存
+        userInfoService.clearSelectAllCache();
 
         return res;
     }
@@ -301,7 +305,7 @@ public class FaceArcServiceImpl implements FaceService {
                     Thumbnails.of(f.getAbsolutePath()).sourceRegion(Positions.CENTER, size, size).outputQuality(1.0)
                             .size(300, 300).toFile(photoAbsNew);
 
-                    sameNameFails.add(new ImportFeatureShow(picUserId, "", PhotoType.IMAGE.getKey(),
+                    sameNameFails.add(new ImportFeatureShow(picUserId, "", PhotoTypeEnum.IMAGE.getKey(),
                             PathUtil.getUrl(photoAbsNew), f.getName(), false,
                             picUserId + " 存在多张照片,不再导入"));
 
@@ -402,18 +406,47 @@ public class FaceArcServiceImpl implements FaceService {
      */
     @Override
     public MessageVO updateFeatures() {
-        return null;
+        return new MessageVO(true, "");
     }
+
+    @Override
+    public MessageVO getPhotoScore(String photo) {
+
+        try {
+
+            photo = PathUtil.getAbsPath(photo);
+
+            // 1. 图片转转byte
+            ByteFile byteFile = getPhotoByteFile(PhotoTypeEnum.IMAGE.getKey(), photo);
+            if (byteFile == null) {
+                return new MessageVO(false, "图片错误");
+            }
+            ImageInfo imageInfo = ImageFactory.getRGBData(byteFile.getBytes());
+            List<?> list = faceEngineService.detectFaces(imageInfo);
+            if(list.isEmpty()) {
+                return new MessageVO(false, "未检测到人脸");
+            } else if(list.size() > 1) {
+                return new MessageVO(false, "图片中有多张人脸");
+            } else {
+                return new MessageVO(true, 90);
+            }
+
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return new MessageVO(false, "内部错误");
+        }
+    }
+
 
     public ByteFile getPhotoByteFile(int type, String srcPhoto) throws IOException {
         // url
         ByteFile byteFile = new ByteFile();
-        if (type == PhotoType.IMAGE.getKey()) {
+        if (type == PhotoTypeEnum.IMAGE.getKey()) {
             byteFile.setBytes(NetUtil.image2byte(srcPhoto));
             byteFile.setExt(srcPhoto.substring(srcPhoto.lastIndexOf('.')));
             byteFile.setFileName(DateUtil.format(DateUtil.date(), DatePattern.PURE_DATETIME_MS_PATTERN) + byteFile.getExt());
             return byteFile;
-        } else if (type == PhotoType.BASE64.getKey()) {
+        } else if (type == PhotoTypeEnum.BASE64.getKey()) {
             String dstPhotoExt = ".jpg";
 
             byteFile.setBytes(Base64.decode(Base64Util.base64Process(srcPhoto)));
