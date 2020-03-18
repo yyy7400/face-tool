@@ -6,11 +6,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.yang.face.constant.Constants;
 import com.yang.face.constant.Properties;
-import com.yang.face.constant.enums.FaceFeatureTypeEnum;
-import com.yang.face.constant.enums.MessageEnum;
-import com.yang.face.constant.enums.SexTypeEnum;
-import com.yang.face.constant.enums.UserTypeEnum;
+import com.yang.face.constant.enums.*;
 import com.yang.face.entity.db.UserInfo;
+import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.*;
 import com.yang.face.mapper.UserInfoMapper;
 import com.yang.face.service.*;
@@ -67,7 +65,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
     @Override
-    public PageShow search(String groupId, Integer userType, String userName, Integer pageIndex, Integer pageSize) {
+    public PageShow search(String groupId, String gradeId, String classId, Integer userType, String userName, Integer pageIndex, Integer pageSize) {
 
         Example example = new Example(UserInfo.class);
         Example.Criteria criteria = example.createCriteria();
@@ -75,18 +73,24 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (userType >= 0) {
             criteria.andEqualTo("userType", userType);
         }
-        if (StringUtils.isEmpty(groupId)) {
+        if (!StringUtils.isEmpty(groupId)) {
             criteria.andEqualTo("groupId", groupId);
         }
-        if (StringUtils.isEmpty(userName)) {
-            criteria.andEqualTo("userName", userName);
+        if (!StringUtils.isEmpty(gradeId)) {
+            criteria.andEqualTo("gradeId", gradeId);
+        }
+        if (!StringUtils.isEmpty(classId)) {
+            criteria.andEqualTo("groupId", classId);
+        }
+        if (!StringUtils.isEmpty(userName)) {
+            criteria.andLike("userName", "%" + userName + "%");
         }
 
         PageHelper.startPage(pageIndex, pageSize);
         List<UserInfo> list = userInfoMapper.selectByExample(example);
         PageInfo<UserInfo> pageInfo = new PageInfo<>(list);
 
-        return new PageShow(pageInfo.getTotal(), pageInfo.getPageSize(), pageInfo.getList());
+        return new PageShow(pageInfo.getTotal(), pageInfo.getPages(), pageInfo.getList());
     }
 
 
@@ -108,16 +112,16 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public MessageVO updatePhoto(String userId, String photo) {
 
-        //faceStrageService.importFeatures()
+        List<ImportFeaturePost> list = new ArrayList<>();
+        list.add( new ImportFeaturePost(userId, PhotoTypeEnum.IMAGE.getKey(), PathUtil.getUrl(photo)));
 
-        Example example = new Example(UserInfo.class);
-        example.createCriteria().andEqualTo("userId", userId);
+        List<ImportFeatureShow> res = faceStrageService.importFeatures(list);
+        if(!res.isEmpty() && res.get(0).getState()) {
+            return new MessageVO(MessageEnum.SUCCESS, res.size());
+        } else {
+            return new MessageVO(MessageEnum.FAIL, res.get(0).getMsg());
+        }
 
-        UserInfo userInfo = new UserInfo();
-        userInfo.setPhotoUrl(photo);
-        int res = userInfoMapper.updateByExample(userInfo, example);
-
-        return new MessageVO(MessageEnum.SUCCESS, res);
     }
 
     @Override
@@ -144,13 +148,14 @@ public class UserInfoServiceImpl implements UserInfoService {
             criteria.andEqualTo("userId",userId);
         }
         List<UserInfo> userInfos = userInfoMapper.selectByExample(example);
+        if(userInfos.isEmpty()) {
+            return new MessageVO(false, "无用户可删除");
+        }
+
         List<String> userIds = new ArrayList<>();
         userInfos.forEach(o -> userIds.add(o.getUserId()));
 
-
-        faceStrageService.cleanFeature(userIds);
-
-        return null;
+        return faceStrageService.cleanFeature(userIds);
     }
 
     @Override

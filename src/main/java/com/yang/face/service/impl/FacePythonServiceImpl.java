@@ -203,14 +203,14 @@ public class FacePythonServiceImpl implements FaceService {
                 // 4.0 更新特征
                 if (!userMap.containsKey(o.getUserId())) {
                     usersAdd.add(new UserInfo(null, o.getUserId(), userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                            PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), new byte[0], PathUtil.getRelPath(featureFileLocal), resetSimilarityScore(score.getScore()), DateUtil.date(), DateUtil.date()));
+                            PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.OPENVINO.getKey(), new byte[0], PathUtil.getRelPath(featureFileLocal), score.getScore(), DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
                     Example.Criteria criteria = example.createCriteria();
                     criteria.andEqualTo("userId", o.getUserId());
 
                     UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                            PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), null, PathUtil.getRelPath(featureFileLocal), resetSimilarityScore(score.getScore()), null, DateUtil.date());
+                            PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.OPENVINO.getKey(), null, PathUtil.getRelPath(featureFileLocal), score.getScore(), null, DateUtil.date());
                     userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
 
@@ -382,14 +382,14 @@ public class FacePythonServiceImpl implements FaceService {
                     // 4.0 更新特征
                     if (!mapDB.containsKey(userId)) {
                         usersAdd.add(new UserInfo(null, userId, userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                                PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), new byte[0], PathUtil.getRelPath(featureFileLocal), resetSimilarityScore(score.getScore()), DateUtil.date(), DateUtil.date()));
+                                PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.OPENVINO.getKey(), new byte[0], PathUtil.getRelPath(featureFileLocal), score.getScore(), DateUtil.date(), DateUtil.date()));
                     } else {
                         Example example = new Example(UserInfo.class);
                         Example.Criteria criteria = example.createCriteria();
                         criteria.andEqualTo("userId", userId);
 
                         UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                                PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), null, PathUtil.getRelPath(featureFileLocal), resetSimilarityScore(score.getScore()), null, DateUtil.date());
+                                PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.OPENVINO.getKey(), null, PathUtil.getRelPath(featureFileLocal), score.getScore(), null, DateUtil.date());
                         userInfoMapper.updateByExampleSelective(userInfo, example);
                     }
 

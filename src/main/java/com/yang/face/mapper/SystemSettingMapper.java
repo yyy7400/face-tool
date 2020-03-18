@@ -12,6 +12,6 @@ import tk.mybatis.mapper.common.MySqlMapper;
 @org.apache.ibatis.annotations.Mapper
 public interface SystemSettingMapper extends Mapper<SystemSetting>, MySqlMapper<SystemSetting> {
 
-    @Update("turncate table system_setting")
+    @Update("truncate table system_setting")
     void turncateTable();
 }

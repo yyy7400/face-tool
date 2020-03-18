@@ -1,10 +1,11 @@
 package com.yang.face.controller;
 
+import com.yang.face.entity.post.UserIdAndPhotoPost;
+import com.yang.face.entity.post.UserIdAndTypePost;
 import com.yang.face.entity.show.Response;
 import com.yang.face.service.FaceStrageService;
 import com.yang.face.service.UserInfoService;
 import com.yang.face.service.yun.SchoolInfoStructUtil;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -33,12 +34,12 @@ public class UserInfoController {
      * @return
      */
     @GetMapping("/userInfo/search")
-    public Response search( String groupId, Integer userType, String userName, Integer pageIndex, Integer pageSize) {
-        return Response.show(userInfoService.search(groupId, userType, userName, pageIndex, pageSize));
+    public Response search( String groupId, String gradeId, String classId, Integer userType, String userName, Integer pageIndex, Integer pageSize) {
+        return Response.show(userInfoService.search(groupId, gradeId, classId, userType, userName, pageIndex, pageSize));
     }
 
     /**
-     * 根据id查询
+     * 根据id查询, tested
      * @param id
      * @return
      */
@@ -48,7 +49,7 @@ public class UserInfoController {
     }
 
     /**
-     * 根据userId查询
+     * 根据userId查询, tested
      * @param userId
      * @return
      */
@@ -58,39 +59,37 @@ public class UserInfoController {
     }
 
     /**
-     * 删除个人照片
+     * 删除个人照片, tested
      * @param userId
      * @return
      */
-    @PostMapping("/userInfo/delPhoto")
-    public Response delPhoto(@RequestBody String userId) {
+    @GetMapping("/userInfo/delPhoto")
+    public Response delPhoto(String userId) {
         return Response.show(userInfoService.deletePhoto(userId));
     }
 
     /**
-     * 删除个人信息, 两个入参不能同时为空
-     * @param userType -1 为全部
-     * @param userId "" 为全部
+     * 删除个人信息, 两个入参不能同时为空, tested
+     * userId "" 为全部
+     * userType -1 为全部
      * @return
      */
     @PostMapping("/userInfo/delUser")
-    public Response delUser(@RequestBody @DefaultValue("-1") Integer userType, @RequestBody String userId) {
-        return Response.show(userInfoService.deleteUser(userType, userId));
+    public Response delUser(@RequestBody UserIdAndTypePost o) {
+        return Response.show(userInfoService.deleteUser(o.getUserType(), o.getUserId()));
     }
 
     /**
-     * 更新人脸特征
-     * @param userId
-     * @param photo
+     * 更新人脸特征, tested
      * @return
      */
     @PostMapping("/userInfo/updatePhoto2")
-    public Response updatePhoto2(@RequestBody String userId, @RequestBody String photo) {
-        return Response.show(userInfoService.updatePhoto(userId, photo));
+    public Response updatePhoto2(@RequestBody UserIdAndPhotoPost o) {
+        return Response.show(userInfoService.updatePhoto(o.getUserId(), o.getPhoto()));
     }
 
     /**
-     * 检测人脸分数
+     * 检测人脸分数, tested
      * @param photo
      * @return
      */
@@ -100,7 +99,7 @@ public class UserInfoController {
     }
 
     /**
-     * 批量更新人脸特征
+     * 批量更新人脸特征, tested
      * @return
      */
     @GetMapping("/userInfo/importFeature")
@@ -109,7 +108,7 @@ public class UserInfoController {
     }
 
     /*
-     *重置人脸特征
+     *重置人脸特征, tested
      * */
     @GetMapping("/userInfo/resetLibrary")
     public Response resetLibrary(String token) {
@@ -117,15 +116,15 @@ public class UserInfoController {
     }
 
     /**
-     * 从基础云平台下载个人图片
+     * 从基础云平台下载个人图片, tested
      */
-    @GetMapping("/studentFace/getPhotoFromYun")
+    @GetMapping("/userInfo/getPhotoFromYun")
     public Response getPhotoFromYun(String token, String userId, Integer userType) {
         return Response.show(userInfoService.getPhotoFromYun(token, userId, userType));
     }
 
     /**
-     * 从基础云平台得到所有学校信息
+     * 从基础云平台得到所有学校信息, tested
      */
     @GetMapping("/userInfo/getSchoolInfo")
     public Response getSchoolInfo() {
@@ -133,7 +132,7 @@ public class UserInfoController {
     }
 
     /**
-     * 从基础云平台得到所有年级信息
+     * 从基础云平台得到所有年级信息, tested
      */
     @GetMapping("/userInfo/getGradeInfo")
     public Response getGradeInfo(String token) {
@@ -141,7 +140,7 @@ public class UserInfoController {
     }
 
     /**
-     * 从基础云平台得到所有班级信息
+     * 从基础云平台得到所有班级信息, tested
      */
     @GetMapping("/userInfo/getClassInfo")
     public Response getClassInfo(String token) {
@@ -150,7 +149,7 @@ public class UserInfoController {
     }
 
     /**
-     * 从基础云平台得到教师分组信息
+     * 从基础云平台得到教师分组信息, tested
      */
     @GetMapping("/userInfo/getGroupInfo")
     public Response getGroupInfo(String token) {

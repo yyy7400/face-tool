@@ -12,6 +12,6 @@ import tk.mybatis.mapper.common.MySqlMapper;
 @org.apache.ibatis.annotations.Mapper
 public interface UserInfoMapper extends Mapper<UserInfo>, MySqlMapper<UserInfo> {
 
-    @Update("turncate table user_info")
+    @Update("truncate table user_info")
     public void turncateTable();
 }

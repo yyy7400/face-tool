@@ -33,7 +33,7 @@ public interface UserInfoService {
      * @param pageSize
      * @return
      */
-    PageShow search (String groupId, Integer userType, String userName, Integer pageIndex, Integer pageSize);
+    PageShow search (String groupId, String gradeId, String classId, Integer userType, String userName, Integer pageIndex, Integer pageSize);
 
     UserInfo selectByUserId(String userId);
 
