@@ -57,7 +57,8 @@ public class PathUtil {
 
         srcPath = srcPath.replace('\\', '/');
 
-        if (srcPath.startsWith(Properties.SERVER_ADRR)) {
+
+        if (srcPath.startsWith("http") || srcPath.startsWith(Properties.SERVER_ADRR)) {
             return srcPath;
 
         } else if (srcPath.startsWith(Properties.SERVER_RESOURCE)) {

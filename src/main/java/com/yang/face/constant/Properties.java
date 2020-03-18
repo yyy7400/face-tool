@@ -18,11 +18,7 @@ public class Properties {
 
     public static String SERVER_RESOURCE;
 
-    public static String SERVER_RESOURCE_IMAGE_FEATRUE;
-
     public static String YUN_SERVER_ADDR;
-
-    public static Integer FACE_RECO_Type;
 
     @Value("${server.ip}")
     public static void setServerIp(String serverIp) {
@@ -42,16 +38,6 @@ public class Properties {
     @Value("${server.resource}")
     public void setServerResource(String serverResource) {
         SERVER_RESOURCE = serverResource;
-    }
-
-    @Value("${server.resource.image.feature}")
-    public void setServerResourceImageFeatrue(String serverResourceImageFeatrue) {
-        SERVER_RESOURCE_IMAGE_FEATRUE = serverResourceImageFeatrue;
-    }
-
-    @Value("${face.reco.type}")
-    public void setFACE_RECO_Type(Integer FACE_RECO_Type) {
-        Properties.FACE_RECO_Type = FACE_RECO_Type;
     }
 
     @Value("${yun.server.addr}")

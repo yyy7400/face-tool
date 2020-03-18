@@ -29,9 +29,6 @@ public class FaceController {
     private FaceStrageService FaceStrageService;
 
 
-    @Resource
-    private SystemSettingService systemSettingService;
-
     //近距离人脸识别（电子班牌）
     @RequestMapping(value = "/face/recoImage", method = RequestMethod.POST)
     public Response recoImage(@RequestBody @Validated TypeAndPhotoPost o) {
@@ -39,7 +36,7 @@ public class FaceController {
         return Response.show(FaceStrageService.recoImage(o.getType(), o.getPhoto(), users));
     }
 
-    //人脸识别（指定用户）
+    //近距离人脸识别（电子班牌）指定用户）
     @RequestMapping(value = "/face/recoImageWithUser", method = RequestMethod.POST)
     public Response recoImageWithUser(@RequestBody @Validated RecoImageWithUserPost o) {
         return Response.show(FaceStrageService.recoImage(o.getType(), o.getPhoto(), o.getUserIds()));
@@ -70,13 +67,34 @@ public class FaceController {
         return Response.show(FaceStrageService.importFeaturesNoUpdate(list));
     }
 
-    //更新特征库, 暂时不实现
+    //更新特征库
+    @Deprecated
     @RequestMapping(value = "/face/importFeaturesUpdateFeatures", method = RequestMethod.POST)
     public Response importFeaturesUpdateFeatures(@RequestBody List<String> list) {
-        return Response.show("");
-
-        //return  Response.show("");return new UnifiedShow(new FaceServiceImpl().importFeaturesUpdateFeatures(list));
+        return Response.show(FaceStrageService.updateFeatures());
     }
+
+    //更新特征库
+    @RequestMapping(value = "/face/updateFeatures", method = RequestMethod.POST)
+    public Response updateFeatures() {
+        return Response.show(FaceStrageService.updateFeatures());
+    }
+
+
+    /****************   无感考勤  ****************************/
+    //教室内远距离人脸识别（无感考勤）
+    @RequestMapping(value = "/face/recoImageRoom", method = RequestMethod.POST)
+    public Response recoImageRoom(@RequestBody @Validated TypeAndPhotoPost o) {
+        List<String> users = new ArrayList<>();
+        return Response.show(FaceStrageService.recoImageRoom(o.getType(), o.getPhoto(), users));
+    }
+
+    //教室内远距离人脸识别（无感考勤）
+    @RequestMapping(value = "/face/recoImageWithUserRoom", method = RequestMethod.POST)
+    public Response recoImageWithUserRoom(@RequestBody @Validated RecoImageWithUserPost o) {
+        return Response.show(FaceStrageService.recoImageRoom(o.getType(), o.getPhoto(), o.getUserIds()));
+    }
+
 
 
 }

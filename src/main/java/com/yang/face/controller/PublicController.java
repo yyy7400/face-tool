@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * tested
  * @author yangyuyang
  * @date 2020/3/17 11:50
  */
@@ -43,7 +44,7 @@ public class PublicController {
     }
 
     //获取其他角色信息
-    @RequestMapping(value = "/pub/getAdminFeature", method = RequestMethod.GET)
+    @RequestMapping(value = "/pub/getOtherFeature", method = RequestMethod.GET)
     public Response getOtherFeature(Boolean hasFeature, Date photoTime) {
         return Response.show(userInfoService.getOtherFeature(hasFeature, photoTime));
     }

@@ -29,5 +29,13 @@ public class ImportFeatureShow {
         this.photoName = photoName;
     }
 
+    public ImportFeatureShow(String userId, String userName, String photo, String photoName) {
+        super();
+        this.userId = userId;
+        this.userName = userName;
+        this.photo = photo;
+        this.photoName = photoName;
+    }
+
 }
 

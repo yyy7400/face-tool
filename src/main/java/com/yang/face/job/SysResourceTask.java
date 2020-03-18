@@ -44,7 +44,12 @@ public class SysResourceTask implements CommandLineRunner {
 
         List<String> dirs = new ArrayList<>();
         dirs.add(Properties.SERVER_RESOURCE);
-        dirs.add(Properties.SERVER_RESOURCE_IMAGE_FEATRUE);
+        dirs.add(Properties.SERVER_RESOURCE + Constants.Dir.UPLOAD);
+        dirs.add(Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE);
+        dirs.add(Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE);
+        dirs.add(Properties.SERVER_RESOURCE + Constants.Dir.TEMP);
+        dirs.add(Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_YUN);
+        dirs.add(Properties.SERVER_RESOURCE + Constants.Dir.CLASS);
 
         for (String str : dirs) {
             File file = new File(str);

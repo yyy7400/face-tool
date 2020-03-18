@@ -28,4 +28,12 @@ public class TaskPollConfig {
                 new ArrayBlockingQueue<>(5), new NamedThreadFactory("taskExcutor", false));
         return threadPoolExecutor;
     }
+
+    @Bean("faceIconExcutor")
+    public Executor faceIconExcutor() {
+
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(5, 10, 200, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(5), new NamedThreadFactory("faceIconExcutor", false));
+        return threadPoolExecutor;
+    }
 }

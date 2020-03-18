@@ -50,6 +50,19 @@ public class FaceStrageService {
      * @param userIds
      * @return
      */
+    public List<FaceRecoShow> recoImageRoom(Integer type, String photo, List<String> userIds) {
+        FaceService faceService = map.get(getFaceTypeDb());
+        return faceService.recoImageRoom(type, photo, userIds);
+    }
+
+    /**
+     * 人脸识别
+     *
+     * @param type
+     * @param photo
+     * @param userIds
+     * @return
+     */
     public List<FaceRecoShow> recoImage(Integer type, String photo, List<String> userIds) {
         FaceService faceService = map.get(getFaceTypeDb());
         return faceService.recoImage(type, photo, userIds);

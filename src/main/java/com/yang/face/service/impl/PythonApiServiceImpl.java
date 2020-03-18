@@ -17,8 +17,11 @@ import com.yang.face.util.DateTimeUtil;
 import com.yang.face.util.FileUtil;
 import com.yang.face.util.HttpClientUtil;
 import com.yang.face.util.PathUtil;
+import lombok.AllArgsConstructor;
+import org.apache.http.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,7 +54,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     private static int addrPollingIndex = 0;
 
     public PythonApiServiceImpl() {
-        ClientManager.put("http://192.168.129.134:8001/", ClientTypeEnum.PYTHON.getKey());
+        //ClientManager.put("http://192.168.129.134:8001/", ClientTypeEnum.PYTHON.getKey());
     }
 
     /**
@@ -108,6 +112,7 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @return score, state
      */
     @Override
+    @Deprecated
     public Map<Integer, Boolean> faceScoreIamge(Integer photoType, String photo) {
 
         Map<Integer, Boolean> map = new ConcurrentHashMap<>();
@@ -142,7 +147,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     }
 
     /**
-     * 单张图片人脸评分-带维度
+     * 单张图片人脸评分-带维度, tested
      *
      * @param photoType
      * @param photo
@@ -187,29 +192,41 @@ public class PythonApiServiceImpl implements PythonApiService {
     @Override
     public Boolean updateFaceFeature() {
 
-        Boolean state = false;
-
         try {
 
             List<String> list = ClientManager.getKeyPython();
 
-            for (String addr : list) {
-                // 请求
-                String url = PathUtil.combine(addr, "/face_feature_update");
-                Map<String, Object> paramMap = new ConcurrentHashMap<>();
-                String str = HttpClientUtil.httpPostStr(paramMap, url);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (String addr : list) {
+                        // 请求
+                        String url = PathUtil.combine(addr, "/face_feature_update");
+                        Map<String, Object> paramMap = new ConcurrentHashMap<>();
+                        String str = null;
+                        try {
+                            str = HttpClientUtil.httpPostStr(paramMap, url);
+                        } catch (HttpException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
-                // 解析首层
-                JSONObject jsonObject = JSONObject.parseObject(str);
-                Integer status = jsonObject.getInteger("status");
-                if (status != 0) {
-                    return state;
+                        // 解析首层
+                        JSONObject jsonObject = JSONObject.parseObject(str);
+                        Integer status = jsonObject.getInteger("status");
+                        if (status == 0) {
+                            //logger.info("{} 同步成功。", addr);
+                        } else {
+                            logger.info("{} 同步失败。", addr);
+                        }
+
+                        // 解析数据层
+                        //state = jsonObject.getJSONObject("data").getBoolean("state");
+                    }
+
                 }
-
-                // 解析数据层
-                state = jsonObject.getJSONObject("data").getBoolean("state");
-            }
-
+            }).start();
 
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
@@ -332,7 +349,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     }
 
     /**
-     * 教室内人脸识别-图片
+     * 教室内人脸识别-图片,, tested
      *
      * @param photoType
      * @param photo
@@ -345,7 +362,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     }
 
     /**
-     * 单面摄像头，电子班牌上人脸识别
+     * 单面摄像头，电子班牌上人脸识别,, tested
      *
      * @param photoType
      * @param photo
@@ -404,7 +421,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     }
 
     /**
-     * 清除特征库
+     * 清除特征库, tested
      *
      * @param ids
      * @return
@@ -496,6 +513,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     }
 
     /**
+     * tested
      * @param photoType
      * @param photo
      * @param userIds
@@ -516,7 +534,7 @@ public class PythonApiServiceImpl implements PythonApiService {
             if (ec) {
                 url = PathUtil.combine(getAddrByPolling(), "/face_recognition_image_ec");
             } else {
-                PathUtil.combine(getAddrByPolling(), "/face_recognition_image");
+                url = PathUtil.combine(getAddrByPolling(), "/face_recognition_image");
             }
 
             JSONObject json = new JSONObject();
@@ -581,7 +599,8 @@ public class PythonApiServiceImpl implements PythonApiService {
     @Override
     public String getAddrByPolling() {
 
-        String addr = "";
+        // 临时测试地址
+        String addr = "http://192.168.129.134:5009/";
         List<String> addrs = ClientManager.getKeyPython();
         if (addrs.isEmpty()) {
             return addr;

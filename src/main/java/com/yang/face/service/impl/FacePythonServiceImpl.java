@@ -60,6 +60,23 @@ public class FacePythonServiceImpl implements FaceService {
     }
 
     @Override
+    public List<FaceRecoShow> recoImageRoom(Integer type, String photo, List<String> userIds) {
+        // String url = photo;
+        List<FaceRecoShow> faces = new ArrayList<>();
+
+        String photoUrl = getPhoto(type, photo);
+        if (photoUrl.isEmpty())
+            return new ArrayList<>();
+
+        List<FaceRecognitionImage> list = pythonApiService.faceRecognitionImage(type, photo, userIds);
+        list.forEach(o ->
+                faces.add(new FaceRecoShow(o.getUserId(), resetSimilarityScore(o.getSimilarityScore()), o.getHeadPhoto()))
+        );
+
+        return faces;
+    }
+
+    @Override
     public List<FaceRecoShow> recoImage(Integer type, String photo, List<String> userIds) {
         // String url = photo;
         List<FaceRecoShow> faces = new ArrayList<>();
@@ -70,7 +87,7 @@ public class FacePythonServiceImpl implements FaceService {
 
         List<FaceRecognitionImage> list = pythonApiService.faceRecognitionImageEC(type, photo, userIds);
         list.forEach(o ->
-            faces.add(new FaceRecoShow(o.getUserId(), resetSimilarityScore(o.getSimilarityScore()), o.getHeadPhoto()))
+                faces.add(new FaceRecoShow(o.getUserId(), resetSimilarityScore(o.getSimilarityScore()), o.getHeadPhoto()))
         );
 
         return faces;
@@ -80,11 +97,11 @@ public class FacePythonServiceImpl implements FaceService {
     public MessageVO cleanFeature(List<String> userIds) {
 
         Example example = new Example(UserInfo.class);
-        Example.Criteria criteria = example.createCriteria();
 
         try {
             if (userIds.isEmpty()) {
                 userInfoMapper.deleteByExample(example);
+
                 FileUtil.deleteDir(Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE);
 
             } else {
@@ -98,6 +115,7 @@ public class FacePythonServiceImpl implements FaceService {
                     }
                     try {
                         File file = new File(PathUtil.getAbsPath(o.getFaceFeatureFile()));
+                        file.delete();
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
                     }
@@ -119,6 +137,11 @@ public class FacePythonServiceImpl implements FaceService {
 
     }
 
+    /**
+     * 待完善，批量特征提取加入多线程处理会快一些
+     * @param list
+     * @return
+     */
     @Override
     public List<ImportFeatureShow> importFeaturesNoUpadte(List<ImportFeaturePost> list) {
         List<ImportFeatureShow> res = new ArrayList<>();
@@ -139,12 +162,15 @@ public class FacePythonServiceImpl implements FaceService {
                 continue;
             }
 
+            // 移动到image/face中，压缩图片，最大不超过300*300, 应该加入线程池队列中多线程处理
+            IamgeUtil.getFaceIcon(photoUrl);
+
             // 评分
             String imageUrl = PathUtil.getUrl(photoUrl);
-            // mq
             FaceScoreImageMod score = pythonApiService.faceScoreIamgeMod(PhotoTypeEnum.IMAGE.getKey(), imageUrl);
 
-            if (score == null) {
+
+            if (score == null || !score.getState()) {
                 MessageVO msg = ScoreCopy2MessageVO(score);
                 ImportFeatureShow obj11 = new ImportFeatureShow(o.getUserId(), "", o.getType(), imageUrl, "", false,
                         msg.getMsg());
@@ -162,30 +188,32 @@ public class FacePythonServiceImpl implements FaceService {
             }
 
             // 下载文件
-            String featureFileLocal = FileUtil.downloadUrl(featureFile,Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE, userId);
+            String featureFileLocal = FileUtil.downloadUrl(featureFile, Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE, userId);
 
             if (map.isEmpty()) {
-                ImportFeatureShow obj1 = new ImportFeatureShow(o.getUserId(), "", o.getType(), imageUrl, "", false,
+                ImportFeatureShow obj1 = new ImportFeatureShow(o.getUserId(), o.getUserId(), o.getType(), imageUrl, "", false,
                         "特征提取失败");
                 res.add(obj1);
 
             } else {
-                ImportFeatureShow obj1 = new ImportFeatureShow(o.getUserId(), "", o.getType(), imageUrl, "", true, "");
+                String userName = userMap.containsKey(o.getUserId()) ? userMap.get(o.getUserId()).getUserName() : o.getUserId();
+                ImportFeatureShow obj1 = new ImportFeatureShow(o.getUserId(), userName, o.getType(), imageUrl, "", true, "");
                 res.add(obj1);
 
                 // 4.0 更新特征
                 if (!userMap.containsKey(o.getUserId())) {
-                    usersAdd.add(new UserInfo(null, o.getUserId(), o.getUserId(), UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                            PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), new byte[0], featureFileLocal, resetSimilarityScore(score.getScore()), DateUtil.date(), DateUtil.date()));
+                    usersAdd.add(new UserInfo(null, o.getUserId(), userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
+                            PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), new byte[0], PathUtil.getRelPath(featureFileLocal), resetSimilarityScore(score.getScore()), DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
                     Example.Criteria criteria = example.createCriteria();
                     criteria.andEqualTo("userId", o.getUserId());
 
                     UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                            PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), null, featureFileLocal, resetSimilarityScore(score.getScore()), null, DateUtil.date());
+                            PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), null, PathUtil.getRelPath(featureFileLocal), resetSimilarityScore(score.getScore()), null, DateUtil.date());
                     userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
+
             }
         }
 
@@ -201,6 +229,11 @@ public class FacePythonServiceImpl implements FaceService {
         return res;
     }
 
+    /**
+     * 不支持站外的Url文件
+     * @param list
+     * @return
+     */
     @Override
     public List<ImportFeatureShow> importFeatures(List<ImportFeaturePost> list) {
 
@@ -220,10 +253,15 @@ public class FacePythonServiceImpl implements FaceService {
      * 3. 人脸评分、提取特征、下载npy文件
      * 4. 更新和批量插入数据库
      * 5. 放回结果
+     *
      * @param zipPath
      */
     @Override
     public List<ImportFeatureShow> importFeatures(String zipPath) {
+
+        List<Long> times = new ArrayList<>();
+        times.add(System.currentTimeMillis());
+
         List<ImportFeatureShow> res = new ArrayList<>();
 
         zipPath = PathUtil.getRelPath(zipPath);
@@ -236,6 +274,7 @@ public class FacePythonServiceImpl implements FaceService {
         if (!state) {
             return res;
         }
+        times.add(System.currentTimeMillis());
 
         List<ImportFeatureShow> featureFails = new ArrayList<>();// 提取特征失败
         List<ImportFeatureShow> sameNameFails = new ArrayList<>();// 名称相同
@@ -256,7 +295,6 @@ public class FacePythonServiceImpl implements FaceService {
                 }
 
                 String photoUrl = PathUtil.getUrl(f.getAbsolutePath());
-                // String photoUrl = "http://192.168.3.4:8081/" +
                 String picUserId = f.getName().substring(0, f.getName().lastIndexOf('.'));
                 String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1);
 
@@ -269,10 +307,10 @@ public class FacePythonServiceImpl implements FaceService {
                 if (userMap.containsKey(picUserId)) {
                     sameNameFlag = true;
                 } else {
-                    if(mapDB.containsKey(picUserId)) {
-                        userMap.put(picUserId, new ImportFeatureShow(mapDB.get(picUserId).getUserName(), photoUrl, f.getName()));
+                    if (mapDB.containsKey(picUserId)) {
+                        userMap.put(picUserId, new ImportFeatureShow(picUserId, mapDB.get(picUserId).getUserName(), photoUrl, f.getName()));
                     } else {
-                        userMap.put(picUserId, new ImportFeatureShow(picUserId, photoUrl, f.getName()));
+                        userMap.put(picUserId, new ImportFeatureShow(picUserId, picUserId, photoUrl, f.getName()));
                     }
                 }
 
@@ -296,6 +334,8 @@ public class FacePythonServiceImpl implements FaceService {
                 }
             }
 
+            times.add(System.currentTimeMillis());
+
             /* 3.提取特征，并插入数据库*/
             List<UserInfo> usersAdd = new ArrayList<>();
             /* 同步特征列表 */
@@ -303,30 +343,17 @@ public class FacePythonServiceImpl implements FaceService {
                 ImportFeatureShow user = userMap.get(userId);
                 String photoUrl = user.getPhoto();
 
-                // 移动到image/face中，压缩图片，最大不超过300*300
-                String photoAbs = PathUtil.getAbsPath(photoUrl);
-                Thumbnails.Builder<File> fileBuilder = Thumbnails.of(photoAbs).scale(1.0).outputQuality(1.0);
-                BufferedImage src = fileBuilder.asBufferedImage();
-                int size = Math.min(src.getWidth(), src.getHeight());
-                fileBuilder.toFile(photoAbs); // 重置照片，放正
-
-                String fileName = new File(photoAbs).getName();
-                String PhotoAbsNew = Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE
-                        + fileName.substring(0, fileName.lastIndexOf(".")) + "_c"
-                        + fileName.substring(fileName.lastIndexOf("."));
-
-                Thumbnails.of(photoAbs).sourceRegion(Positions.CENTER, size, size).outputQuality(1.0).size(300, 300)
-                        .toFile(PhotoAbsNew);
-
+                // 移动到image/face中，压缩图片，最大不超过300*300, 应该加入线程池队列中多线程处理
+                IamgeUtil.getFaceIcon(photoUrl);
 
                 // 评分
                 String imageUrl = PathUtil.getUrl(photoUrl);
                 // mq
                 FaceScoreImageMod score = pythonApiService.faceScoreIamgeMod(PhotoTypeEnum.IMAGE.getKey(), imageUrl);
 
-                if (score == null) {
+                if (score == null || !score.getState()) {
                     MessageVO msg = ScoreCopy2MessageVO(score);
-                    ImportFeatureShow obj11 = new ImportFeatureShow(user.getUserId(), "", user.getType(), imageUrl, "", false,
+                    ImportFeatureShow obj11 = new ImportFeatureShow(userId, "", user.getType(), imageUrl, "", false,
                             msg.getMsg());
                     res.add(obj11);
                     continue;
@@ -340,34 +367,37 @@ public class FacePythonServiceImpl implements FaceService {
                 }
 
                 // 下载文件
-                String featureFileLocal = FileUtil.downloadUrl(featureFile,Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE, userId);
+                String featureFileLocal = FileUtil.downloadUrl(featureFile, Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE, userId);
 
                 if (map.isEmpty()) {
-                    ImportFeatureShow obj1 = new ImportFeatureShow(userId, "", user.getType(), imageUrl, "", false,
+                    ImportFeatureShow obj1 = new ImportFeatureShow(userId, userId, user.getType(), imageUrl, "", false,
                             "特征提取失败");
                     res.add(obj1);
 
                 } else {
-                    ImportFeatureShow obj1 = new ImportFeatureShow(userId, "", user.getType(), imageUrl, "", true, "");
+                    String userName = userMap.containsKey(userId) ? userMap.get(userId).getUserName() : userId;
+                    ImportFeatureShow obj1 = new ImportFeatureShow(userId, userName, user.getType(), imageUrl, "", true, "");
                     res.add(obj1);
 
                     // 4.0 更新特征
-                    if (!mapDB.containsKey(user.getUserId())) {
-                        usersAdd.add(new UserInfo(null, user.getUserId(), user.getUserId(), UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                                PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), new byte[0], featureFileLocal, resetSimilarityScore(score.getScore()), DateUtil.date(), DateUtil.date()));
+                    if (!mapDB.containsKey(userId)) {
+                        usersAdd.add(new UserInfo(null, userId, userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
+                                PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), new byte[0], PathUtil.getRelPath(featureFileLocal), resetSimilarityScore(score.getScore()), DateUtil.date(), DateUtil.date()));
                     } else {
                         Example example = new Example(UserInfo.class);
                         Example.Criteria criteria = example.createCriteria();
-                        criteria.andEqualTo("userId", user.getUserId());
+                        criteria.andEqualTo("userId", userId);
 
                         UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                                PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), null, featureFileLocal, resetSimilarityScore(score.getScore()), null, DateUtil.date());
+                                PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.ARC_SOFT.getKey(), null, PathUtil.getRelPath(featureFileLocal), resetSimilarityScore(score.getScore()), null, DateUtil.date());
                         userInfoMapper.updateByExampleSelective(userInfo, example);
                     }
+
                 }
 
             }
 
+            times.add(System.currentTimeMillis());
             // 4.1 批量插入特征, 每次插入100条
             if (!usersAdd.isEmpty()) {
                 int index = usersAdd.size() / 100;
@@ -376,13 +406,13 @@ public class FacePythonServiceImpl implements FaceService {
                     userInfoMapper.insertList(usersAdd.stream().skip(i * 100).limit(100).collect(Collectors.toList()));
                 }
             }
-
+            times.add(System.currentTimeMillis());
             // 删除缓存
             userInfoService.clearSelectAllCache();
-
+            times.add(System.currentTimeMillis());
             // 通知client更新特征
             pythonApiService.updateFaceFeature();
-
+            times.add(System.currentTimeMillis());
             res.addAll(featureFails);
             res.addAll(scoreFails);
             res.addAll(sameNameFails);
@@ -390,7 +420,7 @@ public class FacePythonServiceImpl implements FaceService {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-
+        times.forEach(o -> System.out.println(o));
         return res;
     }
 
@@ -475,6 +505,7 @@ public class FacePythonServiceImpl implements FaceService {
 
     /**
      * face score state 说明
+     *
      * @param score
      * @return
      */
@@ -504,4 +535,6 @@ public class FacePythonServiceImpl implements FaceService {
             return new MessageVO(true, score.getScore());
         }
     }
+
+
 }

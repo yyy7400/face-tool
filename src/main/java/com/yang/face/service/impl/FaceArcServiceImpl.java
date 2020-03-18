@@ -45,9 +45,10 @@ import java.util.stream.Collectors;
 
 /**
  * 虹软人脸识别
+ *
  * @author yangyuyang
  */
-@Service("FaceArcService")
+@Service
 public class FaceArcServiceImpl implements FaceService {
 
     private static final Logger logger = LoggerFactory.getLogger(FaceArcServiceImpl.class);
@@ -64,6 +65,11 @@ public class FaceArcServiceImpl implements FaceService {
     @Autowired
     public Integer faceType() {
         return FaceFeatureTypeEnum.ARC_SOFT.getKey();
+    }
+
+    @Override
+    public List<FaceRecoShow> recoImageRoom(Integer type, String photo, List<String> userIds) {
+        return new ArrayList<>();
     }
 
     /**
@@ -174,12 +180,12 @@ public class FaceArcServiceImpl implements FaceService {
                 ImageInfo imageInfo = ImageFactory.getRGBData(byteFile.getBytes());
                 List<FaceInfo> faceInfos = faceEngineService.detectFaces(imageInfo);
 
-
+                String userName = userMap.containsKey(o.getUserId()) ? userMap.get(o.getUserId()).getUserName() : o.getUserId();
                 // 2. 人脸特征获取
-                String filePath = Properties.SERVER_RESOURCE_IMAGE_FEATRUE + byteFile.getFileName();
+                String filePath = Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE + byteFile.getFileName();
                 byte[] bytes = faceEngineService.extractFaceFeature(imageInfo);
                 if (bytes == null) {
-                    res.add(new ImportFeatureShow(o.getUserId(), o.getUserId(), o.getType(), "", "", false, "未检测到人脸"));
+                    res.add(new ImportFeatureShow(o.getUserId(), userName, o.getType(), "", "", false, "未检测到人脸"));
                     continue;
                 } else {
 
@@ -187,12 +193,12 @@ public class FaceArcServiceImpl implements FaceService {
                     if (!NetUtil.byte2File(byteFile.getBytes(), filePath)) {
                         filePath = "";
                     }
-                    res.add(new ImportFeatureShow(o.getUserId(), o.getUserId(), o.getType(), PathUtil.getUrl(filePath), PathUtil.getRelPath(filePath), true, ""));
+                    res.add(new ImportFeatureShow(o.getUserId(), userName, o.getType(), PathUtil.getUrl(filePath), PathUtil.getRelPath(filePath), true, ""));
                 }
 
                 // 4.0 更新特征
                 if (!userMap.containsKey(o.getUserId())) {
-                    usersAdd.add(new UserInfo(null, o.getUserId(), o.getUserId(), UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
+                    usersAdd.add(new UserInfo(null, o.getUserId(), userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
                             PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 0, DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
@@ -285,10 +291,10 @@ public class FaceArcServiceImpl implements FaceService {
                 if (userMap.containsKey(picUserId)) {
                     sameNameFlag = true;
                 } else {
-                    if(mapDB.containsKey(picUserId)) {
-                        userMap.put(picUserId, new ImportFeatureShow(mapDB.get(picUserId).getUserName(), photoUrl, f.getName()));
+                    if (mapDB.containsKey(picUserId)) {
+                        userMap.put(picUserId, new ImportFeatureShow(picUserId, mapDB.get(picUserId).getUserName(), photoUrl, f.getName()));
                     } else {
-                        userMap.put(picUserId, new ImportFeatureShow(picUserId, photoUrl, f.getName()));
+                        userMap.put(picUserId, new ImportFeatureShow(picUserId, picUserId, photoUrl, f.getName()));
                     }
                 }
 
@@ -319,35 +325,20 @@ public class FaceArcServiceImpl implements FaceService {
                 ImportFeatureShow user = userMap.get(userId);
                 String photoUrl = user.getPhoto();
 
-                // 移动到image/face中，压缩图片，最大不超过300*300
-                String photoAbs = PathUtil.getAbsPath(photoUrl);
-                Thumbnails.Builder<File> fileBuilder = Thumbnails.of(photoAbs).scale(1.0).outputQuality(1.0);
-                BufferedImage src = fileBuilder.asBufferedImage();
-                int size = Math.min(src.getWidth(), src.getHeight());
-                fileBuilder.toFile(photoAbs); // 重置照片，放正
-
-                String fileName = new File(photoAbs).getName();
-                String PhotoAbsNew = Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE
-                        + fileName.substring(0, fileName.lastIndexOf(".")) + "_c"
-                        + fileName.substring(fileName.lastIndexOf("."));
-
-                Thumbnails.of(photoAbs).sourceRegion(Positions.CENTER, size, size).outputQuality(1.0).size(300, 300)
-                        .toFile(PhotoAbsNew);
-
-
                 // 1. 图片转转byte
-                ByteFile byteFile = getPhotoByteFile(PhotoTypeEnum.BASE64.getKey(), photoAbs);
+                ByteFile byteFile = getPhotoByteFile(PhotoTypeEnum.BASE64.getKey(), PathUtil.getAbsPath(photoUrl));
                 if (byteFile == null) {
                     continue;
                 }
                 ImageInfo imageInfo = ImageFactory.getRGBData(byteFile.getBytes());
                 List<FaceInfo> faceInfos = faceEngineService.detectFaces(imageInfo);
 
+                String userName = mapDB.containsKey(user.getUserId()) ? mapDB.get(user.getUserId()).getUserName() : user.getUserId();
                 // 2. 人脸特征获取
-                String filePath = Properties.SERVER_RESOURCE_IMAGE_FEATRUE + byteFile.getFileName();
+                String filePath = Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE + byteFile.getFileName();
                 byte[] bytes = faceEngineService.extractFaceFeature(imageInfo);
                 if (bytes == null) {
-                    res.add(new ImportFeatureShow(user.getUserId(), user.getUserId(), user.getType(), "", "", false, "未检测到人脸"));
+                    res.add(new ImportFeatureShow(user.getUserId(), userName, user.getType(), "", "", false, "未检测到人脸"));
                     continue;
                 } else {
 
@@ -355,12 +346,12 @@ public class FaceArcServiceImpl implements FaceService {
                     if (!NetUtil.byte2File(byteFile.getBytes(), filePath)) {
                         filePath = "";
                     }
-                    res.add(new ImportFeatureShow(user.getUserId(), user.getUserId(), user.getType(), PathUtil.getUrl(filePath), PathUtil.getRelPath(filePath), true, ""));
+                    res.add(new ImportFeatureShow(user.getUserId(), userName, user.getType(), PathUtil.getUrl(filePath), PathUtil.getRelPath(filePath), true, ""));
                 }
 
                 // 4.0 更新特征
                 if (!mapDB.containsKey(user.getUserId())) {
-                    usersAdd.add(new UserInfo(null, user.getUserId(), user.getUserId(), UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
+                    usersAdd.add(new UserInfo(null, user.getUserId(), userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
                             PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 0, DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
@@ -372,7 +363,6 @@ public class FaceArcServiceImpl implements FaceService {
                             PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, null, null, DateUtil.date());
                     userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
-
 
             }
 
@@ -402,7 +392,6 @@ public class FaceArcServiceImpl implements FaceService {
 
     /**
      * 更新人脸库特征
-     *
      */
     @Override
     public MessageVO updateFeatures() {
@@ -423,9 +412,9 @@ public class FaceArcServiceImpl implements FaceService {
             }
             ImageInfo imageInfo = ImageFactory.getRGBData(byteFile.getBytes());
             List<?> list = faceEngineService.detectFaces(imageInfo);
-            if(list.isEmpty()) {
+            if (list.isEmpty()) {
                 return new MessageVO(false, "未检测到人脸");
-            } else if(list.size() > 1) {
+            } else if (list.size() > 1) {
                 return new MessageVO(false, "图片中有多张人脸");
             } else {
                 return new MessageVO(true, 90);

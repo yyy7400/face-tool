@@ -95,7 +95,7 @@ public class UserInfoController {
      * @return
      */
     @GetMapping("/userInfo/getPhotoScore")
-    public Response getPhotoScore(@RequestBody String photo) {
+    public Response getPhotoScore(String photo) {
         return Response.show(faceStrageService.getPhotoScore(photo));
     }
 

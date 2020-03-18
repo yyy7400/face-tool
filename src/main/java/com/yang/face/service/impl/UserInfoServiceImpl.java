@@ -56,7 +56,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Cacheable(cacheNames = "userInfos")
     @Override
     public List<UserInfo> selectAll() {
-        //System.out.println("调用了db all");
+        System.out.println("调用了db all");
         return userInfoMapper.selectAll();
     }
 
@@ -387,11 +387,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     String noIconStr = strList[0] + ".jpg";
                     res.setPhotoUrl(PathUtil.getUrl(noIconStr));
                     res.setPhotoIconUrl(PathUtil.getUrl(str));
-
-                    String[] tmp = strList[0].split("\\/");
-                    String strDate = tmp[tmp.length - 1];
-                    Date date = DateUtil.parse(strDate, DatePattern.PURE_DATETIME_MS_PATTERN);
-                    res.setPhotoTime(date);
+                    res.setPhotoTime(list.get(i).getUpdateTime());
 
                 }
                 resList.add(res);
@@ -449,10 +445,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     res.setPhotoUrl(PathUtil.getUrl(noIconStr));
                     res.setPhotoIconUrl(PathUtil.getUrl(str));
 
-                    String[] tmp = strList[0].split("\\/");
-                    String strDate = tmp[tmp.length - 1];
-                    Date date = DateUtil.parse(strDate, DatePattern.PURE_DATETIME_MS_PATTERN);
-                    res.setPhotoTime(date);
+                    res.setPhotoTime(list.get(i).getUpdateTime());
 
                 }
                 resList.add(res);
@@ -507,10 +500,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     res.setPhotoUrl(PathUtil.getUrl(noIconStr));
                     res.setPhotoIconUrl(PathUtil.getUrl(str));
 
-                    String[] tmp = strList[0].split("\\/");
-                    String strDate = tmp[tmp.length - 1];
-                    Date date = DateUtil.parse(strDate, DatePattern.PURE_DATETIME_MS_PATTERN);
-                    res.setPhotoTime(date);
+                    res.setPhotoTime(list.get(i).getUpdateTime());
 
                 }
                 resList.add(res);
@@ -565,10 +555,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     res.setPhotoUrl(PathUtil.getUrl(noIconStr));
                     res.setPhotoIconUrl(PathUtil.getUrl(str));
 
-                    String[] tmp = strList[0].split("\\/");
-                    String strDate = tmp[tmp.length - 1];
-                    Date date = DateUtil.parse(strDate, DatePattern.PURE_DATETIME_MS_PATTERN);
-                    res.setPhotoTime(date);
+                    res.setPhotoTime(list.get(i).getUpdateTime());
 
                 }
                 resList.add(res);
@@ -587,7 +574,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         List<PubUserPhotoShow> resList = new ArrayList<>();
 
-        List<UserInfo> userInfos = userInfoMapper.selectByExample(new Example(UserInfo.class).createCriteria().andIn("userId", userIds));
+        Example example = new Example(UserInfo.class);
+        example.createCriteria().andIn("userId", userIds);
+        List<UserInfo> userInfos = userInfoMapper.selectByExample(example);
 
         try {
             // SqlServer 对语句的条数和参数的数量都有限制，分别是 1000 和 2100。

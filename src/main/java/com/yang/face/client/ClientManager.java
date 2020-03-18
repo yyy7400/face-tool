@@ -3,7 +3,10 @@ package com.yang.face.client;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import com.yang.face.constant.enums.ClientTypeEnum;
+import com.yang.face.entity.db.SystemSetting;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +18,8 @@ import java.util.stream.Collectors;
  * @author Yang
  * client 管理器
  */
+
+@Component
 public class ClientManager {
 
     private final static Map<String, ClientInfo> CLIENT_MAP = new ConcurrentHashMap<>();
@@ -35,10 +40,16 @@ public class ClientManager {
         }
     }
 
-    // 每秒检测一次, 10s 过期
-    @Scheduled(cron = "1 * * * * ?")
-    public void clearExpiredClient() {
-        CLIENT_MAP.values().removeIf(v -> DateUtil.isExpired(v.getUpdateTime(), DateField.SECOND, 10, DateUtil.date()));
+    private static int count_show;
+    public static void clearExpiredClient() {
+
+        count_show ++;
+        if(count_show % 60 == 0 && !CLIENT_MAP.isEmpty()) {
+            System.out.println("clientPython:" + DateUtil.formatTime(DateUtil.date()));
+            CLIENT_MAP.keySet().forEach(o -> System.out.println(o));
+        }
+
+        CLIENT_MAP.values().removeIf(v -> !DateUtil.isExpired(v.getUpdateTime(), DateField.SECOND, 10, DateUtil.date()));
     }
 
     /**

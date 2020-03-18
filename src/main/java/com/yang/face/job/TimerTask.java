@@ -1,5 +1,7 @@
 package com.yang.face.job;
 
+import com.yang.face.client.ClientManager;
+import com.yang.face.constant.Constants;
 import com.yang.face.constant.Properties;
 import com.yang.face.entity.db.UserInfo;
 import com.yang.face.mapper.UserInfoMapper;
@@ -11,9 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Yang
@@ -27,28 +27,37 @@ public class TimerTask {
     @Resource
     private UserInfoMapper userInfoMapper;
 
-    @Scheduled(cron = "15 20 10 * * ?")
+    @Scheduled(cron = "0 20 0 * * ?")
     public void clearFeatrueImage() {
 
         // 1. 数据库所有图片
         List<UserInfo> users = userInfoMapper.selectAll();
-        Map<String, UserInfo> userMap = new HashMap<>();
+        Set<String> imageSet = new HashSet<>();
         for (UserInfo userInfo : users) {
             if ("".equals(userInfo.getPhotoUrl())) {
                 continue;
             }
             String[] strs = userInfo.getPhotoUrl().split("/");
             String name = strs[strs.length - 1];
-            userMap.put(name, userInfo);
+            String name_c = name.substring(0,name.lastIndexOf('.')) + "_c" + name.substring(name.indexOf('.'));
+
+            imageSet.add(name);
+            imageSet.add(name_c);
         }
 
         // 2. 查找路径下所有图片，并删除不记录在数据库中的图片
-        File file = new File(Properties.SERVER_RESOURCE_IMAGE_FEATRUE);
+        File file = new File(Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE);
         for (File f : file.listFiles()) {
-            if (!userMap.containsKey(f.getName())) {
+            if (!imageSet.contains(f.getName())) {
                 f.delete();
             }
         }
 
+    }
+
+    // 从0秒开始，每秒检测一次, 10s 过期
+    @Scheduled(cron = "0/1 * * * * ?")
+    public void clearExpiredClient() {
+        ClientManager.clearExpiredClient();
     }
 }

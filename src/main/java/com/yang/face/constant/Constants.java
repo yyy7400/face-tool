@@ -20,17 +20,15 @@ public class Constants {
      */
     public class Dir {
 
-        public static final String CLASS = "Class/";
+        public static final String CLASS = "class/";
 
-        public static final String IMAGE_YUN = "Image/Yun/";
+        public static final String IMAGE_YUN = "image/Yun/";
 
-        public static final String IMAGE_FACE = "Image/Face/";
+        public static final String IMAGE_FACE = "image/Face/";
 
-        public static final String UPLOAD = "Upload/";
+        public static final String UPLOAD = "upload/";
 
-        public static final String TEMP = "Temp/";//临时文件
-
-        public static final String CAMERA = "Camera/";
+        public static final String TEMP = "temp/";//临时文件
 
         public static final String FACE_FEATRUE = "face_features/";
     }

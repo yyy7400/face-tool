@@ -19,7 +19,16 @@ public interface FaceService {
     Integer faceType();
 
     /**
-     * 人脸识别
+     * 教室内远距离人脸识别场景，无感考勤专用
+     * @param type
+     * @param photo
+     * @param userIds
+     * @return
+     */
+    List<FaceRecoShow> recoImageRoom(Integer type, String photo, List<String> userIds);
+
+    /**
+     * 进距离人脸识别场景，电子班牌，门禁专用
      *
      * @param type
      * @param photo

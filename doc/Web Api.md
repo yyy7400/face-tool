@@ -6,10 +6,11 @@
 
 ### 地址
 
-GET /face/client/heartBeat
+GET /face/pythonClient/heartBeat
 
 ### 输入
-无
+
+- addr, string, 格式：http://192.168.129.134:5009/
 
 ### 输出
 ```
