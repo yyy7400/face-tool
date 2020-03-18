@@ -1,2 +1,2 @@
 # face-tool
-base on ArcSoftFace
+face library
