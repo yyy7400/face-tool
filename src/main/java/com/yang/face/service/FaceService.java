@@ -38,12 +38,20 @@ public interface FaceService {
     List<FaceRecoShow> recoImage(Integer type, String photo, List<String> userIds);
 
     /**
-     * 清理人脸库特征
+     * 清理人脸库特征, 会删除数据库数据
      *
      * @param userIds
      * @return
      */
     MessageVO cleanFeature(List<String> userIds);
+
+    /**
+     * 清理人脸库特征, 更新数据库数据
+     *
+     * @param userIds
+     * @return
+     */
+    MessageVO cleanFeatureUpdate(List<String> userIds);
 
     /**
      * 批量导入人脸库, 不更新
@@ -82,6 +90,22 @@ public interface FaceService {
      * @return
      */
     MessageVO getPhotoScore(String photo);
+
+    /**
+     * 开启人脸检测直播视频流
+     * @param url
+     * @return
+     */
+    MessageVO startDetectionVideo(String url);
+
+    /**
+     * 关闭人脸检测直播视频流
+     * @param url
+     * @return
+     */
+    MessageVO stopDetectionVideo(String url);
+
+
 
     /**
      * 判断支持的图片格式

@@ -57,19 +57,28 @@ public interface PythonApiService {
     Map<String, Boolean> faceDetectionVideoStart(String videoUrl);
 
     /**
+     * 开启视频流检测
+     *
+     * @param videoUrl
+     * @param addr
+     * @return liveUrl, state
+     */
+    Map<String, Boolean> faceDetectionVideoStart(String videoUrl, String addr);
+
+    /**
      * 关闭视频流检测
      *
      * @param videoUrl
      * @return liveUrl, state
      */
-    Boolean faceDetectionVideoClose(String videoUrl);
+    Boolean faceDetectionVideoClose(String videoUrl, String addr);
 
     /**
      * 获取当前人脸检测视频列表
      *
      * @return
      */
-    List<String> faceDetectionVideoList();
+    Map<String, String> faceDetectionVideoList(String addr);
 
     /**
      * 教室内人脸识别-图片

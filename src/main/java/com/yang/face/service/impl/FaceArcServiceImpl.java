@@ -2,6 +2,7 @@ package com.yang.face.service.impl;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.arcsoft.face.FaceInfo;
 import com.arcsoft.face.toolkit.ImageFactory;
@@ -62,7 +63,7 @@ public class FaceArcServiceImpl implements FaceService {
     @Resource
     SystemSettingService systemSettingService;
 
-    @Autowired
+    @Override
     public Integer faceType() {
         return FaceFeatureTypeEnum.ARC_SOFT.getKey();
     }
@@ -159,6 +160,29 @@ public class FaceArcServiceImpl implements FaceService {
     }
 
     @Override
+    public MessageVO cleanFeatureUpdate(List<String> userIds) {
+
+        MessageVO messageVO = new MessageVO(false, "");
+
+        Example example = new Example(UserInfo.class);
+        example.createCriteria().andIn("userId", userIds);
+
+        UserInfo userInfo = new UserInfo();
+        userInfo.setPhotoUrl("");
+        userInfo.setFaceFeatureByte(new byte[0]);
+        userInfo.setFaceFeatureFile("");
+        userInfo.setScore(0);
+        userInfo.setUpdateTime(new DateTime());
+        int res = userInfoMapper.updateByExampleSelective(userInfo, example);
+
+        if(res > 0) {
+            messageVO.setState(true);
+        }
+
+        return messageVO;
+    }
+
+    @Override
     public List<ImportFeatureShow> importFeaturesNoUpadte(List<ImportFeaturePost> list) {
         List<ImportFeatureShow> res = new ArrayList<>();
 
@@ -199,7 +223,7 @@ public class FaceArcServiceImpl implements FaceService {
                 // 4.0 更新特征
                 if (!userMap.containsKey(o.getUserId())) {
                     usersAdd.add(new UserInfo(null, o.getUserId(), userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 0, DateUtil.date(), DateUtil.date()));
+                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 80, DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
 
@@ -207,7 +231,7 @@ public class FaceArcServiceImpl implements FaceService {
                     criteria.andEqualTo("userId", o.getUserId());
 
                     UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, null, null, DateUtil.date());
+                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, 80, null, DateUtil.date());
                     userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
             }
@@ -326,7 +350,7 @@ public class FaceArcServiceImpl implements FaceService {
                 String photoUrl = user.getPhoto();
 
                 // 1. 图片转转byte
-                ByteFile byteFile = getPhotoByteFile(PhotoTypeEnum.BASE64.getKey(), PathUtil.getAbsPath(photoUrl));
+                ByteFile byteFile = getPhotoByteFile(PhotoTypeEnum.IMAGE.getKey(), PathUtil.getUrl(photoUrl));
                 if (byteFile == null) {
                     continue;
                 }
@@ -352,7 +376,7 @@ public class FaceArcServiceImpl implements FaceService {
                 // 4.0 更新特征
                 if (!mapDB.containsKey(user.getUserId())) {
                     usersAdd.add(new UserInfo(null, user.getUserId(), userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 0, DateUtil.date(), DateUtil.date()));
+                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 80, DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
 
@@ -360,7 +384,7 @@ public class FaceArcServiceImpl implements FaceService {
                     criteria.andEqualTo("userId", user.getUserId());
 
                     UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, null, null, DateUtil.date());
+                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, 80, null, DateUtil.date());
                     userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
 
@@ -424,6 +448,16 @@ public class FaceArcServiceImpl implements FaceService {
             logger.error(e.getMessage(), e);
             return new MessageVO(false, "内部错误");
         }
+    }
+
+    @Override
+    public MessageVO startDetectionVideo(String url) {
+        return new MessageVO(false, "此版本不支持");
+    }
+
+    @Override
+    public MessageVO stopDetectionVideo(String url) {
+        return new MessageVO(false, "此版本不支持");
     }
 
 

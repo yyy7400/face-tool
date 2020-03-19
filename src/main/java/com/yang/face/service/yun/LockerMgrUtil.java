@@ -15,12 +15,12 @@ import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.util.List;
 
-/*
+/**
  * @author Yang
  * 
  * 加密锁
  * 
- * */
+ */
 public class LockerMgrUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(LockerMgrUtil.class);

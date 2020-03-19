@@ -7,10 +7,8 @@ import com.yang.face.client.ClientManager;
 import com.yang.face.constant.Constants;
 import com.yang.face.constant.Properties;
 import com.yang.face.constant.enums.ClientTypeEnum;
-import com.yang.face.entity.middle.FaceRecognitionImage;
-import com.yang.face.entity.middle.FaceScoreImageMod;
-import com.yang.face.entity.middle.FeatureFileInfo;
-import com.yang.face.entity.middle.UserIdFeatureFiles;
+import com.yang.face.entity.middle.*;
+import com.yang.face.entity.show.MessageVO;
 import com.yang.face.service.PythonApiService;
 import com.yang.face.service.UserInfoService;
 import com.yang.face.util.DateTimeUtil;
@@ -30,10 +28,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -47,6 +42,7 @@ public class PythonApiServiceImpl implements PythonApiService {
 
     @Resource
     private UserInfoService userInfoService;
+
 
     /**
      * 地址轮询位置
@@ -196,36 +192,33 @@ public class PythonApiServiceImpl implements PythonApiService {
 
             List<String> list = ClientManager.getKeyPython();
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (String addr : list) {
-                        // 请求
-                        String url = PathUtil.combine(addr, "/face_feature_update");
-                        Map<String, Object> paramMap = new ConcurrentHashMap<>();
-                        String str = null;
-                        try {
-                            str = HttpClientUtil.httpPostStr(paramMap, url);
-                        } catch (HttpException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        // 解析首层
-                        JSONObject jsonObject = JSONObject.parseObject(str);
-                        Integer status = jsonObject.getInteger("status");
-                        if (status == 0) {
-                            //logger.info("{} 同步成功。", addr);
-                        } else {
-                            logger.info("{} 同步失败。", addr);
-                        }
-
-                        // 解析数据层
-                        //state = jsonObject.getJSONObject("data").getBoolean("state");
+            new Thread(() -> {
+                for (String addr : list) {
+                    // 请求
+                    String url = PathUtil.combine(addr, "/face_feature_update");
+                    Map<String, Object> paramMap = new ConcurrentHashMap<>();
+                    String str = null;
+                    try {
+                        str = HttpClientUtil.httpPostStr(paramMap, url);
+                    } catch (HttpException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
 
+                    // 解析首层
+                    JSONObject jsonObject = JSONObject.parseObject(str);
+                    Integer status = jsonObject.getInteger("status");
+                    if (status == 0) {
+                        //logger.info("{} 同步成功。", addr);
+                    } else {
+                        logger.info("{} 同步失败。", addr);
+                    }
+
+                    // 解析数据层
+                    //state = jsonObject.getJSONObject("data").getBoolean("state");
                 }
+
             }).start();
 
         } catch (Exception ex) {
@@ -249,9 +242,43 @@ public class PythonApiServiceImpl implements PythonApiService {
 
         try {
             // 请求
-            String url = PathUtil.combine(getAddrByPolling(), "/face_detection_video_close");
+            String url = PathUtil.combine(getAddrByPolling(), "/face_detection_video_start");
             JSONObject json = new JSONObject();
             json.put("videoUrl", videoUrl);
+            json.put("faceServerIp", "");
+
+            String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
+
+            // 解析首层
+            JSONObject jsonObject = JSONObject.parseObject(str);
+            Integer status = jsonObject.getInteger("status");
+            if (status != 0) {
+                return map;
+            }
+
+            // 解析数据层
+            JSONObject jsonData = jsonObject.getJSONObject("data");
+            Boolean state = jsonData.getBoolean("state");
+            String liveUrl = jsonData.getString("videoUrl");
+            map.put(liveUrl, state);
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+
+        return map;
+    }
+
+    @Override
+    public Map<String, Boolean> faceDetectionVideoStart(String rtspUrl, String addr) {
+
+        Map<String, Boolean> map = new ConcurrentHashMap<>();
+
+        try {
+            // 请求
+            String url = PathUtil.combine(addr, "/face_detection_video_start");
+            JSONObject json = new JSONObject();
+            json.put("videoUrl", rtspUrl);
             json.put("faceServerIp", "");
 
             String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
@@ -283,15 +310,15 @@ public class PythonApiServiceImpl implements PythonApiService {
      * @return liveUrl, state
      */
     @Override
-    public Boolean faceDetectionVideoClose(String videoUrl) {
+    public Boolean faceDetectionVideoClose(String videoUrl, String addr) {
 
         try {
             // 请求
-            String url = PathUtil.combine(getAddrByPolling(), "/face_detection_video_close_all");
+            String url = PathUtil.combine(addr, "/face_detection_video_close_all");
             JSONObject json = new JSONObject();
 
             if (!videoUrl.isEmpty()) {
-                url = PathUtil.combine(getAddrByPolling(), "/face_detection_video_start");
+                url = PathUtil.combine(addr, "/face_detection_video_close");
                 json.put("videoUrl", videoUrl);
             }
             String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
@@ -316,16 +343,16 @@ public class PythonApiServiceImpl implements PythonApiService {
     /**
      * 获取当前人脸检测视频列表
      *
-     * @return
+     * @return videoUrl, rtmpvideoUrl
      */
     @Override
-    public List<String> faceDetectionVideoList() {
+    public Map<String, String> faceDetectionVideoList(String addr) {
 
-        List<String> list = new ArrayList<>();
+        Map<String, String> map = new ConcurrentHashMap<>();
 
         try {
             // 请求
-            String url = PathUtil.combine(getAddrByPolling(), "/face_detection_video_close");
+            String url = PathUtil.combine(addr, "/face_detection_video_get_list");
             JSONObject json = new JSONObject();
 
             String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
@@ -334,18 +361,26 @@ public class PythonApiServiceImpl implements PythonApiService {
             JSONObject jsonObject = JSONObject.parseObject(str);
             Integer status = jsonObject.getInteger("status");
             if (status != 0) {
-                return list;
+                return map;
             }
 
             // 解析数据层
-            JSONArray jsonArray = jsonObject.getJSONArray("data");
-            list.addAll(JSONArray.parseArray(jsonArray.toJSONString(), String.class));
+            JSONObject JsonData = jsonObject.getJSONObject("data");
+            List<String> videoUrls = JSONArray.parseArray(JsonData.getJSONArray("videoUrl").toJSONString(), String.class);
+            List<String> rtmpvideoUrls = JSONArray.parseArray(JsonData.getJSONArray("rtmpvideoUrl").toJSONString(), String.class);
+            if(videoUrls.isEmpty() || rtmpvideoUrls.isEmpty() || videoUrls.size() != rtmpvideoUrls.size()) {
+                return map;
+            }
+
+            for(int i = 0; i < rtmpvideoUrls.size(); i++) {
+                map.put(videoUrls.get(i),rtmpvideoUrls.get(i));
+            }
 
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
         }
 
-        return list;
+        return map;
     }
 
     /**
@@ -614,5 +649,10 @@ public class PythonApiServiceImpl implements PythonApiService {
 
         return addr;
     }
+
+
+
+
+
 
 }

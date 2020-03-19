@@ -1,12 +1,14 @@
 package com.yang.face.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import com.yang.face.client.ClientManager;
 import com.yang.face.constant.Constants;
 import com.yang.face.constant.Properties;
 import com.yang.face.constant.enums.FaceFeatureTypeEnum;
 import com.yang.face.constant.enums.PhotoTypeEnum;
 import com.yang.face.constant.enums.UserTypeEnum;
 import com.yang.face.entity.db.UserInfo;
+import com.yang.face.entity.middle.DetectionVideo;
 import com.yang.face.entity.middle.FaceRecognitionImage;
 import com.yang.face.entity.middle.FaceScoreImageMod;
 import com.yang.face.entity.post.ImportFeaturePost;
@@ -31,10 +33,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,9 @@ public class FacePythonServiceImpl implements FaceService {
     @Resource
     PythonApiService pythonApiService;
 
-    @Autowired
+    private static List<DetectionVideo> dtcVideos = new ArrayList<>();
+
+    @Override
     public Integer faceType() {
         return FaceFeatureTypeEnum.OPENVINO.getKey();
     }
@@ -65,8 +66,9 @@ public class FacePythonServiceImpl implements FaceService {
         List<FaceRecoShow> faces = new ArrayList<>();
 
         String photoUrl = getPhoto(type, photo);
-        if (photoUrl.isEmpty())
+        if (photoUrl.isEmpty()) {
             return new ArrayList<>();
+        }
 
         List<FaceRecognitionImage> list = pythonApiService.faceRecognitionImage(type, photo, userIds);
         list.forEach(o ->
@@ -82,8 +84,9 @@ public class FacePythonServiceImpl implements FaceService {
         List<FaceRecoShow> faces = new ArrayList<>();
 
         String photoUrl = getPhoto(type, photo);
-        if (photoUrl.isEmpty())
+        if (photoUrl.isEmpty()) {
             return new ArrayList<>();
+        }
 
         List<FaceRecognitionImage> list = pythonApiService.faceRecognitionImageEC(type, photo, userIds);
         list.forEach(o ->
@@ -137,8 +140,59 @@ public class FacePythonServiceImpl implements FaceService {
 
     }
 
+    @Override
+    public MessageVO cleanFeatureUpdate(List<String> userIds) {
+
+        try {
+
+            MessageVO messageVO = new MessageVO(false, "");
+            Example example = new Example(UserInfo.class);
+            example.createCriteria().andIn("userId", userIds);
+            List<UserInfo> userInfos = userInfoMapper.selectByExample(example);
+
+            UserInfo userInfo = new UserInfo();
+            userInfo.setPhotoUrl("");
+            userInfo.setFaceFeatureByte(new byte[0]);
+            userInfo.setFaceFeatureFile("");
+            userInfo.setScore(0);
+            userInfo.setUpdateTime(new Date());
+            int res = userInfoMapper.updateByExampleSelective(userInfo, example);
+
+            if(res > 0) {
+                messageVO.setState(true);
+            }
+
+            userInfos.forEach(o -> {
+                if ("".equals(o.getFaceFeatureFile())) {
+                    return;
+                }
+                try {
+                    File file = new File(PathUtil.getAbsPath(o.getFaceFeatureFile()));
+                    file.delete();
+                    System.out.println(file.getAbsolutePath());
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            });
+
+            // 通知 client 更新特征
+            updateFeatures();
+
+            // 更新缓存
+            userInfoService.clearSelectAllCache();
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return new MessageVO(false, "删除失败");
+        }
+
+        return new MessageVO(true, "");
+
+    }
+
     /**
      * 待完善，批量特征提取加入多线程处理会快一些
+     *
      * @param list
      * @return
      */
@@ -231,6 +285,7 @@ public class FacePythonServiceImpl implements FaceService {
 
     /**
      * 不支持站外的Url文件
+     *
      * @param list
      * @return
      */
@@ -446,23 +501,201 @@ public class FacePythonServiceImpl implements FaceService {
         return ScoreCopy2MessageVO(faceScoreImageMod);
     }
 
+    @Override
+    public MessageVO startDetectionVideo(String rtspUrl) {
+
+        // 2、检测缓存中是否有已开启的url
+        List<String> addrs = ClientManager.getKeyPython();
+        if (addrs.isEmpty()) {
+            return new MessageVO(false, "计算服务异常，无法获取视频rtmp地址");
+        }
+
+        updateDtcVideos(addrs, rtspUrl);
+        MessageVO messageVO = new MessageVO(false, "获取视频rtmp地址失败");
+        synchronized (dtcVideos) {
+            for (int i = 0; i < dtcVideos.size(); i++) {
+
+                // 查询服务器列表，有则直接返回, 没有则先关闭其他的
+                String addr = dtcVideos.get(i).getAddr();
+                Map<String, String> vidoes = pythonApiService.faceDetectionVideoList(dtcVideos.get(i).getAddr());
+                if (vidoes.containsKey(rtspUrl)) {
+                    messageVO = new MessageVO(true, vidoes.get(rtspUrl));
+                    break;
+                } else {
+                    vidoes.forEach((k, v) -> {
+                        pythonApiService.faceDetectionVideoClose(rtspUrl, addr);
+                    });
+                }
+
+                // 重新开启新的视频直播流
+                Map<String, Boolean> map = pythonApiService.faceDetectionVideoStart(rtspUrl, dtcVideos.get(i).getAddr());
+                String rtmpUrl = "";
+                Boolean state = false;
+                for (String k : map.keySet()) {
+                    rtmpUrl = k;
+                    state = map.get(k);
+                }
+
+                if (state) {
+                    //更新dtcVideos中未推流的对象
+                    if (dtcVideos.get(i).getVideoUrlRtmp().isEmpty() && dtcVideos.get(i).getVideoUrlRtsp().isEmpty()) {
+                        dtcVideos.get(i).setVideoUrlRtsp(rtspUrl);
+                        dtcVideos.get(i).setVideoUrlRtmp(rtmpUrl);
+                        dtcVideos.get(i).setTime(new Date());
+                    }
+
+                    messageVO = new MessageVO(true, rtmpUrl);
+                    break;
+                }
+            }
+        }
+
+        return messageVO;
+    }
+
+    @Override
+    public MessageVO stopDetectionVideo(String url) {
+        Boolean state = true;
+
+        for (int i = 0; i < dtcVideos.size(); i++) {
+            final int index = i;
+            new Thread(() -> {
+                try {
+                    Thread.sleep(100);
+                    pythonApiService.faceDetectionVideoClose(dtcVideos.get(index).getVideoUrlRtsp(), dtcVideos.get(index).getAddr());
+                } catch (InterruptedException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }).start();
+
+            dtcVideos.get(index).setVideoUrlRtmp("");
+            dtcVideos.get(index).setVideoUrlRtmp("");
+            dtcVideos.get(index).setTime(new Date());
+        }
+
+        return new MessageVO(state, "");
+    }
+
+
+    public MessageVO detectionVideoCloseAll() {
+
+        List<String> addrs = ClientManager.getKeyPython();
+        synchronized (dtcVideos) {
+            for (String addr : addrs) {
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(100);
+                        //new FaceHttpClient().detectionVideoClose(ip);
+                    } catch (InterruptedException e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                }).start();
+
+                dtcVideos.add(new DetectionVideo(addr, "", "", new Date()));
+            }
+        }
+
+        return new MessageVO(true, "");
+    }
+
+    // 已排行遍历的顺序(、rtspUrl相同拍第一, url为空的第二，其余第三)
+    public void updateDtcVideos(List<String> addrs, String rtspUrl) {
+        synchronized (dtcVideos) {
+            List<DetectionVideo> videos = new ArrayList<>();
+
+            //根据addrs更新
+            for (String addr : addrs) {
+                Boolean state = false;
+                for (DetectionVideo o : dtcVideos) {
+                    if (addr.equals(o.getAddr())) {
+                        state = true;
+                        videos.add(new DetectionVideo(o.getAddr(), o.getVideoUrlRtsp(), o.getVideoUrlRtmp(), o.getTime()));
+                        break;
+                    }
+                }
+
+                if (!state) {
+                    videos.add(new DetectionVideo(addr, "", "", new Date()));
+                }
+            }
+
+            // 1、按时间正排序
+            Collections.sort(videos, new Comparator<DetectionVideo>() {
+                @Override
+                public int compare(DetectionVideo a, DetectionVideo b) {
+                    return a.getTime().compareTo(b.getTime());
+                }
+            });
+
+            // 2、rtspUrl相同排第一, url为空的第二，其余第三
+            List<DetectionVideo> list1 = new ArrayList<>();
+            List<DetectionVideo> list2 = new ArrayList<>();
+            List<DetectionVideo> list3 = new ArrayList<>();
+            for (DetectionVideo o : videos) {
+                if (o.getVideoUrlRtsp().equals(rtspUrl)) {
+                    list1.add(o);
+                }
+                else if (o.getVideoUrlRtsp().isEmpty() && o.getVideoUrlRtmp().isEmpty()) {
+                    list2.add(o);
+                }
+                else {
+                    list3.add(o);
+                }
+            }
+            dtcVideos.clear();
+            dtcVideos.addAll(list1);
+            dtcVideos.addAll(list2);
+            dtcVideos.addAll(list3);
+        }
+    }
+
+    public void removeDtcVideosByIp(String addr) {
+        synchronized (dtcVideos) {
+            int index = -1;
+            for (int i = 0; i < dtcVideos.size(); i++) {
+                if (dtcVideos.get(i).getAddr().equals(addr)) {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index > -1) {
+                dtcVideos.remove(index);
+            }
+        }
+    }
+
+    //正序
+    public void sortDtcVideosByTime() {
+        synchronized (dtcVideos) {
+            Collections.sort(dtcVideos, new Comparator<DetectionVideo>() {
+                @Override
+                public int compare(DetectionVideo a, DetectionVideo b) {
+                    return a.getTime().compareTo(b.getTime());
+                }
+            });
+        }
+    }
+
+
     public String getPhoto(int type, String photo) {
         String url = "";
 
         // url
-        if (type == PhotoTypeEnum.IMAGE.getKey())
+        if (type == PhotoTypeEnum.IMAGE.getKey()) {
             try {
                 url = URLDecoder.decode(photo, "GBK");
             } catch (UnsupportedEncodingException e) {
                 logger.error(e.getMessage(), e);
             }
-        else if (type == PhotoTypeEnum.BASE64.getKey()) {
+        } else if (type == PhotoTypeEnum.BASE64.getKey()) {
             String path = Properties.SERVER_RESOURCE + Constants.Dir.TEMP + DateTimeUtil.getTimeStamp() + ".jpg";
 
             String filePath = PathUtil.getAbsPath(path);
             boolean flag = FileUtil.base64ToImage(photo, filePath);
-            if (flag)
+            if (flag) {
                 url = PathUtil.getUrl(path);
+            }
         }
         // 智慧考场，批量导入图片
         else if (type == PhotoTypeEnum.FTPURL_TEST.getKey()) {

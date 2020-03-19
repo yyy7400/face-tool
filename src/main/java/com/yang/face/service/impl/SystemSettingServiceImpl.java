@@ -4,6 +4,7 @@ import com.yang.face.entity.db.SystemSetting;
 import com.yang.face.entity.db.UserInfo;
 import com.yang.face.entity.show.MessageVO;
 import com.yang.face.mapper.SystemSettingMapper;
+import com.yang.face.service.FaceStrageService;
 import com.yang.face.service.SystemSettingService;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.cache.annotation.CacheEvict;
@@ -25,6 +26,7 @@ public class SystemSettingServiceImpl implements SystemSettingService {
     @Resource
     private SystemSettingMapper systemSettingMapper;
 
+
     @Cacheable(value = "systemSetting")
     @Override
     public SystemSetting selectOne() {
@@ -33,7 +35,7 @@ public class SystemSettingServiceImpl implements SystemSettingService {
     }
 
     //同一个注解，同一个缓存区域不能使用在不同方法里面，这样会导致注解失效
-    @CacheEvict(value = "systemSetting")
+    @CacheEvict(value = "systemSetting", allEntries = true)
     @Override
     public MessageVO update(SystemSetting systemSetting) {
 

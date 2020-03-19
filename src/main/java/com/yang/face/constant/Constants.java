@@ -7,9 +7,9 @@ public class Constants {
     /**
      * 系统代号
      */
-    public static final String SYS_ID = "E35";
+    public static final String SYS_ID = "E27";
     /**
-     * 系统代号对应的锁控ID
+     * 系统代号对应的锁控ID,暂时没有，需要向熊工申请
      */
     public static final int SYS_LOCK_ID = 165;
 

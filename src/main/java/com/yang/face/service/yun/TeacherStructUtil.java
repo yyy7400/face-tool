@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * @author Yang
  * 连接云平台，根据从基础平台生成的token,得到学生详细信息
  */
 @Service

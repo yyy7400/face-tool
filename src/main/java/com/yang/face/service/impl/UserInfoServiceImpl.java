@@ -1,6 +1,7 @@
 package com.yang.face.service.impl;
 
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -128,7 +129,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     public MessageVO deletePhoto(String userId) {
 
         List<String> userIds = Arrays.asList(userId);
-        return faceStrageService.cleanFeature(userIds);
+        return faceStrageService.cleanFeatureUpdate(userIds);
     }
 
     @Override
@@ -257,7 +258,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Boolean updateYunUserInfo() {
 
         // 1 从基础平台获取用户

@@ -12,6 +12,9 @@ public enum PhotoTypeEnum {
 
     //智慧考试
     FTPURL_TEST(3, "FTP地址"),
+
+    //智慧考试
+    LOCAL(4, "本地绝对路径"),
     ;
 
     PhotoTypeEnum(int key, String name) {

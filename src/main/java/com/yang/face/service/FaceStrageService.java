@@ -1,5 +1,6 @@
 package com.yang.face.service;
 
+import com.thoughtworks.xstream.core.ReferenceByIdUnmarshaller;
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.FaceRecoShow;
 import com.yang.face.entity.show.ImportFeatureShow;
@@ -80,6 +81,17 @@ public class FaceStrageService {
     }
 
     /**
+     * 清理人脸库特征,只更新
+     *
+     * @param userId，size > 0
+     * @return
+     */
+    public MessageVO cleanFeatureUpdate(List<String> userId) {
+        FaceService faceService = map.get(getFaceTypeDb());
+        return faceService.cleanFeatureUpdate(userId);
+    }
+
+    /**
      * 批量导入人脸库，不更新
      *
      * @param list
@@ -130,5 +142,15 @@ public class FaceStrageService {
     public MessageVO getPhotoScore(String photo) {
         FaceService faceService = map.get(getFaceTypeDb());
         return faceService.getPhotoScore(photo);
+    }
+
+    public MessageVO startDetectionVideo(String url) {
+        FaceService faceService = map.get(getFaceTypeDb());
+        return faceService.startDetectionVideo(url);
+    }
+
+    public MessageVO stopDetectionVideo(String url) {
+        FaceService faceService = map.get(getFaceTypeDb());
+        return faceService.stopDetectionVideo(url);
     }
 }
