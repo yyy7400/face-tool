@@ -75,6 +75,7 @@ public class PythonApiServiceImpl implements PythonApiService {
             json.put("photo_type", photoType);
             json.put("photo", photo);
 
+
             String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
 
             // 解析首层

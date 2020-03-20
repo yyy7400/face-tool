@@ -95,13 +95,13 @@ public class FaceController {
         return Response.show(FaceStrageService.recoImageRoom(o.getType(), o.getPhoto(), o.getUserIds()));
     }
 
-    //开始人脸检测视频流（无感考勤） untest
+    //开始人脸检测视频流（无感考勤） tested
     @RequestMapping(value = "/face/startDetectionVideo", method = RequestMethod.GET)
     public Response startDetectionVideo(String url) {
         return Response.show(FaceStrageService.startDetectionVideo(url));
     }
 
-    //关闭人脸检测视频流（无感考勤）
+    //关闭人脸检测视频流（无感考勤）tested
     @Deprecated
     @RequestMapping(value = "/face/stopDetectionVideo", method = RequestMethod.GET)
     public Response stopDetectionVideo(String url) {
