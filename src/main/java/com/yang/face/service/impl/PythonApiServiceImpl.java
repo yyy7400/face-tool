@@ -6,29 +6,26 @@ import com.alibaba.fastjson.JSONObject;
 import com.yang.face.client.ClientManager;
 import com.yang.face.constant.Constants;
 import com.yang.face.constant.Properties;
-import com.yang.face.constant.enums.ClientTypeEnum;
 import com.yang.face.entity.middle.*;
-import com.yang.face.entity.show.MessageVO;
 import com.yang.face.service.PythonApiService;
 import com.yang.face.service.UserInfoService;
-import com.yang.face.util.DateTimeUtil;
 import com.yang.face.util.FileUtil;
 import com.yang.face.util.HttpClientUtil;
 import com.yang.face.util.PathUtil;
-import lombok.AllArgsConstructor;
 import org.apache.http.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -369,12 +366,12 @@ public class PythonApiServiceImpl implements PythonApiService {
             JSONObject JsonData = jsonObject.getJSONObject("data");
             List<String> videoUrls = JSONArray.parseArray(JsonData.getJSONArray("videoUrl").toJSONString(), String.class);
             List<String> rtmpvideoUrls = JSONArray.parseArray(JsonData.getJSONArray("rtmpvideoUrl").toJSONString(), String.class);
-            if(videoUrls.isEmpty() || rtmpvideoUrls.isEmpty() || videoUrls.size() != rtmpvideoUrls.size()) {
+            if (videoUrls.isEmpty() || rtmpvideoUrls.isEmpty() || videoUrls.size() != rtmpvideoUrls.size()) {
                 return map;
             }
 
-            for(int i = 0; i < rtmpvideoUrls.size(); i++) {
-                map.put(videoUrls.get(i),rtmpvideoUrls.get(i));
+            for (int i = 0; i < rtmpvideoUrls.size(); i++) {
+                map.put(videoUrls.get(i), rtmpvideoUrls.get(i));
             }
 
         } catch (Exception ex) {
@@ -550,6 +547,7 @@ public class PythonApiServiceImpl implements PythonApiService {
 
     /**
      * tested
+     *
      * @param photoType
      * @param photo
      * @param userIds
@@ -628,7 +626,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     }
 
     @Override
-    @CacheEvict(value = "featureFiles")
+    @CacheEvict(value = "featureFiles", allEntries = true)
     public void clearFeatureFiles() {
     }
 
@@ -652,8 +650,155 @@ public class PythonApiServiceImpl implements PythonApiService {
     }
 
 
+    /**********************************  学情分析相关接口  **********************************/
 
+    @Override
+    public Map<String, Boolean> actionRecognitionVideoStart(String addr, String rtspUrl) {
+        Map<String, Boolean> map = new ConcurrentHashMap<>();
 
+        try {
+            // 请求
+            String url = PathUtil.combine(addr, "/action_recognition_video_start");
+            JSONObject json = new JSONObject();
+            json.put("videoUrl", rtspUrl);
+            json.put("faceServerIp", "");
 
+            String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
+
+            // 解析首层
+            JSONObject jsonObject = JSONObject.parseObject(str);
+            Integer status = jsonObject.getInteger("status");
+            if (status != 0) {
+                return map;
+            }
+
+            // 解析数据层
+            JSONObject jsonData = jsonObject.getJSONObject("data");
+            Boolean state = jsonData.getBoolean("state");
+            String liveUrl = jsonData.getString("videoUrl");
+            map.put(liveUrl, state);
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+
+        return map;
+    }
+
+    @Override
+    public Boolean actionRecognitionVideoStop(String addr, String videoUrl) {
+        try {
+            if (videoUrl.isEmpty()) {
+                return false;
+            }
+
+            // 请求
+            JSONObject json = new JSONObject();
+            String url = PathUtil.combine(addr, "/action_recognition_video_close");
+            json.put("videoUrl", videoUrl);
+            String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
+
+            // 解析首层
+            JSONObject jsonObject = JSONObject.parseObject(str);
+            Integer status = jsonObject.getInteger("status");
+            if (status != 0) {
+                return false;
+            }
+
+            // 解析数据层
+            JSONObject jsonData = jsonObject.getJSONObject("data");
+            return jsonData.getBoolean("state");
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return false;
+        }
+    }
+
+    @Override
+    public Map<String, String> actionRecognitionVideoGetList(String addr) {
+        Map<String, String> map = new ConcurrentHashMap<>();
+
+        try {
+            // 请求
+            String url = PathUtil.combine(addr, "/action_recognition_video_get_list");
+            JSONObject json = new JSONObject();
+
+            String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
+
+            // 解析首层
+            JSONObject jsonObject = JSONObject.parseObject(str);
+            Integer status = jsonObject.getInteger("status");
+            if (status != 0) {
+                return map;
+            }
+
+            // 解析数据层
+            JSONObject JsonData = jsonObject.getJSONObject("data");
+            List<String> videoUrls = JSONArray.parseArray(JsonData.getJSONArray("videoUrl").toJSONString(), String.class);
+            List<String> rtmpvideoUrls = JSONArray.parseArray(JsonData.getJSONArray("rtmpvideoUrl").toJSONString(), String.class);
+            if (videoUrls.isEmpty() || rtmpvideoUrls.isEmpty() || videoUrls.size() != rtmpvideoUrls.size()) {
+                return map;
+            }
+
+            for (int i = 0; i < rtmpvideoUrls.size(); i++) {
+                map.put(videoUrls.get(i), rtmpvideoUrls.get(i));
+            }
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+        return map;
+
+    }
+
+    @Override
+    public List<ActionFaceRecognitionImage> actionFaceRecognitionImage(Integer type, String photo, String scheduleId, List<String> userIds) {
+
+        List<ActionFaceRecognitionImage> list = new ArrayList<>();
+
+        try {
+
+            List<UserIdFeatureFiles> userInfos = new ArrayList<>();
+            for (String userId : userIds) {
+                userInfos.add(new UserIdFeatureFiles(userId, ""));
+            }
+
+            // 请求
+            String url = PathUtil.combine(getAddrByPolling(), "/action_face_recognition_image");
+            JSONObject json = new JSONObject();
+            json.put("type", type);
+            json.put("photo", photo);
+            json.put("scheduleId", scheduleId);
+            json.put("userInfos", userInfos);
+
+            String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
+
+            // 解析首层
+            JSONObject jsonObject = JSONObject.parseObject(str);
+            Integer status = jsonObject.getInteger("status");
+            if (status != 0) {
+                return list;
+            }
+
+            // 解析数据层
+            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject o = jsonArray.getJSONObject(i);
+                String sId = o.getString("scheduleId");
+                String pId = o.getString("photo_id");
+                List<String> uIds = o.getJSONArray("userId").toJavaList(String.class);
+                List<String> ls = o.getJSONArray("action_label").toJavaList(String.class);
+                String p = o.getString("photo");
+
+                list.add(new ActionFaceRecognitionImage(sId, pId, uIds, ls, p));
+            }
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+
+        return list;
+    }
 
 }

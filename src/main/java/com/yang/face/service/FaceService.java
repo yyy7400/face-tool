@@ -1,5 +1,7 @@
 package com.yang.face.service;
 
+import com.yang.face.entity.middle.ActionFaceRecognitionImage;
+import com.yang.face.entity.middle.DetectionVideo;
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.FaceRecoShow;
 import com.yang.face.entity.show.ImportFeatureShow;
@@ -91,21 +93,49 @@ public interface FaceService {
      */
     MessageVO getPhotoScore(String photo);
 
+    /******************************* 智能考勤 *****************************/
     /**
      * 开启人脸检测直播视频流
-     * @param url
+     * @param rtspUrl
      * @return
      */
-    MessageVO startDetectionVideo(String url);
+    MessageVO startDetectionVideo(String rtspUrl);
 
     /**
      * 关闭人脸检测直播视频流
-     * @param url
+     * @param rtspUrl
      * @return
      */
-    MessageVO stopDetectionVideo(String url);
+    MessageVO stopDetectionVideo(String rtspUrl);
+
+    /******************************* 学情分析 *****************************/
+
+    /**
+     * 开启人体姿势检测直播视频流
+     * @param rtspUrl
+     * @return
+     */
+    MessageVO startDetectionVideoAction(String rtspUrl);
+
+    /**
+     * 关闭人体姿势检测直播视频流
+     * @param rtspUrl
+     * @return
+     */
+    MessageVO stopDetectionVideoAction(String rtspUrl);
+
+    /**
+     * 识别照片中的人体动作
+     * @param type
+     * @param photo
+     * @param scheduleId
+     * @param userIds
+     * @return
+     */
+    List<ActionFaceRecognitionImage> faceRecognitionImageAction(Integer type, String photo, String scheduleId, List<String> userIds);
 
 
+    /************************************************************/
 
     /**
      * 判断支持的图片格式
@@ -125,5 +155,6 @@ public interface FaceService {
 
         return state;
     }
+
 
 }

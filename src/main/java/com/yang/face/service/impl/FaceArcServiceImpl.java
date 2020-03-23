@@ -14,6 +14,7 @@ import com.yang.face.constant.enums.PhotoTypeEnum;
 import com.yang.face.constant.enums.UserTypeEnum;
 import com.yang.face.engine.FaceUserInfo;
 import com.yang.face.entity.db.UserInfo;
+import com.yang.face.entity.middle.ActionFaceRecognitionImage;
 import com.yang.face.entity.middle.ByteFile;
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.FaceRecoShow;
@@ -451,13 +452,28 @@ public class FaceArcServiceImpl implements FaceService {
     }
 
     @Override
-    public MessageVO startDetectionVideo(String url) {
+    public MessageVO startDetectionVideo(String rtspUrl) {
         return new MessageVO(false, "此版本不支持");
     }
 
     @Override
-    public MessageVO stopDetectionVideo(String url) {
+    public MessageVO stopDetectionVideo(String rtspUrl) {
         return new MessageVO(false, "此版本不支持");
+    }
+
+    @Override
+    public MessageVO startDetectionVideoAction(String rtspUrl) {
+        return new MessageVO(false, "此版本不支持");
+    }
+
+    @Override
+    public MessageVO stopDetectionVideoAction(String rtspUrl) {
+        return new MessageVO(false, "此版本不支持");
+    }
+
+    @Override
+    public List<ActionFaceRecognitionImage> faceRecognitionImageAction(Integer type, String photo, String scheduleId, List<String> userIds) {
+        return new ArrayList<>();
     }
 
 

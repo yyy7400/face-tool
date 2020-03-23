@@ -44,7 +44,7 @@ public class App extends SpringBootServletInitializer {
 //        LinkedHashMap linkedHashMap;
 //
 //        Executors excutors;
-        ThreadLocal threadLocal;
+//        ThreadLocal threadLocal;
 
 
     }

@@ -1,6 +1,7 @@
 package com.yang.face.service;
 
 import com.thoughtworks.xstream.core.ReferenceByIdUnmarshaller;
+import com.yang.face.entity.middle.ActionFaceRecognitionImage;
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.FaceRecoShow;
 import com.yang.face.entity.show.ImportFeatureShow;
@@ -21,7 +22,7 @@ import java.util.Map;
 @Service
 public class FaceStrageService {
 
-    Map<Integer, FaceService> map = new HashMap<>();
+    private Map<Integer, FaceService> map = new HashMap<>();
 
     @Resource
     SystemSettingService systemSettingService;
@@ -152,5 +153,20 @@ public class FaceStrageService {
     public MessageVO stopDetectionVideo(String url) {
         FaceService faceService = map.get(getFaceTypeDb());
         return faceService.stopDetectionVideo(url);
+    }
+
+    public MessageVO startDetectionVideoAction(String url) {
+        FaceService faceService = map.get(getFaceTypeDb());
+        return faceService.startDetectionVideoAction(url);
+    }
+
+    public MessageVO stopDetectionVideoAction(String url) {
+        FaceService faceService = map.get(getFaceTypeDb());
+        return faceService.stopDetectionVideoAction(url);
+    }
+
+    public List<ActionFaceRecognitionImage> faceRecognitionImageAction(Integer type, String photo, String scheduleId, List<String> userIds) {
+        FaceService faceService = map.get(getFaceTypeDb());
+        return faceService.faceRecognitionImageAction(type, photo, scheduleId, userIds);
     }
 }

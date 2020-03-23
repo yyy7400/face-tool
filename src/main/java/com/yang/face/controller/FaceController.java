@@ -2,6 +2,7 @@ package com.yang.face.controller;
 
 import com.yang.face.constant.enums.FaceFeatureTypeEnum;
 import com.yang.face.entity.db.SystemSetting;
+import com.yang.face.entity.post.FaceRecognitionImageActionPost;
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.post.RecoImageWithUserPost;
 import com.yang.face.entity.post.TypeAndPhotoPost;
@@ -106,6 +107,27 @@ public class FaceController {
     @RequestMapping(value = "/face/stopDetectionVideo", method = RequestMethod.GET)
     public Response stopDetectionVideo(String url) {
         return Response.show(FaceStrageService.stopDetectionVideo(url));
+    }
+
+
+    /****************   学情分析  ****************************/
+    //开始人体姿势检测视频流（学情分析）
+    @RequestMapping(value = "/face/startDetectionVideoAction", method = RequestMethod.GET)
+    public Response startDetectionVideoAction(String url) {
+        return Response.show(FaceStrageService.startDetectionVideoAction(url));
+    }
+
+    //关闭人体姿势检测视频流（学情分析）
+    @Deprecated
+    @RequestMapping(value = "/face/stopDetectionVideoAction", method = RequestMethod.GET)
+    public Response stopDetectionVideoAction(String url) {
+        return Response.show(FaceStrageService.stopDetectionVideoAction(url));
+    }
+
+    //关闭人体姿势检测视频流（学情分析）
+    @RequestMapping(value = "/face/faceRecognitionImageAction", method = RequestMethod.GET)
+    public Response faceRecognitionImageAction(@RequestBody FaceRecognitionImageActionPost o) {
+        return Response.show(FaceStrageService.faceRecognitionImageAction(o.getType(), o.getPhoto(), o.getScheduleId(), o.getUserIds()));
     }
 
 }

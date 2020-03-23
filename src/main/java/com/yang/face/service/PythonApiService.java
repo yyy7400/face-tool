@@ -1,5 +1,6 @@
 package com.yang.face.service;
 
+import com.yang.face.entity.middle.ActionFaceRecognitionImage;
 import com.yang.face.entity.middle.FaceRecognitionImage;
 import com.yang.face.entity.middle.FaceScoreImageMod;
 import com.yang.face.entity.middle.FeatureFileInfo;
@@ -123,6 +124,7 @@ public interface PythonApiService {
      *
      * @param files
      */
+    @Deprecated
     void noticeDownloadFeature(List<String> files);
 
     /**
@@ -137,5 +139,41 @@ public interface PythonApiService {
      */
     void clearFeatureFiles();
 
+    /**
+     * 轮询获取Python端地址
+     * @return
+     */
     String getAddrByPolling();
+
+
+    /**********************************  学情分析相关接口  **********************************/
+    /**
+     * 启动人体动作识别视频流
+     * @param addr
+     * @param rtspUrl
+     * @return
+     */
+    Map<String, Boolean> actionRecognitionVideoStart(String addr, String rtspUrl);
+
+    /**
+     * 关闭人体动作识别视频流
+     * @param addr
+     * @return
+     */
+    Boolean actionRecognitionVideoStop(String addr, String videoUrl);
+
+    /**
+     * 获取人体动作识别视频流列表
+     * @param addr
+     * @return
+     */
+    Map<String, String> actionRecognitionVideoGetList(String addr);
+
+    /**
+     * 人体动作识别与人脸识别的数据融合-图片
+     * 识别照片中的人体动作，融合人脸ID，最终给出返回结果。
+     * @return
+     */
+    List<ActionFaceRecognitionImage> actionFaceRecognitionImage(Integer type, String photo, String scheduleId, List<String> userIds);
+
 }
