@@ -49,7 +49,6 @@ public class SysResourceTask implements CommandLineRunner {
         dirs.add(Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE);
         dirs.add(Properties.SERVER_RESOURCE + Constants.Dir.TEMP);
         dirs.add(Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_YUN);
-        dirs.add(Properties.SERVER_RESOURCE + Constants.Dir.CLASS);
 
         for (String str : dirs) {
             File file = new File(str);
@@ -103,7 +102,5 @@ public class SysResourceTask implements CommandLineRunner {
         createFolder();
         //clearPythonFeatureFile();
         timerTask.clearFeatrueImage();
-
-        //clearFeatrueImage();
     }
 }

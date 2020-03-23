@@ -204,6 +204,24 @@ public class FileUtil {
         return dir.delete();
     }
 
+    //递归删除目录下的所有文件及子目录下所有文件
+    public static boolean deleteSubFileAndFolder(String path) {
+
+        File dir = new File(path);
+
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            //递归删除目录中的子目录下
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     // 删除某目录下的文件
     public static boolean deleteFiles(File dir, List<String> fileNameWithoutExts) {
 

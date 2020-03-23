@@ -218,16 +218,16 @@ public class FacePythonServiceImpl implements FaceService {
             }
 
             // 移动到image/face中，压缩图片，最大不超过300*300, 应该加入线程池队列中多线程处理
-            IamgeUtil.getFaceIcon(photoUrl);
+            String[] imagesAbs = IamgeUtil.getFaceIconPlus(photoUrl);
 
             // 评分
-            String imageUrl = PathUtil.getUrl(photoUrl);
+            String imageUrl = PathUtil.getUrl(imagesAbs[0]);
             FaceScoreImageMod score = pythonApiService.faceScoreIamgeMod(PhotoTypeEnum.IMAGE.getKey(), imageUrl);
 
 
             if (score == null || !score.getState()) {
                 MessageVO msg = ScoreCopy2MessageVO(score);
-                ImportFeatureShow obj11 = new ImportFeatureShow(o.getUserId(), "", o.getType(), imageUrl, "", false,
+                ImportFeatureShow obj11 = new ImportFeatureShow(o.getUserId(), "", o.getType(), PathUtil.getUrl(imagesAbs[1]), "", false,
                         msg.getMsg());
                 res.add(obj11);
                 continue;
@@ -246,26 +246,26 @@ public class FacePythonServiceImpl implements FaceService {
             String featureFileLocal = FileUtil.downloadUrl(featureFile, Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE, userId);
 
             if (map.isEmpty()) {
-                ImportFeatureShow obj1 = new ImportFeatureShow(o.getUserId(), o.getUserId(), o.getType(), imageUrl, "", false,
+                ImportFeatureShow obj1 = new ImportFeatureShow(o.getUserId(), o.getUserId(), o.getType(), PathUtil.getUrl(imagesAbs[1]), "", false,
                         "特征提取失败");
                 res.add(obj1);
 
             } else {
                 String userName = userMap.containsKey(o.getUserId()) ? userMap.get(o.getUserId()).getUserName() : o.getUserId();
-                ImportFeatureShow obj1 = new ImportFeatureShow(o.getUserId(), userName, o.getType(), imageUrl, "", true, "");
+                ImportFeatureShow obj1 = new ImportFeatureShow(o.getUserId(), userName, o.getType(), PathUtil.getUrl(imagesAbs[1]), "", true, "");
                 res.add(obj1);
 
                 // 4.0 更新特征
                 if (!userMap.containsKey(o.getUserId())) {
                     usersAdd.add(new UserInfo(null, o.getUserId(), userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                            PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.OPENVINO.getKey(), new byte[0], PathUtil.getRelPath(featureFileLocal), score.getScore(), DateUtil.date(), DateUtil.date()));
+                            PathUtil.getRelPath(imagesAbs[1]), FaceFeatureTypeEnum.OPENVINO.getKey(), new byte[0], PathUtil.getRelPath(featureFileLocal), score.getScore(), DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
                     Example.Criteria criteria = example.createCriteria();
                     criteria.andEqualTo("userId", o.getUserId());
 
                     UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                            PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.OPENVINO.getKey(), null, PathUtil.getRelPath(featureFileLocal), score.getScore(), null, DateUtil.date());
+                            PathUtil.getRelPath(imagesAbs[1]), FaceFeatureTypeEnum.OPENVINO.getKey(), null, PathUtil.getRelPath(featureFileLocal), score.getScore(), null, DateUtil.date());
                     userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
 
@@ -400,10 +400,10 @@ public class FacePythonServiceImpl implements FaceService {
                 String photoUrl = user.getPhoto();
 
                 // 移动到image/face中，压缩图片，最大不超过300*300, 应该加入线程池队列中多线程处理
-                IamgeUtil.getFaceIcon(photoUrl);
+                String[] imagesAbs = IamgeUtil.getFaceIconPlus(photoUrl);
 
                 // 评分
-                String imageUrl = PathUtil.getUrl(photoUrl);
+                String imageUrl = PathUtil.getUrl(imagesAbs[0]);
                 // mq
                 FaceScoreImageMod score = pythonApiService.faceScoreIamgeMod(PhotoTypeEnum.IMAGE.getKey(), imageUrl);
 
@@ -426,7 +426,7 @@ public class FacePythonServiceImpl implements FaceService {
                 String featureFileLocal = FileUtil.downloadUrl(featureFile, Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE, userId);
 
                 if (map.isEmpty()) {
-                    ImportFeatureShow obj1 = new ImportFeatureShow(userId, userId, user.getType(), imageUrl, "", false,
+                    ImportFeatureShow obj1 = new ImportFeatureShow(userId, userId, user.getType(), PathUtil.getUrl(imagesAbs[1]), "", false,
                             "特征提取失败");
                     res.add(obj1);
 
@@ -438,14 +438,14 @@ public class FacePythonServiceImpl implements FaceService {
                     // 4.0 更新特征
                     if (!mapDB.containsKey(userId)) {
                         usersAdd.add(new UserInfo(null, userId, userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                                PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.OPENVINO.getKey(), new byte[0], PathUtil.getRelPath(featureFileLocal), score.getScore(), DateUtil.date(), DateUtil.date()));
+                                PathUtil.getRelPath(imagesAbs[1]), FaceFeatureTypeEnum.OPENVINO.getKey(), new byte[0], PathUtil.getRelPath(featureFileLocal), score.getScore(), DateUtil.date(), DateUtil.date()));
                     } else {
                         Example example = new Example(UserInfo.class);
                         Example.Criteria criteria = example.createCriteria();
                         criteria.andEqualTo("userId", userId);
 
                         UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                                PathUtil.getRelPath(imageUrl), FaceFeatureTypeEnum.OPENVINO.getKey(), null, PathUtil.getRelPath(featureFileLocal), score.getScore(), null, DateUtil.date());
+                                PathUtil.getRelPath(imagesAbs[1]), FaceFeatureTypeEnum.OPENVINO.getKey(), null, PathUtil.getRelPath(featureFileLocal), score.getScore(), null, DateUtil.date());
                         userInfoMapper.updateByExampleSelective(userInfo, example);
                     }
 

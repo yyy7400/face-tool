@@ -8,6 +8,7 @@ import com.github.pagehelper.PageInfo;
 import com.yang.face.constant.Constants;
 import com.yang.face.constant.Properties;
 import com.yang.face.constant.enums.*;
+import com.yang.face.entity.db.SystemSetting;
 import com.yang.face.entity.db.UserInfo;
 import com.yang.face.entity.post.ImportFeaturePost;
 import com.yang.face.entity.show.*;
@@ -91,7 +92,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         List<UserInfo> list = userInfoMapper.selectByExample(example);
         PageInfo<UserInfo> pageInfo = new PageInfo<>(list);
 
-        return new PageShow(pageInfo.getTotal(), pageInfo.getPages(), pageInfo.getList());
+        List<UserInfo> userInfos = new ArrayList<>();
+        userInfos.addAll(pageInfo.getList());
+        for (int i = 0; i < userInfos.size(); i++) {
+            userInfos.get(i).setPhotoUrl(PathUtil.getUrl(userInfos.get(i).getPhotoUrl()));
+            userInfos.get(i).setFaceFeatureByte(new byte[0]);
+        }
+
+        return new PageShow(pageInfo.getTotal(), pageInfo.getPages(), userInfos);
     }
 
 
@@ -99,7 +107,11 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public UserInfo selectByUserId(String userId) {
         //System.out.println("调用了db userId");
-        return userInfoMapper.selectOne(new UserInfo(userId));
+
+        UserInfo userInfo = userInfoMapper.selectOne(new UserInfo(userId));
+        userInfo.setPhotoUrl(PathUtil.getUrl(userInfo.getPhotoUrl()));
+        userInfo.setFaceFeatureByte(new byte[0]);
+        return userInfo;
     }
 
     @Override
@@ -107,7 +119,10 @@ public class UserInfoServiceImpl implements UserInfoService {
         Example example = new Example(UserInfo.class);
         example.createCriteria().andEqualTo("id", id);
 
-        return userInfoMapper.selectOneByExample(example);
+        UserInfo userInfo = userInfoMapper.selectOneByExample(example);
+        userInfo.setPhotoUrl(PathUtil.getUrl(userInfo.getPhotoUrl()));
+        userInfo.setFaceFeatureByte(new byte[0]);
+        return userInfo;
     }
 
     @Override

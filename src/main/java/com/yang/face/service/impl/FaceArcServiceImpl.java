@@ -208,9 +208,11 @@ public class FaceArcServiceImpl implements FaceService {
                 String userName = userMap.containsKey(o.getUserId()) ? userMap.get(o.getUserId()).getUserName() : o.getUserId();
                 // 2. 人脸特征获取
                 String filePath = Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE + byteFile.getFileName();
+                String fileIconPath = "";
+
                 byte[] bytes = faceEngineService.extractFaceFeature(imageInfo);
                 if (bytes == null) {
-                    res.add(new ImportFeatureShow(o.getUserId(), userName, o.getType(), "", "", false, "未检测到人脸"));
+                    res.add(new ImportFeatureShow(o.getUserId(), userName, o.getType(), PathUtil.getUrl(filePath), "", false, "未检测到人脸"));
                     continue;
                 } else {
 
@@ -218,13 +220,14 @@ public class FaceArcServiceImpl implements FaceService {
                     if (!NetUtil.byte2File(byteFile.getBytes(), filePath)) {
                         filePath = "";
                     }
-                    res.add(new ImportFeatureShow(o.getUserId(), userName, o.getType(), PathUtil.getUrl(filePath), PathUtil.getRelPath(filePath), true, ""));
+                    fileIconPath = IamgeUtil.getFaceIcon(filePath);
+                    res.add(new ImportFeatureShow(o.getUserId(), userName, o.getType(), PathUtil.getUrl(fileIconPath), PathUtil.getRelPath(fileIconPath), true, ""));
                 }
 
                 // 4.0 更新特征
                 if (!userMap.containsKey(o.getUserId())) {
                     usersAdd.add(new UserInfo(null, o.getUserId(), userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 80, DateUtil.date(), DateUtil.date()));
+                            PathUtil.getRelPath(fileIconPath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 80, DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
 
@@ -232,7 +235,7 @@ public class FaceArcServiceImpl implements FaceService {
                     criteria.andEqualTo("userId", o.getUserId());
 
                     UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, 80, null, DateUtil.date());
+                            PathUtil.getRelPath(fileIconPath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, 80, null, DateUtil.date());
                     userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
             }
@@ -361,9 +364,11 @@ public class FaceArcServiceImpl implements FaceService {
                 String userName = mapDB.containsKey(user.getUserId()) ? mapDB.get(user.getUserId()).getUserName() : user.getUserId();
                 // 2. 人脸特征获取
                 String filePath = Properties.SERVER_RESOURCE + Constants.Dir.IMAGE_FACE + byteFile.getFileName();
+                String fileIconPath = "";
+
                 byte[] bytes = faceEngineService.extractFaceFeature(imageInfo);
                 if (bytes == null) {
-                    res.add(new ImportFeatureShow(user.getUserId(), userName, user.getType(), "", "", false, "未检测到人脸"));
+                    res.add(new ImportFeatureShow(user.getUserId(), userName, user.getType(), PathUtil.getUrl(filePath), "", false, "未检测到人脸"));
                     continue;
                 } else {
 
@@ -371,13 +376,14 @@ public class FaceArcServiceImpl implements FaceService {
                     if (!NetUtil.byte2File(byteFile.getBytes(), filePath)) {
                         filePath = "";
                     }
-                    res.add(new ImportFeatureShow(user.getUserId(), userName, user.getType(), PathUtil.getUrl(filePath), PathUtil.getRelPath(filePath), true, ""));
+                    fileIconPath = IamgeUtil.getFaceIcon(filePath);
+                    res.add(new ImportFeatureShow(user.getUserId(), userName, user.getType(), PathUtil.getUrl(fileIconPath), PathUtil.getRelPath(fileIconPath), true, ""));
                 }
 
                 // 4.0 更新特征
                 if (!mapDB.containsKey(user.getUserId())) {
                     usersAdd.add(new UserInfo(null, user.getUserId(), userName, UserTypeEnum.OTHER.getKey(), 0, "", "", "", "", "", "",
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 80, DateUtil.date(), DateUtil.date()));
+                            PathUtil.getRelPath(fileIconPath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, "", 80, DateUtil.date(), DateUtil.date()));
                 } else {
                     Example example = new Example(UserInfo.class);
 
@@ -385,7 +391,7 @@ public class FaceArcServiceImpl implements FaceService {
                     criteria.andEqualTo("userId", user.getUserId());
 
                     UserInfo userInfo = new UserInfo(null, null, null, null, null, null, null, null, null, null, null,
-                            PathUtil.getRelPath(filePath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, 80, null, DateUtil.date());
+                            PathUtil.getRelPath(fileIconPath), FaceFeatureTypeEnum.ARC_SOFT.getKey(), bytes, null, 80, null, DateUtil.date());
                     userInfoMapper.updateByExampleSelective(userInfo, example);
                 }
 

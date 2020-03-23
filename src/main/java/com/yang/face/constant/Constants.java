@@ -20,11 +20,9 @@ public class Constants {
      */
     public class Dir {
 
-        public static final String CLASS = "class/";
+        public static final String IMAGE_YUN = "image/yun/";
 
-        public static final String IMAGE_YUN = "image/Yun/";
-
-        public static final String IMAGE_FACE = "image/Face/";
+        public static final String IMAGE_FACE = "image/face/";
 
         public static final String UPLOAD = "upload/";
 

@@ -5,6 +5,7 @@ import com.yang.face.constant.Constants;
 import com.yang.face.constant.Properties;
 import com.yang.face.entity.db.UserInfo;
 import com.yang.face.mapper.UserInfoMapper;
+import com.yang.face.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -27,6 +28,9 @@ public class TimerTask {
     @Resource
     private UserInfoMapper userInfoMapper;
 
+    /**
+     * 每天 00:20 执行
+     */
     @Scheduled(cron = "0 20 0 * * ?")
     public void clearFeatrueImage() {
 
@@ -52,7 +56,21 @@ public class TimerTask {
                 f.delete();
             }
         }
+    }
 
+    /**
+     * 从1号开始，每两天的 00:50 执行
+     */
+    @Scheduled(cron = "0 50 0 1/2 * ?")
+    public void clearUselessFile() {
+
+        List<String> list = new ArrayList<>();
+        list.add(Properties.SERVER_RESOURCE + Constants.Dir.TEMP);
+        list.add(Properties.SERVER_RESOURCE + Constants.Dir.UPLOAD);
+
+        for (String str : list) {
+            FileUtil.deleteSubFileAndFolder(str);
+        }
     }
 
     // 从0秒开始，每秒检测一次, 10s 过期
