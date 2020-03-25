@@ -35,9 +35,4 @@
         </eh:expiry>
     </eh:cache>
 
-    <eh:cache alias="shop_service" uses-template="default">
-        <eh:expiry>
-            <eh:ttl unit="hours">24</eh:ttl>
-        </eh:expiry>
-    </eh:cache>
 </eh:config>

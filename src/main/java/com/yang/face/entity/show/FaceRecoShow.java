@@ -1,6 +1,8 @@
 package com.yang.face.entity.show;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -8,6 +10,8 @@ import java.io.Serializable;
  * @author yangyuyang
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class FaceRecoShow implements Serializable {
 
     private static final long serialVersionUID = 4936042355799873954L;
@@ -18,9 +22,6 @@ public class FaceRecoShow implements Serializable {
 
     private String headPhoto;
 
-    public FaceRecoShow(String userId, Integer similarityScore, String photoUrl) {
-        this.userId = userId;
-        this.similarityScore = similarityScore;
-        this.headPhoto = photoUrl;
-    }
+    private Boolean state;
+
 }

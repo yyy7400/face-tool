@@ -124,8 +124,8 @@ public class FaceController {
         return Response.show(FaceStrageService.stopDetectionVideoAction(url));
     }
 
-    //关闭人体姿势检测视频流（学情分析）
-    @RequestMapping(value = "/face/faceRecognitionImageAction", method = RequestMethod.GET)
+    //人体姿势识别分析（学情分析）
+    @RequestMapping(value = "/face/faceRecognitionImageAction", method = RequestMethod.POST)
     public Response faceRecognitionImageAction(@RequestBody FaceRecognitionImageActionPost o) {
         return Response.show(FaceStrageService.faceRecognitionImageAction(o.getType(), o.getPhoto(), o.getScheduleId(), o.getUserIds()));
     }

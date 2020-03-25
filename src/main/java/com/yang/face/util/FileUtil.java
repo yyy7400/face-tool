@@ -208,6 +208,9 @@ public class FileUtil {
     public static boolean deleteSubFileAndFolder(String path) {
 
         File dir = new File(path);
+        if(!dir.exists()) {
+            return false;
+        }
 
         if (dir.isDirectory()) {
             String[] children = dir.list();

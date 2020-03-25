@@ -5,12 +5,13 @@ import com.yang.face.entity.show.Response;
 import com.yang.face.service.ProxyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author yangyuyang
  * @date 2020/3/19 14:29
  */
-
+@RestController
 public class LoginController {
 
     @Autowired

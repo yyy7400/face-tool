@@ -343,6 +343,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         userInfoMapper.turncateTable();
         boolean state = updateYunUserInfo();
+
+        FileUtil.deleteSubFileAndFolder(Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE);
         faceStrageService.updateFeatures();
 
         return state ? new MessageVO(MessageEnum.SUCCESS)

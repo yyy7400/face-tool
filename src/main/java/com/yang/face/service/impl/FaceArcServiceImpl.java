@@ -120,7 +120,7 @@ public class FaceArcServiceImpl implements FaceService {
             List<FaceUserInfo> faces = faceEngineService.compareFaceFeature(bytes, userInfoList);
 
             for (FaceUserInfo o : faces) {
-                list.add(new FaceRecoShow(o.getUserId(), o.getSimilarityScore(), PathUtil.getUrl(o.getPhotoUrl())));
+                list.add(new FaceRecoShow(o.getUserId(), o.getSimilarityScore(), PathUtil.getUrl(o.getPhotoUrl()), true ));
             }
         } catch (Exception e) {
             logger.error("", e);
@@ -137,7 +137,6 @@ public class FaceArcServiceImpl implements FaceService {
      */
     @Override
     public MessageVO cleanFeature(List<String> userIds) {
-
 
         try {
             Example example = new Example(UserInfo.class);

@@ -207,9 +207,7 @@ public class PythonApiServiceImpl implements PythonApiService {
                     // 解析首层
                     JSONObject jsonObject = JSONObject.parseObject(str);
                     Integer status = jsonObject.getInteger("status");
-                    if (status == 0) {
-                        //logger.info("{} 同步成功。", addr);
-                    } else {
+                    if (status != 0) {
                         logger.info("{} 同步失败。", addr);
                     }
 
@@ -626,7 +624,7 @@ public class PythonApiServiceImpl implements PythonApiService {
     }
 
     @Override
-    @CacheEvict(value = "featureFiles", allEntries = true)
+    //@CacheEvict(value = "featureFiles", allEntries = true)
     public void clearFeatureFiles() {
     }
 
@@ -768,7 +766,7 @@ public class PythonApiServiceImpl implements PythonApiService {
             String url = PathUtil.combine(getAddrByPolling(), "/action_face_recognition_image");
             JSONObject json = new JSONObject();
             json.put("type", type);
-            json.put("photo", photo);
+            json.put("photo_type", photo);
             json.put("scheduleId", scheduleId);
             json.put("userInfos", userInfos);
 

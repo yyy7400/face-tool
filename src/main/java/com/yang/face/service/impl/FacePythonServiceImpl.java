@@ -73,7 +73,7 @@ public class FacePythonServiceImpl implements FaceService {
 
         List<FaceRecognitionImage> list = pythonApiService.faceRecognitionImage(type, photo, userIds);
         list.forEach(o ->
-                faces.add(new FaceRecoShow(o.getUserId(), resetSimilarityScore(o.getSimilarityScore()), o.getHeadPhoto()))
+                faces.add(new FaceRecoShow(o.getUserId(), resetSimilarityScore(o.getSimilarityScore()), o.getHeadPhoto(), o.getState()))
         );
 
         return faces;
@@ -90,8 +90,8 @@ public class FacePythonServiceImpl implements FaceService {
         }
 
         List<FaceRecognitionImage> list = pythonApiService.faceRecognitionImageEC(type, photo, userIds);
-        list.forEach(o ->
-                faces.add(new FaceRecoShow(o.getUserId(), resetSimilarityScore(o.getSimilarityScore()), o.getHeadPhoto()))
+        list.stream().filter(o -> o.getState()).forEach(o ->
+            faces.add(new FaceRecoShow(o.getUserId(), resetSimilarityScore(o.getSimilarityScore()), o.getHeadPhoto(), true))
         );
 
         return faces;
@@ -476,7 +476,7 @@ public class FacePythonServiceImpl implements FaceService {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        times.forEach(o -> System.out.println(o));
+
         return res;
     }
 
@@ -563,7 +563,7 @@ public class FacePythonServiceImpl implements FaceService {
             new Thread(() -> {
                 try {
                     Thread.sleep(100);
-                    pythonApiService.faceDetectionVideoClose(dtcVideos.get(index).getVideoUrlRtsp(), dtcVideos.get(index).getAddr());
+                    pythonApiService.faceDetectionVideoClose(rtspUrl, dtcVideos.get(index).getAddr());
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
                 }
@@ -598,12 +598,12 @@ public class FacePythonServiceImpl implements FaceService {
                     break;
                 } else {
                     vidoes.forEach((k, v) -> {
-                        pythonApiService.faceDetectionVideoClose(rtspUrl, addr);
+                        pythonApiService.actionRecognitionVideoStop(addr, rtspUrl);
                     });
                 }
 
                 // 重新开启新的视频直播流
-                Map<String, Boolean> map = pythonApiService.faceDetectionVideoStart(rtspUrl, dtcVideosAction.get(i).getAddr());
+                Map<String, Boolean> map = pythonApiService.actionRecognitionVideoStart(dtcVideosAction.get(i).getAddr(), rtspUrl);
                 String rtmpUrl = "";
                 Boolean state = false;
                 for (String k : map.keySet()) {
@@ -637,7 +637,7 @@ public class FacePythonServiceImpl implements FaceService {
             new Thread(() -> {
                 try {
                     Thread.sleep(100);
-                    pythonApiService.faceDetectionVideoClose(dtcVideos.get(index).getVideoUrlRtsp(), dtcVideos.get(index).getAddr());
+                    pythonApiService.actionRecognitionVideoStop( dtcVideosAction.get(index).getAddr(), rtspUrl);
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
                 }
