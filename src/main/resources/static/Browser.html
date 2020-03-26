@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>浏览器版本不支持</title>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" type="image/png" href="favicon.ico">
+    <link rel="icon" type="image/png" href="favicon.ico">
+</head>
+
+<body>
+    <div style="width: 641px; margin: 10% auto 0;">
+        <img src="Images/ie.png" alt="" />
+    </div>
+    <script>
+        function myBrowser() {
+            var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+            var isIE = userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1; //判断是否IE浏览器
+            if (isIE) {
+                var reIE = new RegExp("MSIE (\\d+\\.\\d+);");
+                reIE.test(userAgent);
+                var fIEVersion = parseFloat(RegExp["$1"]);
+                return fIEVersion;
+            }
+            return false;
+        }//myBrowser() end
+        //以下是调用上面的函数
+        // var isIE = myBrowser();
+        // if (!isIE || isIE >= 10) {
+        //     window.location.href = "/Adm/Index.aspx";
+        // }
+    </script>
+</body>
+
+</html>

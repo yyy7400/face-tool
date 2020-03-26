@@ -9,5 +9,5 @@ import lombok.Data;
 @Data
 public class UserIdAndPhotoPost {
     private String userId;
-    private String photo;
+    private String photoUrl;
 }

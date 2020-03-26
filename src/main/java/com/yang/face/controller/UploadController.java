@@ -44,7 +44,7 @@ public class UploadController {
         //String runtime = request.getParameter("runtime");
 
         if (type.equals(Constants.UploadType.IMAGE_FACE)) {
-            FileDir = Constants.Dir.IMAGE_FACE;
+            FileDir = Constants.Dir.UPLOAD;
         }
         else if (type.equals(Constants.UploadType.NORMAL_FILE)) {
             FileDir = Constants.Dir.UPLOAD;

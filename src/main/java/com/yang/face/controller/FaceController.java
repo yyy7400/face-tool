@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -93,7 +94,11 @@ public class FaceController {
     //教室内远距离人脸识别（无感考勤）
     @RequestMapping(value = "/face/recoImageWithUserRoom", method = RequestMethod.POST)
     public Response recoImageWithUserRoom(@RequestBody @Validated RecoImageWithUserPost o) {
-        return Response.show(FaceStrageService.recoImageRoom(o.getType(), o.getPhoto(), o.getUserIds()));
+        long t1 = new Date().getTime();
+            Object object = FaceStrageService.recoImageRoom(o.getType(), o.getPhoto(), o.getUserIds());
+        long t2 = new Date().getTime();
+        System.out.println("time:" + (t2 - t1));
+        return Response.show(object);
     }
 
     //开始人脸检测视频流（无感考勤） tested

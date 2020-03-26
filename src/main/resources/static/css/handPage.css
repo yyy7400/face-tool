@@ -1,0 +1,144 @@
+.hp_pre, .hp_page_n, .hp_pre_node, .hp_next_node, .hp_next, .hp_text, .hp_page_go, .hp_input {
+	display: block;
+	float: left;
+	box-sizing: border-box;
+	font-size: 14px;
+	font-family: "微软雅黑";
+	color: #333;
+}
+.hp_pre_node, .hp_next_node {
+	margin-right: 8px;
+	margin-left: -5px;
+	box-sizing: border-box;
+	font-family: "楷体";
+	color: #888;
+	letter-spacing: -0.6em;
+}
+.hp_pre, .hp_page_n, .hp_pre_node, .hp_next_node, .hp_next, .hp_text, .hp_page_go {
+	padding-top: 5px;
+}
+.hp_pre, .hp_page_n, .hp_next, .hp_page_go, .hp_input {
+	border: 1px solid #ccc;
+}
+.hp_pre:hover, .hp_page_n:hover, .hp_next:hover, .hp_page_go:hover, .hp_input:hover {
+	border-color: #0ea9f3;
+}
+.hp_pre, .hp_next {
+	width: 64px;
+}
+.hp_page_n, .hp_page_go {
+	width: 32px;
+}
+.hp_page_n, .hp_pre, .hp_next, .hp_page_go {
+	height: 32px;
+	text-align: center;
+	border-radius: 3px;
+	margin-right: 5px;
+	cursor: pointer;
+}
+.hp_input {
+	width: 46px;/*特殊修改*/
+	height: 32px;
+	margin: 0 3px;
+	text-align: center;
+}
+.hp_cur_page {
+	color: #fff;
+	background-color: #0ea9f3;
+	border-color: #0ea9f3;
+	cursor: default;
+}
+.hp_ban_btn, .hp_ban_btn:hover {
+	background-color: #CCCCCC!important;
+	color: #fff!important;
+	border-color: #CCCCCC!important;
+	cursor: default!important;
+}
+.hp_hide {
+	display: none!important;
+}
+/*type1*/
+.type1 .hp_pre, .type1 .hp_page_n, .type1 .hp_pre_node, .type1 .hp_next_node, .type1 .hp_next, .type1 .hp_text, .type1 .hp_page_go {
+	padding-top: 7px;
+}
+.type1 .hp_pre, .type1 .hp_next {
+	width: 81px;
+	height: 36px;
+}
+.type1 .hp_page_n, .type1 .hp_page_go,.type1 .hp_input{
+	width: 48px;
+	height: 36px;
+}
+.type1 .hp_page_n, .type1 .hp_pre, .type1 .hp_next {
+	margin-right: 8px;
+}
+.type1 .hp_pre_node, .type1 .hp_next_node {
+	margin-right: 12px;
+	margin-left: -6px;
+	font-size: 16px;
+}
+.type1 .hp_input {
+	margin: 0 5px;
+}
+.type1 .hp_pre:hover, .type1 .hp_page_n:hover, .type1 .hp_next:hover, .type1 .hp_page_go:hover, .type1 .hp_cur_page {
+	background-color: #f60;
+	border-color: #f60;
+	color: #fff;
+}
+.type1 .hp_input:hover {
+	border-color: #f60;
+}
+/*type2*/
+.type2 .hp_pre, .type2 .hp_page_n, .type2 .hp_next, .type2 .hp_text, .type2 .hp_page_go {
+	padding-top: 5px;
+	line-height: 12px;
+	border: 0;
+	font-family: "宋体";
+}
+.type2 .hp_page_go {
+	padding-top: 4px;
+}
+.type2 .hp_text {
+	font-size: 12px;
+	color: #888;
+}
+.type2 .hp_pre, .type2 .hp_next {
+	width: 20px;
+	height: 20px;
+	background-color: #09f;
+	color: #fff;
+}
+.type2 .hp_page_n, .type2 .hp_page_go {
+	width: 20px;
+	height: 20px;
+}
+.type2 .hp_input {
+	width: 32px;
+	height: 20px;
+}
+.type2 .hp_page_n, .type2 .hp_pre, .type2 .hp_next {
+	margin-right: 3px;
+}
+.type2 .hp_page_go {
+	width: 25px;
+	background: #09f;
+	color: #fff;
+	font-family: "微软雅黑";
+	font-size: 12px;
+}
+.type2 .hp_input {
+	margin: 0 5px;
+}
+.type2 .hp_page_n:hover, .type2 .hp_cur_page {
+	background-color: #fff;
+	border-color: #fff;
+	color: #f00;
+	font-weight: bold;
+}
+.type2 .hp_pre:hover, .type2 .hp_next:hover, .type2 .hp_page_go:hover {
+	background-color: #f60;
+}
+.type2 .hp_input:hover, .type2 .hp_input:active, .type2 .hp_input:focus {
+	 	border-color: #f60;
+	 	background-color: #fff;
+}

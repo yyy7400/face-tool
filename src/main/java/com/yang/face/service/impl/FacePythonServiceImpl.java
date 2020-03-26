@@ -497,7 +497,7 @@ public class FacePythonServiceImpl implements FaceService {
     @Override
     public MessageVO getPhotoScore(String photo) {
 
-        photo = getPhoto(PhotoTypeEnum.IMAGE.getKey(), photo);
+        photo = getPhoto(PhotoTypeEnum.IMAGE.getKey(), PathUtil.getUrl(photo));
         FaceScoreImageMod faceScoreImageMod = pythonApiService.faceScoreIamgeMod(PhotoTypeEnum.IMAGE.getKey(), photo);
         return ScoreCopy2MessageVO(faceScoreImageMod);
     }

@@ -204,6 +204,7 @@ string ,用户信息和登录状态，具体如何解析可参考之前的前端
 ### 参数
 
 ```
+- groupId，string，教师分组id，空为全部
 - classId，string，班级id，空为全部
 - gradeId，string，年级id,空为全部
 - userType, Integer, 用户类型，-1为全部，0管理员，1教师，2学生，99其他
@@ -393,8 +394,7 @@ string ,用户信息和登录状态，具体如何解析可参考之前的前端
 
 ### 参数
 ```
-- state，bool，是否操作成功
-- msg，String，操作信息，成功是放回分数
+- photoUrl，图片路劲
 ```
 
 ### 输出
@@ -469,7 +469,7 @@ string ,用户信息和登录状态，具体如何解析可参考之前的前端
 ### 2.12 从基础云平台获取年级信息
 
 ### 地址
-	GET  /userInfo/getSchoolInfo
+	GET  /userInfo/getGradeInfo
 
 ### 参数
 ```
@@ -488,7 +488,7 @@ string ,用户信息和登录状态，具体如何解析可参考之前的前端
 ### 2.13 从基础云平台获取班级信息
 
 ### 地址
-	GET  /userInfo/getGradeInfo
+	GET  /userInfo/getClassInfo
 
 ### 参数
 ```
@@ -522,3 +522,4 @@ string ,用户信息和登录状态，具体如何解析可参考之前的前端
 - groupName，string
 - schoolId，string
 ```
+

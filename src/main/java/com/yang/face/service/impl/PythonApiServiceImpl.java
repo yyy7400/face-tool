@@ -574,7 +574,11 @@ public class PythonApiServiceImpl implements PythonApiService {
             json.put("photo", photo);
             json.put("userInfos", userInfos);
 
+            long t1 = new Date().getTime();
             String str = HttpClientUtil.httpPostStr(json.toJSONString(), url);
+            long t2 = new Date().getTime();
+            System.out.println("timePython:" + (t2 - t1));
+
 
             // 解析首层
             JSONObject jsonObject = JSONObject.parseObject(str);

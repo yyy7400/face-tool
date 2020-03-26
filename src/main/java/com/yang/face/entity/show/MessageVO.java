@@ -22,7 +22,7 @@ public class MessageVO {
 
     public MessageVO(MessageEnum messageEnum, Integer num) {
         this.state = messageEnum.equals(MessageEnum.SUCCESS);
-        this.msg = messageEnum.getName() + ":" + num + "条数据";
+        this.msg = num.toString();
     }
 
     public MessageVO(MessageEnum messageEnum, String message) {
@@ -32,7 +32,7 @@ public class MessageVO {
 
     public MessageVO(Boolean state, Integer num) {
         this.state = state;
-        this.msg = state ? MessageEnum.SUCCESS.getName() : MessageEnum.FAIL.getName() + ":" + num + "条数据";
+        this.msg = num.toString();
     }
 
     public MessageVO(Boolean state, String message) {

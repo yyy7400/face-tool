@@ -2,6 +2,7 @@ package com.yang.face.controller;
 
 import com.yang.face.entity.post.UserIdAndPhotoPost;
 import com.yang.face.entity.post.UserIdAndTypePost;
+import com.yang.face.entity.show.MessageVO;
 import com.yang.face.entity.show.Response;
 import com.yang.face.service.FaceStrageService;
 import com.yang.face.service.UserInfoService;
@@ -85,25 +86,25 @@ public class UserInfoController {
      */
     @PostMapping("/userInfo/updatePhoto2")
     public Response updatePhoto2(@RequestBody UserIdAndPhotoPost o) {
-        return Response.show(userInfoService.updatePhoto(o.getUserId(), o.getPhoto()));
+        return Response.show(userInfoService.updatePhoto(o.getUserId(), o.getPhotoUrl()));
     }
 
     /**
      * 检测人脸分数, tested
-     * @param photo
+     * @param photoUrl
      * @return
      */
     @GetMapping("/userInfo/getPhotoScore")
-    public Response getPhotoScore(String photo) {
-        return Response.show(faceStrageService.getPhotoScore(photo));
+    public Response getPhotoScore(String photoUrl) {
+        return Response.show(faceStrageService.getPhotoScore(photoUrl));
     }
 
     /**
      * 批量更新人脸特征, tested
      * @return
      */
-    @GetMapping("/userInfo/importFeature")
-    public Response importFeature(String zipPath) {
+    @GetMapping("/userInfo/importFeatures")
+    public Response importFeatures(String zipPath) {
         return Response.show(faceStrageService.importFeatures(zipPath));
     }
 

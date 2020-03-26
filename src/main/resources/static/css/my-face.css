@@ -1,0 +1,173 @@
+#mCustomScrollbar_div {
+	padding-bottom: 70px;
+}
+.my_face_bg{
+	width: 100%;
+	height: 565px;
+	background-color: #023c7c;
+	background-image: url(../Images/my_face_bg.png);
+	background-size: cover;
+	background-position-x: center;
+	background-position-y: -72px;
+	background-repeat: no-repeat;
+    position: relative;
+}
+.my_face_container{
+	width: 1200px;
+	height: 565px;
+	margin: 0 auto;
+	background-color: transparent;
+	position: relative;
+    z-index: 1;
+}
+.my_face_photo_info{
+	position: absolute;
+	left: 630px;
+	top: 300px;
+	z-index: 1;
+}
+.my_face_photo_info p{
+	color: #474747;
+	font-size: 22px;
+	margin: 0 0 8px;
+}
+.my_face_photo_div{
+	width: 1018px;
+	height: 499px;
+	margin: 0 auto;
+	background-image: url(../Images/my_face_photo_bg.png);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	position: relative;
+	bottom: -104px;
+}
+.my_face_photo_block1{
+	position: absolute;
+	width: 254px;
+	height: 254px;
+	border-radius: 50%;
+	left: 151px;
+	top: 35px;
+}
+.my_face_photo_block2{
+	position: absolute;
+	width: 200px;
+	height: 200px;
+	border-radius: 50%;
+	right: 215px;
+	bottom: 95px;
+}
+.my_face_photo_btn_group{
+	position: relative;
+	height: 36px;
+	margin-top: 30px;
+}
+.sumit_btn{
+	width: 120px;
+	height: 36px;
+	display: block;
+	float: left;
+	font-size: 18px;
+	line-height: 36px;
+	text-align: center;
+	color: #FFFFFF;
+	border-radius: 4px;
+	background-image: url(../Images/sumit_appeal_btn.png);
+	background-size: cover;
+	cursor: pointer;
+	position: absolute;
+	left: 50%;
+	margin-left: -150px;
+}
+.sumit_btn:hover{
+	background-image: url(../Images/sumit_appeal_btn_hover.png);
+}
+.cancel_btn{
+	width: 120px;
+	height: 36px;
+	display: block;
+	float: left;
+	font-size: 18px;
+	line-height: 36px;
+	text-align: center;
+	color: #FFFFFF;
+	border-radius: 4px;
+	background-image: url(../Images/cancel_appeal_btn.png);
+	background-size: cover;
+	cursor: pointer;
+	position: absolute;
+	right: 50%;
+	margin-right: -150px;
+}
+.cancel_btn:hover{
+	background-image: url(../Images/cancel_appeal_btn_hover.png);
+}
+.my_face_operation_container{
+	background-color: #FFFFFF;
+	width: 1200px;
+	margin: 0 auto;
+	position: relative;
+}
+.my_face_operation_notice{
+	margin-left: 150px;
+}
+.my_face_operation_notice p{
+	margin: 0 0 8px;
+	font-size: 16px;
+}
+.my_face_operation_div{
+	position: absolute;
+	text-align: center;
+	display: block;
+	bottom: 120px;
+	left: 127px;
+}
+.my_face_operation_div a{
+	width: 141px;
+	height: 52px;
+	display: block;
+	border-radius: 25px;
+	margin-right: 20px;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	line-height: 36px;
+	color: #FFFFFF;
+	font-size: 16px;
+	text-decoration: none;
+	float: left;
+}
+.my_face_operation_div a:nth-child(2){
+	margin-right: 0px!important;
+}
+.my_face_operation_div .btn_color_1{
+	background-image: url(../Images/btn_color_1.png);
+}
+.my_face_operation_div .btn_color_1:hover{
+	background-image: url(../Images/btn_color_1_hover.png);
+}
+.my_face_operation_div .btn_no_color{
+	color: #1872ED;
+	background-image: url(../Images/btn_no_color.png);
+}
+.my_face_operation_div .btn_no_color:hover{
+	color: #FFFFFF;
+	background-image: url(../Images/btn_no_color_hover.png);
+}
+.my_face_operation_div input{
+	cursor: pointer!important;
+}
+canvas.particles-js-canvas-el{
+    width: 100%;
+    height: 669px;
+    position: absolute;
+    top: 0;
+}
+.kq_footer{
+	position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 99999;
+}

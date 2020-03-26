@@ -82,7 +82,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             criteria.andEqualTo("gradeId", gradeId);
         }
         if (!StringUtils.isEmpty(classId)) {
-            criteria.andEqualTo("groupId", classId);
+            criteria.andEqualTo("classId", classId);
         }
         if (!StringUtils.isEmpty(userName)) {
             criteria.andLike("userName", "%" + userName + "%");
@@ -341,13 +341,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public MessageVO resetUserInfo() {
 
+        int rowsCount = userInfoMapper.selectCount(null);
         userInfoMapper.turncateTable();
         boolean state = updateYunUserInfo();
 
         FileUtil.deleteSubFileAndFolder(Properties.SERVER_RESOURCE + Constants.Dir.FACE_FEATRUE);
         faceStrageService.updateFeatures();
 
-        return state ? new MessageVO(MessageEnum.SUCCESS)
+        return state ? new MessageVO(MessageEnum.SUCCESS, rowsCount)
                 : new MessageVO(MessageEnum.FAIL);
     }
 

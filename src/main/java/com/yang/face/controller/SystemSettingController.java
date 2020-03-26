@@ -1,5 +1,6 @@
 package com.yang.face.controller;
 
+import com.yang.face.client.ClientManager;
 import com.yang.face.constant.enums.FaceFeatureTypeEnum;
 import com.yang.face.entity.db.SystemSetting;
 import com.yang.face.entity.show.Response;
@@ -54,5 +55,10 @@ public class SystemSettingController {
         SystemSetting systemSetting = new SystemSetting();
         systemSetting.setFaceType(FaceFeatureTypeEnum.OPENVINO.getKey());
         return Response.show(systemSettingService.update(systemSetting));
+    }
+
+    @GetMapping("/systemSetting/pythonClients")
+    public Response pythonClients() {
+        return Response.show(ClientManager.getKeyPython());
     }
 }
